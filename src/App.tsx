@@ -7,7 +7,7 @@ import { lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-
+import UpdateChecker from "./components/UpdateChecker";
 import Maps from "./pages/Maps";  
 
 const Explore = lazy(() => import("./pages/Explore"));
@@ -31,6 +31,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <UpdateChecker />
         <AppShell>
           <Suspense fallback={<Loading />}>
             <Routes>
