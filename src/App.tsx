@@ -66,7 +66,7 @@ return(
     <div className="bg-card rounded-2xl p-6 max-w-md w-full shadow-xl">
 
       <h2 className="text-2xl font-bold mb-4">
-        🎉 Welcome to Sikkanam v1.0
+        🎉 Welcome to Sikkanam
       </h2>
 
       <div className="space-y-2 mb-6">
