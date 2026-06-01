@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import UpdateChecker from "./components/UpdateChecker";
 import Maps from "./pages/Maps";  
+import { useEffect, useState } from "react";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -16,7 +17,6 @@ const AIPlanner = lazy(() => import("./pages/AIPlanner"));
 const Booking = lazy(() => import("./pages/Booking"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TripPlanner = lazy(() => import("./pages/TripPlanner"));
-
 const queryClient = new QueryClient();
 
 const Loading = () => (
@@ -25,7 +25,19 @@ const Loading = () => (
   </div>
 );
 
-const App = () => (
+const App = () => {
+const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+useEffect(() => {
+  const currentVersion = "v1.0";
+
+  const seenVersion = localStorage.getItem("sikkanam-version");
+
+  if (seenVersion !== currentVersion) {
+    setShowUpdatePopup(true);
+  }
+}, []);
+return(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -49,7 +61,40 @@ const App = () => (
         </AppShell>
       </BrowserRouter>
     </TooltipProvider>
+    {showUpdatePopup && (
+  <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-4">
+    <div className="bg-card rounded-2xl p-6 max-w-md w-full shadow-xl">
+
+      <h2 className="text-2xl font-bold mb-4">
+        🎉 Welcome to Sikkanam v1.0
+      </h2>
+
+      <div className="space-y-2 mb-6">
+        <p>✅ Railway Journey Assistant</p>
+        <p>✅ Better Hotel Recommendations</p>
+        <p>✅ Improved Route Planning</p>
+        <p>✅ Maps Integration</p>
+        <p>✅ WhatsApp Sharing</p>
+      </div>
+
+      <button
+        onClick={() => {
+          localStorage.setItem(
+            "sikkanam-version",
+            "v1.0"
+          );
+
+          window.location.reload();
+        }}
+        className="w-full rounded-xl bg-primary text-primary-foreground py-3"
+      >
+        🚀 Refresh & Start Exploring
+      </button>
+
+    </div>
+  </div>
+)}
   </QueryClientProvider>
 );
-
+};
 export default App;
