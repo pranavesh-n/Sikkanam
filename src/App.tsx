@@ -29,7 +29,7 @@ const App = () => {
 const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
 useEffect(() => {
-  const currentVersion = "v1.0";
+  const currentVersion = "v1.1";
 
   const seenVersion = localStorage.getItem("sikkanam-version");
 
