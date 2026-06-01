@@ -1,5 +1,5 @@
 import { useState, forwardRef } from "react";
-import { destinations } from "@/data/destinations";
+import { tnDestinations } from "@/data/tnDestinations";
 import { type TripInput, type TravelStyle } from "@/lib/tripPlanner";
 import { MapPin, Users, Calendar, Wallet, Compass } from "lucide-react";
 
@@ -16,7 +16,7 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
   const [budget, setBudget] = useState(5000);
   const [error, setError] = useState("");
 
-  const sortedDestinations = [...destinations].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedDestinations = [...tnDestinations].sort((a, b) => a.name.localeCompare(b.name));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,9 +61,11 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
                 className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               >
                 <option value="">Select source</option>
-                {sortedDestinations.map(d => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
+                {sortedDestinations.map((d) => (
+  <option key={d.id} value={d.id}>
+    {d.name}
+  </option>
+))}
               </select>
             </div>
             <div>
@@ -76,9 +78,13 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
                 className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
               >
                 <option value="">Select destination</option>
-                {sortedDestinations.filter(d => d.id !== source).map(d => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
+                {sortedDestinations
+  .filter((d) => d.id !== source)
+  .map((d) => (
+    <option key={d.id} value={d.id}>
+      {d.name}
+    </option>
+))}
               </select>
             </div>
           </div>

@@ -1,5 +1,11 @@
-import { getDistance, getDestinationById, type Hotel, type Destination } from "@/data/destinations";
-
+import { getNearbyHotels } from "@/services/hotelservice";
+import {
+  getDistance,
+  getDestinationById,
+  type TNDestination,
+  type Hotel
+} from "@/data/tnDestinations";
+import { HOTEL_RANGES } from "@/lib/hotelPrices";
 export type TravelStyle = "budget" | "standard" | "comfort";
 
 export interface TripInput {
@@ -14,14 +20,18 @@ export interface TripInput {
 export interface RouteLeg {
   from: string;
   to: string;
+
+  fromStation?: string;
+  toStation?: string;
+
   mode: "bus" | "train" | "auto";
+
   distanceKm: number;
   costPerPerson: number;
   duration: string;
   frequency?: string;
   note?: string;
 }
-
 export interface BudgetBreakdown {
   transport: number;
   hotel: number;
@@ -55,7 +65,7 @@ export interface TripPlan {
   hotels: Hotel[];
   attractions: string[];
   itinerary: DayPlan[];
-  destination: Destination;
+  destination: TNDestination;
   tips: string[];
 }
 
@@ -74,6 +84,20 @@ type GatewayConfig = {
   frequency: string;
   note: string;
 };
+function getHotelMinPrice(hotel: Hotel) {
+  switch (hotel.priceCategory) {
+    case "budget":
+      return 800;
+    case "standard":
+      return 1500;
+    case "comfort":
+      return 3000;
+    case "premium":
+      return 5500;
+    default:
+      return 1500;
+  }
+}
 
 export const USE_BACKEND_API = false;
 
@@ -142,7 +166,7 @@ const FOOD_COST_PER_DAY: Record<TravelStyle, number> = {
   comfort: 550,
 };
 
-const LOCAL_COST_PER_DAY_BY_CATEGORY: Record<Destination["category"], number> = {
+const LOCAL_COST_PER_DAY_BY_CATEGORY: Record<TNDestination["category"], number> = {
   hill: 220,
   beach: 170,
   temple: 140,
@@ -216,13 +240,23 @@ function buildDirectBusRoute(from: string, to: string, distanceKm: number): Rout
         costPerPerson: getTransportCost(distanceKm, "bus"),
         duration: getTransportDuration(distanceKm, "bus"),
         frequency: getBusFrequency(distanceKm),
-        note: "Direct TNSTC/SETC bus option.",
+        note: "Direct bus connection.",
       },
     ],
   };
 }
 
-function buildDirectTrainRoute(from: string, to: string, distanceKm: number): RouteCandidate | null {
+function buildDirectTrainRoute(
+  sourceName: string,
+  destinationName: string,
+  sourceStation: string,
+  destinationStation: string,
+  distanceKm: number,
+  sourceHasRail: boolean,
+  destHasRail: boolean
+): RouteCandidate | null {
+  // Validate: only generate direct train if BOTH endpoints have rail access
+  if (!sourceHasRail || !destHasRail) return null;
   if (distanceKm < 140) return null;
 
   return {
@@ -231,14 +265,16 @@ function buildDirectTrainRoute(from: string, to: string, distanceKm: number): Ro
     preferredForComfort: true,
     legs: [
       {
-        from,
-        to,
+        from: sourceName,
+        to: destinationName,
+        fromStation: sourceStation,
+        toStation: destinationStation,
         mode: "train",
         distanceKm,
         costPerPerson: getTransportCost(distanceKm, "train"),
         duration: getTransportDuration(distanceKm, "train"),
         frequency: getTrainFrequency(distanceKm),
-        note: "Sleeper/general train estimate based on the cheapest practical route.",
+        note: "Sleeper train estimate based on the cheapest practical route.",
       },
     ],
   };
@@ -250,9 +286,16 @@ function buildGatewayRoute(
   totalDistance: number,
   gateway: GatewayConfig,
   primaryMode: "bus" | "train",
+  sourceStation?: string,
+  sourceHasRail?: boolean,
 ): RouteCandidate | null {
   const mainDistance = Math.max(50, totalDistance - gateway.lastMileKm);
-  if (primaryMode === "train" && mainDistance < 140) return null;
+  
+  // If using train as primary leg, validate source has rail access
+  if (primaryMode === "train") {
+    if (!sourceHasRail) return null;
+    if (mainDistance < 140) return null;
+  }
 
   const firstLegCost = getTransportCost(mainDistance, primaryMode);
   const lastMileCost = getTransportCost(gateway.lastMileKm, gateway.lastMileMode);
@@ -265,6 +308,8 @@ function buildGatewayRoute(
       {
         from: sourceName,
         to: gateway.hub,
+        fromStation: primaryMode === "train" ? sourceStation : undefined,
+        toStation: primaryMode === "train" ? gateway.hub : undefined,
         mode: primaryMode,
         distanceKm: mainDistance,
         costPerPerson: firstLegCost,
@@ -309,20 +354,34 @@ function pickBestRoute(options: RouteCandidate[], style: TravelStyle) {
 }
 
 function calculateRoute(source: string, destination: string, style: TravelStyle): RouteLeg[] {
-  const distance = getDistance(source, destination);
   const srcDest = getDestinationById(source);
   const dstDest = getDestinationById(destination);
+
   if (!srcDest || !dstDest) return [];
 
+  const distance = getDistance(
+    srcDest.lat,
+    srcDest.lng,
+    dstDest.lat,
+    dstDest.lng
+  );
   const gateway = DESTINATION_GATEWAYS[destination];
   const options: RouteCandidate[] = [buildDirectBusRoute(srcDest.name, dstDest.name, distance)];
 
-  const directTrain = buildDirectTrainRoute(srcDest.name, dstDest.name, distance);
+  const directTrain = buildDirectTrainRoute(
+    srcDest.name,
+    dstDest.name,
+    srcDest.nearestStation,
+    dstDest.nearestStation,
+    distance,
+    srcDest.hasRailAccess,
+    dstDest.hasRailAccess
+  );
   if (directTrain) options.push(directTrain);
 
   if (gateway) {
     const busViaGateway = buildGatewayRoute(srcDest.name, dstDest.name, distance, gateway, "bus");
-    const trainViaGateway = buildGatewayRoute(srcDest.name, dstDest.name, distance, gateway, "train");
+    const trainViaGateway = buildGatewayRoute(srcDest.name, dstDest.name, distance, gateway, "train", srcDest.nearestStation, srcDest.hasRailAccess);
     if (busViaGateway) options.push(busViaGateway);
     if (trainViaGateway) options.push(trainViaGateway);
   }
@@ -330,27 +389,44 @@ function calculateRoute(source: string, destination: string, style: TravelStyle)
   return pickBestRoute(options, style);
 }
 
-function filterHotels(dest: Destination, perNightBudget: number, style: TravelStyle): Hotel[] {
-  const withinBudget = dest.hotels.filter((hotel) => hotel.pricePerNight <= perNightBudget * 1.15);
+function filterHotels(dest: TNDestination, perNightBudget: number, style: TravelStyle): Hotel[] {
+  const withinBudget = dest.hotels.filter((hotel) => HOTEL_RANGES[hotel.priceCategory].min <= perNightBudget * 1.15);
   const preferredTier = withinBudget.filter((hotel) => hotel.tier === style);
-  const fallbackTier = withinBudget.length > 0 ? withinBudget : dest.hotels.filter((hotel) => hotel.pricePerNight <= perNightBudget * 1.4);
+  const fallbackTier =
+  withinBudget.length > 0
+    ? withinBudget
+    : dest.hotels.filter(
+        (hotel) =>
+          HOTEL_RANGES[hotel.priceCategory].min <=
+          perNightBudget * 1.4
+      );
 
   const pool = preferredTier.length > 0
     ? preferredTier
     : fallbackTier.length > 0
       ? fallbackTier
-      : [...dest.hotels].sort((a, b) => a.pricePerNight - b.pricePerNight);
-
+      : [...dest.hotels].sort(
+  (a, b) =>
+    HOTEL_RANGES[a.priceCategory].min -
+    HOTEL_RANGES[b.priceCategory].min
+);
   return [...pool]
     .sort((a, b) => {
-      if (a.pricePerNight !== b.pricePerNight) return a.pricePerNight - b.pricePerNight;
+      if (
+  HOTEL_RANGES[a.priceCategory].min !==
+  HOTEL_RANGES[b.priceCategory].min
+)
+  return (
+    HOTEL_RANGES[a.priceCategory].min -
+    HOTEL_RANGES[b.priceCategory].min
+  );
       return b.rating - a.rating;
     })
     .slice(0, 3);
 }
 
-function getMealsForCategory(category: Destination["category"], day: number) {
-  const mealsByCategory: Record<Destination["category"], string[]> = {
+function getMealsForCategory(category: TNDestination["category"], day: number) {
+  const mealsByCategory: Record<TNDestination["category"], string[]> = {
     hill: [
       "Tea stall breakfast, veg meals lunch, hot bajji + chai in the evening",
       "Idli or pongal breakfast, biryani lunch, roadside parotta dinner",
@@ -381,7 +457,7 @@ function getMealsForCategory(category: Destination["category"], day: number) {
   return options[day % options.length];
 }
 
-function generateItinerary(dest: Destination, days: number, perDayCost: number, route: RouteLeg[]): DayPlan[] {
+function generateItinerary(dest: TNDestination, days: number, perDayCost: number, route: RouteLeg[]): DayPlan[] {
   const attractions = [...dest.attractions];
   const attractionsPerDay = Math.max(1, Math.ceil(attractions.length / Math.max(days, 1)));
   const plans: DayPlan[] = [];
@@ -431,24 +507,35 @@ function generateItinerary(dest: Destination, days: number, perDayCost: number, 
   return plans;
 }
 
-export function generateTripPlan(input: TripInput): TripPlan {
+export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
   const dest = getDestinationById(input.destination);
   if (!dest) throw new Error("Invalid destination");
 
   const totalBudget = input.budget * input.travellers;
   const nights = Math.max(input.days - 1, 0);
-  const route = calculateRoute(input.source, input.destination, input.style);
+  const route = await calculateRoute(input.source, input.destination, input.style);
   const targets = getBudgetTargets(totalBudget);
 
   const roundTripPerPerson = route.reduce((sum, leg) => sum + leg.costPerPerson, 0) * 2;
   const transportEstimate = roundCurrency(Math.min(roundTripPerPerson * input.travellers, targets.transport));
 
-  const targetHotelBudget = nights > 0 ? targets.hotel : 0;
+ const targetHotelBudget = nights > 0 ? targets.hotel : 0;
   const rooms = nights > 0 ? Math.ceil(input.travellers / getRoomCapacity(input.style)) : 0;
   const hotelPerNight = nights > 0 && rooms > 0 ? roundCurrency(targetHotelBudget / nights / rooms) : 0;
-  const hotels = nights > 0 ? filterHotels(dest, hotelPerNight, input.style) : [];
-  const hotelEstimate = nights > 0 && hotels[0]
-    ? roundCurrency(Math.min(hotels[0].pricePerNight * rooms * nights, targetHotelBudget))
+  const hotels =
+   nights > 0
+     ? await getNearbyHotels(
+         dest.id,
+         dest.lat,
+         dest.lng
+       )
+     : [];
+
+  console.log(`[Hotel Audit] Destination: ${dest.name} | Lat: ${dest.lat} | Lng: ${dest.lng} | Nights: ${nights} | Loaded Hotels: ${hotels.length}`);
+
+ const hotelEstimate =
+  nights > 0
+    ? targetHotelBudget
     : 0;
 
   const foodPerPersonPerDay = FOOD_COST_PER_DAY[input.style] + (dest.category === "hill" || dest.category === "wildlife" ? 40 : 0);
@@ -521,11 +608,19 @@ export function generateShareText(plan: TripPlan): string {
     `💰 Budget: ₹${plan.budget.perPerson.toLocaleString("en-IN")}/person | Estimated total: ₹${plan.budget.estimatedTotal.toLocaleString("en-IN")}`,
     ``,
     `🚌 *Optimized Route:*`,
-    ...plan.route.map((leg) => `  ${leg.from} → ${leg.to} (${leg.mode}, ₹${leg.costPerPerson}, ${leg.duration})`),
+    ...plan.route.map((leg) => {
+      const fromDisplay = leg.mode === "train" ? (leg.fromStation ?? leg.from) : leg.from;
+      const toDisplay = leg.mode === "train" ? (leg.toStation ?? leg.to) : leg.to;
+      return `  ${fromDisplay} → ${toDisplay} (${leg.mode}, ₹${leg.costPerPerson}, ${leg.duration})`;
+    }),
     ``,
     plan.hotels.length > 0 ? `🏨 *Recommended Hotels:*` : `🏨 *Stay:*`,
     ...(plan.hotels.length > 0
-      ? plan.hotels.map((hotel) => `  ${hotel.name} - ₹${hotel.pricePerNight}/night ⭐${hotel.rating}`)
+      ? plan.hotels.map((hotel) => {
+          const category = hotel.priceCategory || "standard";
+          const range = HOTEL_RANGES[category];
+          return `  ${hotel.name} - ₹${range.min}-₹${range.max} ⭐${hotel.rating}`;
+        })
       : ["  Day trip option — no hotel needed"]),
     ``,
     `🗓️ *Itinerary:*`,

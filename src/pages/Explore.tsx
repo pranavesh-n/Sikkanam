@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { tnDestinations, type DestinationCategory } from "@/data/tnDestinations";
+import DestinationCard from "@/components/DestinationsCard";
 
 const cats: { value: DestinationCategory | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -48,7 +49,7 @@ const Explore = () => {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search 75+ destinations..."
+          placeholder="Search destinations..."
           className="w-full pl-9 pr-4 py-3 rounded-full bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
@@ -84,18 +85,12 @@ const Explore = () => {
 
       {/* Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-        {filtered.map(d => (
-          <Link
-            key={d.id}
-            to={`/destination/${d.id}`}
-            className="bg-card rounded-2xl border border-border p-3.5 active:scale-95 transition-transform shadow-card"
-          >
-            <span className="text-3xl block">{d.emoji}</span>
-            <p className="font-display font-bold text-sm mt-2 truncate">{d.name}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{d.district}</p>
-            <p className="text-[10px] text-primary mt-1.5 font-medium">{d.attractions.length} spots →</p>
-          </Link>
-        ))}
+        {filtered.map((d) => (
+  <DestinationCard
+    key={d.id}
+    place={d}
+  />
+))}
       </div>
 
       {filtered.length === 0 && (

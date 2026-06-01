@@ -3,7 +3,7 @@ import {
   TileLayer,
   Marker,
   Popup
-} from 'react-leaflet';
+} from "react-leaflet";
 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -38,9 +38,9 @@ export default function SikkanamMap({ destination }: Props) {
       }
       zoom={destination ? 11 : 7}
       style={{
-        height: 'calc(100vh - 80px)',   
-        width: '100%',
-        borderRadius: '20px'
+        height: "calc(100vh - 80px)",
+        width: "100%",
+        borderRadius: "20px",
       }}
     >
       <TileLayer

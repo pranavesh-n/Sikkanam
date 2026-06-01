@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import { getDestById, categoryLabels } from "@/data/tnDestinations";
+import { getDestinationById, categoryLabels } from "@/data/tnDestinations";
 import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight } from "lucide-react";
 
 const seasonByCat: Record<string, string> = {
@@ -24,7 +24,7 @@ const budgetByCat: Record<string, string> = {
 const DestinationDetail = () => {
   const { id } = useParams();
   const nav = useNavigate();
-  const dest = id ? getDestById(id) : undefined;
+  const dest = id ? getDestinationById(id) : undefined;
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
 

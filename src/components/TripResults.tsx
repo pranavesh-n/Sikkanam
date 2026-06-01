@@ -1,8 +1,9 @@
 import { forwardRef } from "react";
 import { type TripPlan, generateShareText } from "@/lib/tripPlanner";
-import { categoryLabels } from "@/data/destinations";
-import { Share2, Printer, Map, Train, Bus, Car, Star, Utensils, Building2, Navigation, AlertCircle, CheckCircle2 } from "lucide-react";
-
+import { categoryLabels, getDestinationById } from "@/data/tnDestinations";
+import { Share2, Printer, Map, Train, Bus, Car, Star, Utensils, Building2, Navigation, AlertCircle, CheckCircle2, ExternalLink } from "lucide-react";
+import { HOTEL_RANGES } from "@/lib/hotelPrices";
+import { generateTrainSearchUrl } from "@/lib/utils";
 interface TripResultsProps {
   plan: TripPlan;
 }
@@ -29,6 +30,26 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan }, ref)
   const destination = plan.destination.id;
   window.open(`/maps?destination=${destination}`, "_blank");
 };
+
+  const handleTrainSearch = () => {
+    const trainLegs = plan.route.filter(leg => leg.mode === "train");
+    if (trainLegs.length > 0) {
+      const firstTrainLeg = trainLegs[0];
+      const fromStation = firstTrainLeg.fromStation || firstTrainLeg.from;
+      const toStation = firstTrainLeg.toStation || firstTrainLeg.to;
+      const url = generateTrainSearchUrl(fromStation, toStation);
+      window.open(url, "_blank");
+    }
+  };
+
+  const getTrainSearchUrl = () => {
+    const srcDest = getDestinationById(plan.input.source);
+    const fromStation = srcDest?.nearestStation || plan.input.source;
+    const toStation = plan.destination.nearestStation || plan.destination.name;
+    return generateTrainSearchUrl(fromStation, toStation);
+  };
+
+  const hasTrainLegs = plan.route.some(leg => leg.mode === "train");
   const budgetItems = [
     { label: "Transport", value: plan.budget.transport, target: plan.budget.transportTarget, icon: <Navigation className="w-4 h-4" /> },
     { label: "Hotel share", value: plan.budget.hotel, target: plan.budget.hotelTarget, icon: <Building2 className="w-4 h-4" /> },
@@ -78,13 +99,69 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan }, ref)
                   {modeIcon(leg.mode)}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-foreground">{leg.from} → {leg.to}</p>
+                  <p className="font-medium text-foreground">
+                    {leg.mode === "train" && leg.fromStation && leg.toStation
+                      ? `${leg.fromStation} (${leg.from}) → ${leg.toStation} (${leg.to})`
+                      : `${leg.from} → ${leg.to}`}
+                  </p>
                   <p className="text-sm text-muted-foreground">{leg.mode.toUpperCase()} · {leg.distanceKm} km · {leg.duration}{leg.frequency ? ` · ${leg.frequency}` : ""}</p>
                   {leg.note && <p className="text-xs text-muted-foreground mt-1">{leg.note}</p>}
                 </div>
                 <span className="font-bold text-primary">₹{leg.costPerPerson}/pp</span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Suggested Railway Journey */}
+        <div className="bg-card rounded-2xl shadow-card p-6 mb-6 border border-border/40 hover:shadow-elevated transition-shadow duration-300 relative overflow-hidden">
+          <div className="absolute -right-16 -top-16 w-36 h-36 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -bottom-16 w-36 h-36 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
+          
+          <h3 className="font-display text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            Suggested Railway Journey
+          </h3>
+          
+          {plan.destination.hasRailAccess ? (
+            <div className="space-y-3">
+              <p className="text-emerald-600 dark:text-emerald-400 font-bold text-lg">
+                🚆 Direct Train Available
+              </p>
+              
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Nearest station:</p>
+                <p className="font-display font-bold text-foreground text-lg">{plan.destination.nearestStation}</p>
+              </div>
+              
+              <p className="text-sm text-muted-foreground">
+                You can directly search trains to this station.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-amber-600 dark:text-amber-400 font-bold text-lg">
+                🚆 Train to {plan.destination.nearestStation}
+              </p>
+              
+              <p className="text-sm text-foreground">
+                This destination does not have direct railway access.
+              </p>
+              
+              <p className="text-sm text-muted-foreground">
+                Travel by train to <span className="font-semibold text-foreground">{plan.destination.nearestStation}</span> and continue by bus or taxi.
+              </p>
+            </div>
+          )}
+          
+          <div className="mt-5 pt-4 border-t border-border/60">
+            <button
+              onClick={() => window.open(getTrainSearchUrl(), "_blank")}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-all hover:shadow-md hover:-translate-y-0.5 duration-200"
+            >
+              <Train className="w-4 h-4" />
+              <span>🚆 Check Available Trains</span>
+              <ExternalLink className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -151,31 +228,66 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan }, ref)
         {/* Hotels */}
         <div className="bg-card rounded-2xl shadow-card p-6 mb-6">
           <h3 className="font-display text-xl font-bold text-foreground mb-4">🏨 Recommended Hotels</h3>
-          {plan.hotels.length === 0 ? (
-            <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
-              This looks like a day-trip style plan, so Sikkanam skips hotel recommendations to keep the budget efficient.
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {plan.hotels.map((hotel, i) => (
-              <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:shadow-card transition-shadow">
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-muted-foreground" />
+          {(() => {
+            const nights = Math.max(plan.input.days - 1, 0);
+            if (nights === 0) {
+              return (
+                <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
+                  Day trip detected. No hotel stay required.
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground truncate">{hotel.name}</p>
-                  <p className="text-sm text-muted-foreground">{hotel.distanceKm} km from centre · {hotel.tier} · target-friendly {hotel.pricePerNight <= plan.budget.hotelPerNight * 1.15 ? "yes" : "stretch"}</p>
+              );
+            }
+            if (plan.hotels.length === 0) {
+              return (
+                <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
+                  No nearby hotels were found for this destination. Accommodation budget estimates are still included.
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="font-bold text-primary">₹{hotel.pricePerNight}/night</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 justify-end">
-                    <Star className="w-3 h-3 fill-primary text-primary" /> {hotel.rating}
-                  </p>
-                </div>
+              );
+            }
+            const bestHotels = plan.hotels.slice(0, 3);
+            return (
+              <div className="grid gap-3">
+                {bestHotels.map((hotel, i) => (
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-border hover:shadow-card transition-shadow">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                      <Building2 className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground truncate">{hotel.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {typeof hotel.distanceKm === 'number' ? (hotel.distanceKm === 0 ? 'At centre' : `${hotel.distanceKm} km from centre`) : 'Distance unknown'} · {hotel.tier} · {" "}
+                        {HOTEL_RANGES[hotel.priceCategory].min <= plan.budget.hotelPerNight * 1.15 ? (
+                          <span className="text-emerald-600 font-semibold dark:text-emerald-400">Fits Your Budget</span>
+                        ) : (
+                          <span className="text-amber-600 font-semibold dark:text-amber-400">Stretch Budget</span>
+                        )}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          <Star className="w-3 h-3 fill-primary text-primary inline mr-1" /> {hotel.rating}
+                        </span>
+                        <span className="text-xs font-semibold text-primary">
+                          ₹{HOTEL_RANGES[hotel.priceCategory].min}–₹{HOTEL_RANGES[hotel.priceCategory].max}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const query = hotel.name.includes("Search hotels")
+                            ? plan.destination.name
+                            : `${hotel.name}, ${plan.destination.name}`;
+                          window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(query)}`, "_blank");
+                        }}
+                        className="mt-2 text-xs flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium transition-colors"
+                      >
+                        💳 Check Live Price
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              ))}
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Attractions */}
