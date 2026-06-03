@@ -87,3 +87,18 @@ export function generateTrainSearchUrl(fromStation: string, toStation: string): 
   // RailYatri trains between stations query URL structure
   return `https://www.railyatri.in/booking/trains-between-stations?from_code=${fromCode}&from_name=${fromName}&to_code=${toCode}&to_name=${toName}&src=tbs`;
 }
+
+export function roundFriendly(value: number): number {
+  if (value <= 0) return 0;
+  
+  // Rules: Round to nearest 500, 250, or 100, whichever produces cleaner values.
+  const candidates = [500, 250, 100];
+  for (const step of candidates) {
+    const rounded = Math.round(value / step) * step;
+    // Allow up to 12% deviation to select a cleaner round number
+    if (rounded > 0 && Math.abs(rounded - value) / value <= 0.12) {
+      return rounded;
+    }
+  }
+  return Math.round(value / 100) * 100;
+}

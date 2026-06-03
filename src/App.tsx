@@ -7,9 +7,8 @@ import { lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-import UpdateChecker from "./components/UpdateChecker";
+
 import Maps from "./pages/Maps";  
-import { useEffect, useState } from "react";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -17,6 +16,7 @@ const AIPlanner = lazy(() => import("./pages/AIPlanner"));
 const Booking = lazy(() => import("./pages/Booking"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TripPlanner = lazy(() => import("./pages/TripPlanner"));
+
 const queryClient = new QueryClient();
 
 const Loading = () => (
@@ -25,6 +25,7 @@ const Loading = () => (
   </div>
 );
 
+<<<<<<< Updated upstream
 const App = () => {
 const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
@@ -38,12 +39,14 @@ useEffect(() => {
   }
 }, []);
 return(
+=======
+const App = () => (
+>>>>>>> Stashed changes
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <UpdateChecker />
         <AppShell>
           <Suspense fallback={<Loading />}>
             <Routes>
@@ -61,6 +64,7 @@ return(
         </AppShell>
       </BrowserRouter>
     </TooltipProvider>
+<<<<<<< Updated upstream
     {showUpdatePopup && (
   <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-4">
     <div className="bg-card rounded-2xl p-6 max-w-md w-full shadow-xl">
@@ -94,7 +98,9 @@ return(
     </div>
   </div>
 )}
+=======
+>>>>>>> Stashed changes
   </QueryClientProvider>
 );
-};
+
 export default App;

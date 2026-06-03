@@ -6,6 +6,8 @@ import {
   type Hotel
 } from "@/data/tnDestinations";
 import { HOTEL_RANGES } from "@/lib/hotelPrices";
+import { CATEGORY_PRICING } from "@/data/categoryPricing";
+import { roundFriendly } from "@/lib/utils";
 export type TravelStyle = "budget" | "standard" | "comfort";
 
 export interface TripInput {
@@ -37,6 +39,14 @@ export interface BudgetBreakdown {
   hotel: number;
   food: number;
   local: number;
+  transportMin: number;
+  transportMax: number;
+  hotelMin: number;
+  hotelMax: number;
+  foodMin: number;
+  foodMax: number;
+  localMin: number;
+  localMax: number;
   transportTarget: number;
   hotelTarget: number;
   foodTarget: number;
@@ -44,10 +54,20 @@ export interface BudgetBreakdown {
   total: number;
   perPerson: number;
   estimatedTotal: number;
+  estimatedMin: number;
+  estimatedMax: number;
   remaining: number;
   status: "within" | "over";
   hotelPerNight: number;
+  hotelPerNightMin: number;
+  hotelPerNightMax: number;
   rooms: number;
+  optionBudgetMin: number;
+  optionBudgetMax: number;
+  optionComfortMin: number;
+  optionComfortMax: number;
+  optionPremiumMin: number;
+  optionPremiumMax: number;
 }
 
 export interface DayPlan {
@@ -545,6 +565,75 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
   const localEstimate = roundCurrency(Math.min(localPerPersonPerDay * input.days * input.travellers, targets.local));
 
   const estimatedTotal = transportEstimate + hotelEstimate + foodEstimate + localEstimate;
+  
+  const pricing = CATEGORY_PRICING[dest.category] || CATEGORY_PRICING.city;
+
+  let hotelRange: [number, number];
+  if (input.style === "budget") {
+    hotelRange = pricing.hotelBudget;
+  } else if (input.style === "comfort") {
+    hotelRange = pricing.hotelPremium;
+  } else {
+    hotelRange = pricing.hotelStandard;
+  }
+
+  const transportMin = roundFriendly(Math.max(pricing.transport[0] * input.travellers, Math.round(transportEstimate * 0.85)));
+  const transportMax = roundFriendly(Math.max(pricing.transport[1] * input.travellers, Math.round(transportEstimate * 1.2)));
+
+  const hotelPerNightMin = nights > 0 ? roundFriendly(hotelRange[0]) : 0;
+  const hotelPerNightMax = nights > 0 ? roundFriendly(hotelRange[1]) : 0;
+
+  const hotelMin = nights > 0 ? roundFriendly(hotelPerNightMin * (rooms || 1) * nights) : 0;
+  const hotelMax = nights > 0 ? roundFriendly(hotelPerNightMax * (rooms || 1) * nights) : 0;
+
+  const foodMin = roundFriendly(pricing.food[0] * input.travellers * input.days);
+  const foodMax = roundFriendly(pricing.food[1] * input.travellers * input.days);
+
+  const localMin = roundFriendly(pricing.local[0] * input.travellers * input.days);
+  const localMax = roundFriendly(pricing.local[1] * input.travellers * input.days);
+
+  const estimatedMin = transportMin + hotelMin + foodMin + localMin;
+  const estimatedMax = transportMax + hotelMax + foodMax + localMax;
+
+  // 1. Budget Explorer Option
+  const optBudgetTransportMin = roundFriendly(pricing.transport[0] * input.travellers);
+  const optBudgetTransportMax = roundFriendly(pricing.transport[1] * input.travellers);
+  const optBudgetHotelMin = nights > 0 ? roundFriendly(pricing.hotelBudget[0] * (rooms || 1) * nights) : 0;
+  const optBudgetHotelMax = nights > 0 ? roundFriendly(pricing.hotelBudget[1] * (rooms || 1) * nights) : 0;
+  const optBudgetFoodMin = roundFriendly(300 * input.travellers * input.days);
+  const optBudgetFoodMax = roundFriendly(600 * input.travellers * input.days);
+  const optBudgetLocalMin = roundFriendly(Math.max(100, Math.round(pricing.local[0] * 0.7)) * input.travellers * input.days);
+  const optBudgetLocalMax = roundFriendly(Math.max(200, Math.round(pricing.local[1] * 0.7)) * input.travellers * input.days);
+
+  const optionBudgetMin = optBudgetTransportMin + optBudgetHotelMin + optBudgetFoodMin + optBudgetLocalMin;
+  const optionBudgetMax = optBudgetTransportMax + optBudgetHotelMax + optBudgetFoodMax + optBudgetLocalMax;
+
+  // 2. Comfort Traveler Option
+  const optComfortTransportMin = roundFriendly(pricing.transport[0] * input.travellers);
+  const optComfortTransportMax = roundFriendly(pricing.transport[1] * input.travellers);
+  const optComfortHotelMin = nights > 0 ? roundFriendly(pricing.hotelStandard[0] * (rooms || 1) * nights) : 0;
+  const optComfortHotelMax = nights > 0 ? roundFriendly(pricing.hotelStandard[1] * (rooms || 1) * nights) : 0;
+  const optComfortFoodMin = roundFriendly(500 * input.travellers * input.days);
+  const optComfortFoodMax = roundFriendly(1000 * input.travellers * input.days);
+  const optComfortLocalMin = roundFriendly(pricing.local[0] * input.travellers * input.days);
+  const optComfortLocalMax = roundFriendly(pricing.local[1] * input.travellers * input.days);
+
+  const optionComfortMin = optComfortTransportMin + optComfortHotelMin + optComfortFoodMin + optComfortLocalMin;
+  const optionComfortMax = optComfortTransportMax + optComfortHotelMax + optComfortFoodMax + optComfortLocalMax;
+
+  // 3. Premium Experience Option
+  const optPremiumTransportMin = roundFriendly(pricing.transport[0] * 1.5 * input.travellers);
+  const optPremiumTransportMax = roundFriendly(pricing.transport[1] * 1.8 * input.travellers);
+  const optPremiumHotelMin = nights > 0 ? roundFriendly(pricing.hotelPremium[0] * (rooms || 1) * nights) : 0;
+  const optPremiumHotelMax = nights > 0 ? roundFriendly(pricing.hotelPremium[1] * (rooms || 1) * nights) : 0;
+  const optPremiumFoodMin = roundFriendly(800 * input.travellers * input.days);
+  const optPremiumFoodMax = roundFriendly(1500 * input.travellers * input.days);
+  const optPremiumLocalMin = roundFriendly(pricing.local[0] * 1.4 * input.travellers * input.days);
+  const optPremiumLocalMax = roundFriendly(pricing.local[1] * 1.4 * input.travellers * input.days);
+
+  const optionPremiumMin = optPremiumTransportMin + optPremiumHotelMin + optPremiumFoodMin + optPremiumLocalMin;
+  const optionPremiumMax = optPremiumTransportMax + optPremiumHotelMax + optPremiumFoodMax + optPremiumLocalMax;
+
   const remaining = totalBudget - estimatedTotal;
 
   const budget: BudgetBreakdown = {
@@ -552,6 +641,14 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
     hotel: hotelEstimate,
     food: foodEstimate,
     local: localEstimate,
+    transportMin,
+    transportMax,
+    hotelMin,
+    hotelMax,
+    foodMin,
+    foodMax,
+    localMin,
+    localMax,
     transportTarget: targets.transport,
     hotelTarget: targets.hotel,
     foodTarget: targets.food,
@@ -559,10 +656,20 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
     total: totalBudget,
     perPerson: input.budget,
     estimatedTotal,
+    estimatedMin,
+    estimatedMax,
     remaining,
     status: remaining >= 0 ? "within" : "over",
     hotelPerNight,
+    hotelPerNightMin,
+    hotelPerNightMax,
     rooms,
+    optionBudgetMin,
+    optionBudgetMax,
+    optionComfortMin,
+    optionComfortMax,
+    optionPremiumMin,
+    optionPremiumMax,
   };
 
   const perDayCost = roundCurrency((foodEstimate + localEstimate) / Math.max(input.days, 1) / input.travellers);

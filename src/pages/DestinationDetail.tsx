@@ -12,13 +12,42 @@ const seasonByCat: Record<string, string> = {
   heritage: "Oct – Feb",
 };
 
-const budgetByCat: Record<string, string> = {
-  hill: "₹1,500–₹3,500/day",
-  beach: "₹1,200–₹3,000/day",
-  temple: "₹800–₹2,000/day",
-  city: "₹1,500–₹4,000/day",
-  wildlife: "₹2,000–₹4,500/day",
-  heritage: "₹1,000–₹2,500/day",
+const budgetByCat = {
+  hill: {
+    budget: "₹2500–₹4500",
+    comfortable: "₹4500–₹8000",
+    premium: "₹8000+"
+  },
+
+  beach: {
+    budget: "₹2000–₹4000",
+    comfortable: "₹4000–₹7000",
+    premium: "₹7000+"
+  },
+
+  temple: {
+    budget: "₹1500–₹3500",
+    comfortable: "₹3500–₹6000",
+    premium: "₹6000+"
+  },
+
+  city: {
+    budget: "₹2000–₹4500",
+    comfortable: "₹4500–₹8000",
+    premium: "₹8000+"
+  },
+
+  heritage: {
+    budget: "₹2500–₹5000",
+    comfortable: "₹5000–₹9000",
+    premium: "₹9000+"
+  },
+
+  wildlife: {
+    budget: "₹3000–₹5500",
+    comfortable: "₹5500–₹9000",
+    premium: "₹9000+"
+  }
 };
 
 const DestinationDetail = () => {
@@ -81,7 +110,46 @@ const DestinationDetail = () => {
       <section className="px-5 pt-5">
         <p className="text-sm text-foreground leading-relaxed">{dest.description}</p>
       </section>
+      {/* Budget Estimates */}
+<section className="px-5 mt-4">
+  <h2 className="font-display font-bold mb-3">
+    Approximate Budget
+  </h2>
 
+  <div className="space-y-2">
+    <div className="bg-card border border-border rounded-xl p-3">
+      <p className="font-semibold text-sm">
+        Budget Trip
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {budgetByCat[dest.category]?.budget}
+      </p>
+    </div>
+
+    <div className="bg-card border border-border rounded-xl p-3">
+      <p className="font-semibold text-sm">
+        Comfortable Trip
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {budgetByCat[dest.category]?.comfortable}
+      </p>
+    </div>
+
+    <div className="bg-card border border-border rounded-xl p-3">
+      <p className="font-semibold text-sm">
+        Premium Trip
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {budgetByCat[dest.category]?.premium}
+      </p>
+    </div>
+  </div>
+
+  <p className="text-[11px] text-muted-foreground mt-2">
+    *Prices are approximate and may vary based on season,
+    accommodation, transportation and booking time.
+  </p>
+</section>
       {/* Stat row */}
       <section className="px-5 mt-4 grid grid-cols-3 gap-2">
         <Stat icon={Calendar} label="Best season" value={seasonByCat[dest.category] || "Year-round"} />
