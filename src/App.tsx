@@ -25,23 +25,7 @@ const Loading = () => (
   </div>
 );
 
-<<<<<<< Updated upstream
-const App = () => {
-const [showUpdatePopup, setShowUpdatePopup] = useState(false);
-
-useEffect(() => {
-  const currentVersion = "v1.1";
-
-  const seenVersion = localStorage.getItem("sikkanam-version");
-
-  if (seenVersion !== currentVersion) {
-    setShowUpdatePopup(true);
-  }
-}, []);
-return(
-=======
 const App = () => (
->>>>>>> Stashed changes
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -64,42 +48,6 @@ const App = () => (
         </AppShell>
       </BrowserRouter>
     </TooltipProvider>
-<<<<<<< Updated upstream
-    {showUpdatePopup && (
-  <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-4">
-    <div className="bg-card rounded-2xl p-6 max-w-md w-full shadow-xl">
-
-      <h2 className="text-2xl font-bold mb-4">
-        🎉 Welcome to Sikkanam
-      </h2>
-
-      <div className="space-y-2 mb-6">
-        <p>✅ Railway Journey Assistant</p>
-        <p>✅ Better Hotel Recommendations</p>
-        <p>✅ Improved Route Planning</p>
-        <p>✅ Maps Integration</p>
-        <p>✅ WhatsApp Sharing</p>
-      </div>
-
-      <button
-        onClick={() => {
-          localStorage.setItem(
-            "sikkanam-version",
-            "v1.1"
-          );
-
-          window.location.reload();
-        }}
-        className="w-full rounded-xl bg-primary text-primary-foreground py-3"
-      >
-        🚀 Refresh & Start Exploring
-      </button>
-
-    </div>
-  </div>
-)}
-=======
->>>>>>> Stashed changes
   </QueryClientProvider>
 );
 
