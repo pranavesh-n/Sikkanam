@@ -154,7 +154,7 @@ const DestinationDetail = () => {
       <section className="px-5 mt-4 grid grid-cols-3 gap-2">
         <Stat icon={Calendar} label="Best season" value={seasonByCat[dest.category] || "Year-round"} />
         <Stat icon={Cloud} label="Weather" value={dest.category === "hill" ? "Cool" : dest.category === "beach" ? "Warm" : "Mild"} />
-        <Stat icon={Ticket} label="Budget" value={budgetByCat[dest.category] || "₹1,500/day"} />
+        <Stat icon={Ticket} label="Budget" value={budgetByCat[dest.category]?.budget || "₹1,500/day"} />
       </section>
 
       {/* AI CTA */}
