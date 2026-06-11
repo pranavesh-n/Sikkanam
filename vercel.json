@@ -10,7 +10,7 @@
       "destination": "/api/chat.js"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api|assets|favicon.ico|logo.png|manifest.json|robots.txt).*)",
       "destination": "/index.html"
     }
   ]
