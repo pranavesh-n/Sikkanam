@@ -31,26 +31,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppShell>
-          <>
+
   <WhatsNewModal />
-  {/* existing app */}
-</>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route path="/maps" element={<Maps />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/destination/:id" element={<DestinationDetail />} />
-              <Route path="/ai" element={<AIPlanner />} />
-              <Route path="/booking" element={<Booking />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/plan" element={<TripPlanner />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AppShell>
-      </BrowserRouter>
+
+  <AppShell>
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        <Route path="/maps" element={<Maps />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/destination/:id" element={<DestinationDetail />} />
+        <Route path="/ai" element={<AIPlanner />} />
+        <Route path="/booking" element={<Booking />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/plan" element={<TripPlanner />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
+  </AppShell>
+
+</BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
