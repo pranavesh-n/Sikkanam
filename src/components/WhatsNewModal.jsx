@@ -1,58 +1,63 @@
-'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-const VERSION = '2.0'; // ✏️ bump this on every release
-
-const FEATURES = [
-   { icon: '🗺️', label: 'Improved Sikkanam Intelligence' },
-  { icon: '✏️', label:'Accurate Planning'}
-];
+const VERSION = "4.2.0";
 
 export default function WhatsNewModal() {
-  const [show, setShow] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('appVersion') !== VERSION) {
-      setTimeout(() => setShow(true), 800);
+    const seen = localStorage.getItem("sikkanam-version");
+
+    if (seen !== VERSION) {
+      setOpen(true);
     }
   }, []);
 
-  if (!show) return null;
+  const handleClose = () => {
+    localStorage.setItem("sikkanam-version", VERSION);
+    setOpen(false);
+  };
+
+  if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+    <div>
+      <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+  <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
 
-        <h2 className="text-lg font-bold text-gray-900 mb-1">🎉 Welcome to Sikkanam</h2>
-        <p className="text-xs text-gray-400 mb-4">What's new in this update</p>
+    <div className="mb-3">
+      <span className="bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full font-medium">
+        NEW • Intelligence Engine v4.2
+      </span>
+    </div>
 
-        <ul className="space-y-3 mb-6">
-          {FEATURES.map(f => (
-            <li key={f} className="flex items-center gap-2 text-sm text-gray-800">
-              <span className="text-green-500">✓</span> {f}
-            </li>
-          ))}
-        </ul>
+    <h2 className="text-2xl font-bold mb-2">
+      🚀 What's New in Sikkanam
+    </h2>
 
-        <button
-          onClick={() => {
-            localStorage.setItem('appVersion', VERSION);
-            window.location.reload();
-          }}
-          className="w-full py-3.5 rounded-xl text-white text-sm font-semibold"
-          style={{ background: '#D85A30' }}
-        >
-          🚀 Refresh &amp; Start Exploring
-        </button>
+    <p className="text-gray-600 mb-5">
+      Travel planning is now smarter, more transparent,
+      and more reliable.
+    </p>
 
-        <button
-          onClick={() => setShow(false)}
-          className="w-full mt-3 text-xs text-gray-400"
-        >
-          Maybe later
-        </button>
+    <div className="space-y-3 text-sm">
+      <div>🛣️ Verified Route Intelligence</div>
+      <div>🏨 Hotel Market Intelligence</div>
+      <div>🍽️ Meal-Based Budget Planning</div>
+      <div>🎟️ Attraction Fee Database</div>
+      <div>📊 Budget Reliability</div>
+      <div>🔍 Full Cost Transparency</div>
+    </div>
 
-      </div>
+    <button
+      onClick={handleClose}
+      className="mt-6 w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-semibold"
+    >
+      ✨ Explore New Features
+    </button>
+
+  </div>
+</div>
     </div>
   );
 }
