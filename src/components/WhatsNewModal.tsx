@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const VERSION = "4.3.0";
+const VERSION = "2.0.0";
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
@@ -37,33 +37,12 @@ export default function WhatsNewModal() {
           Travel planning is now smarter, more transparent, and more reliable.
         </p>
 
-        <div className="space-y-4 text-foreground flex-1">
+               <div className="space-y-4 text-foreground flex-1">
           <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">🛣️</span>
-            <span className="text-sm md:text-base font-medium">Verified Route Intelligence</span>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">🏨</span>
-            <span className="text-sm md:text-base font-medium">Hotel Market Intelligence</span>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">🍽️</span>
-            <span className="text-sm md:text-base font-medium">Meal-Based Budget Planning</span>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">🎟️</span>
-            <span className="text-sm md:text-base font-medium">Attraction Fee Database</span>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">📊</span>
-            <span className="text-sm md:text-base font-medium">Budget Reliability</span>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-xl shrink-0">🔍</span>
-            <span className="text-sm md:text-base font-medium">Full Cost Transparency</span>
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Improved Sikkanam intelligence on planning a trip</span>
           </div>
         </div>
-
         <button
           onClick={handleClose}
           className="w-full mt-8 py-3.5 rounded-[1.25rem] gradient-saffron text-white font-semibold text-sm md:text-base shadow-card active:scale-[0.98] transition-transform hover:opacity-95"
