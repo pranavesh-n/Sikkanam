@@ -24,10 +24,7 @@ const Loading = () => (
     <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
 );
-<>
-  <WhatsNewModal />
-  {/* existing app */}
-</>
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -35,6 +32,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AppShell>
+          <>
+  <WhatsNewModal />
+  {/* existing app */}
+</>
           <Suspense fallback={<Loading />}>
             <Routes>
               <Route path="/maps" element={<Maps />} />
