@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 45% 97%;
+    --foreground: 20 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 25% 15%;
+
+    --primary: 24 90% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 174 60% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 35 30% 93%;
+    --muted-foreground: 20 10% 45%;
+
+    --accent: 174 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 20% 88%;
+    --input: 35 20% 88%;
+    --ring: 24 90% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 24 90% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 35 30% 93%;
+    --sidebar-accent-foreground: 20 25% 15%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 24 90% 50%;
+
+    --gradient-saffron: linear-gradient(135deg, hsl(24 90% 50%), hsl(35 95% 55%));
+    --gradient-teal: linear-gradient(135deg, hsl(174 60% 40%), hsl(180 50% 50%));
+    --gradient-warm: linear-gradient(180deg, hsl(35 45% 97%), hsl(35 30% 93%));
+    --shadow-card: 0 4px 24px -4px hsl(20 25% 15% / 0.08);
+    --shadow-elevated: 0 12px 40px -8px hsl(20 25% 15% / 0.15);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .gradient-saffron { background: var(--gradient-saffron); }
+  .gradient-teal { background: var(--gradient-teal); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Leaflet fix inside scrollable parent */
+.leaflet-container { z-index: 0; }
