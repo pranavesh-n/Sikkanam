@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-const VERSION = '1.0.0'; // ✏️ bump this on every release
+const VERSION = '2.0'; // ✏️ bump this on every release
 
 const FEATURES = [
    { icon: '🗺️', label: 'Improved Sikkanam Intelligence' },
