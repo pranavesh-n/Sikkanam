@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const VERSION = "4.2.0";
+const VERSION = "4.3.0";
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
