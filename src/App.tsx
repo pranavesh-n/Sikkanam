@@ -7,7 +7,7 @@ import { lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-
+import WhatsNewModal from "./components/WhatsNewModal";
 import Maps from "./pages/Maps";  
 
 const Explore = lazy(() => import("./pages/Explore"));
@@ -24,7 +24,10 @@ const Loading = () => (
     <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
 );
-
+<>
+  <WhatsNewModal />
+  {/* existing app */}
+</>
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
