@@ -37,10 +37,30 @@ export default function WhatsNewModal() {
           Travel planning is now smarter, more transparent, and more reliable.
         </p>
 
-               <div className="space-y-4 text-foreground flex-1">
+                       <div className="space-y-4 text-foreground flex-1">
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
-            <span className="text-sm md:text-base font-medium">Improved Sikkanam intelligence on planning a trip</span>
+            <span className="text-sm md:text-base font-medium">Verified Route Intelligence</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Hotel Market Intelligence</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Meal-Based Budget Planning</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Attraction Fee Database</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Budget Reliability</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Full Cost Transparency</span>
           </div>
         </div>
         <button
