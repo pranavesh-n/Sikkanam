@@ -36,6 +36,12 @@ const TripPlanner = () => {
       setTripInput(nextInput);
       const plan = await generateTripPlan(nextInput);
       setTripPlan(plan);
+
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100);
     },
     [tripInput]
   );
