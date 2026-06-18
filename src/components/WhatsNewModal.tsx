@@ -52,7 +52,7 @@ export default function WhatsNewModal() {
           </div>
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
-            <span className="text-sm md:text-base font-medium">Attraction Fee Database</span>
+            <span className="text-sm md:text-base font-medium">Sikkanam AI Planning </span>
           </div>
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
