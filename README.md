@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# 🗺️ Sikkanam — Transparent Travel Budgeting Platform
+Sikkanam — Transparent Travel Budgeting Platform
 
 **Sikkanam** (meaning *economy* or *thriftiness* in Tamil) is a transparent, evidence-driven travel budgeting advisor designed for middle-class travelers exploring **Tamil Nadu**. 
 
