@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const VERSION = "2.0.1";
+const VERSION = "2.0.2";
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function WhatsNewModal() {
           Travel planning is now smarter, more transparent, and more reliable.
         </p>
 
-                       <div className="space-y-4 text-foreground flex-1">
+        <div className="space-y-4 text-foreground flex-1">
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
             <span className="text-sm md:text-base font-medium">Verified Route Intelligence</span>
@@ -61,6 +61,10 @@ export default function WhatsNewModal() {
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
             <span className="text-sm md:text-base font-medium">Full Cost Transparency</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">Sikkanam AI Travel Companion</span>
           </div>
         </div>
         <button
