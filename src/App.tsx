@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
@@ -48,6 +49,7 @@ const App = () => (
           </Suspense>
         </AppShell>
       </BrowserRouter>
+      <Analytics />
     </TooltipProvider>
   </QueryClientProvider>
 );
