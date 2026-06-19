@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const VERSION = "2.0.2";
+const VERSION = "2.0.3";
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
@@ -65,6 +65,10 @@ export default function WhatsNewModal() {
           <div className="flex items-start gap-3">
             <span className="text-xl shrink-0">✅</span>
             <span className="text-sm md:text-base font-medium">Sikkanam AI Travel Companion</span>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">✅</span>
+            <span className="text-sm md:text-base font-medium">About Sikkanam</span>
           </div>
         </div>
         <button
