@@ -33,7 +33,11 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Database error fetching trips." });
       }
 
-      return res.status(200).json({ trips });
+      const mappedTrips = trips.map(t => ({
+        ...t,
+        _id: t.id
+      }));
+      return res.status(200).json({ trips: mappedTrips });
     }
 
     if (req.method === "POST") {
@@ -62,7 +66,11 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Database error saving trip." });
       }
 
-      return res.status(201).json({ success: true, trip });
+      const mappedTrip = {
+        ...trip,
+        _id: trip.id
+      };
+      return res.status(201).json({ success: true, trip: mappedTrip });
     }
 
     if (req.method === "PUT") {
@@ -99,7 +107,11 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Trip not found or unauthorized." });
       }
 
-      return res.status(200).json({ success: true, trip });
+      const mappedTrip = {
+        ...trip,
+        _id: trip.id
+      };
+      return res.status(200).json({ success: true, trip: mappedTrip });
     }
 
     if (req.method === "DELETE") {
