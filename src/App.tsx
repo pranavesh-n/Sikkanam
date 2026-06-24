@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import { Analytics } from "@vercel/analytics/next"
 import Maps from "./pages/Maps";  
+import WhatsNewModal from "./components/WhatsNewModal";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -32,6 +33,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <WhatsNewModal />
       <BrowserRouter>
         <AppShell>
           <Suspense fallback={<Loading />}>
