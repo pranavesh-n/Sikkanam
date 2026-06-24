@@ -1,27 +1,56 @@
-import { useEffect, useState } from "react";
-import { Sparkles, Map, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
+import { useEffect, useState, MouseEvent } from "react";
+import { Sparkles, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
 
 const VERSION = "2.1";
+
+// Module-level variable to prevent showing the modal multiple times in the same session
+// if localStorage is blocked, cleared, or fails to write.
+let hasDismissedInSession = false;
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const seen = localStorage.getItem("sikkanam-version");
-    if (seen !== VERSION) {
-      setOpen(true);
+    if (hasDismissedInSession) {
+      return;
     }
+
+    try {
+      const seen = localStorage.getItem("sikkanam-version");
+      if (seen === VERSION) {
+        hasDismissedInSession = true;
+        return;
+      }
+    } catch (e) {
+      console.warn("localStorage is not accessible:", e);
+    }
+
+    setOpen(true);
   }, []);
 
   const handleClose = () => {
-    localStorage.setItem("sikkanam-version", VERSION);
+    hasDismissedInSession = true;
+    try {
+      localStorage.setItem("sikkanam-version", VERSION);
+    } catch (e) {
+      console.warn("Failed to write to localStorage:", e);
+    }
     setOpen(false);
+  };
+
+  const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
   };
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-300"
+    >
       <div className="bg-card/95 border border-border/80 rounded-[2.5rem] max-w-sm md:max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
         {/* Decorative background glow */}
         <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
