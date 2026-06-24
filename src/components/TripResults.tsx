@@ -1,9 +1,11 @@
 import { forwardRef, useState } from "react";
 import { type TripPlan, generateShareText, type TravellerType, getBudgetReliability } from "@/lib/tripPlanner";
 import { categoryLabels, getDestinationById, tnDestinations } from "@/data/tnDestinations";
-import { Share2, Printer, Train, Star, AlertCircle, CheckCircle2, ExternalLink, Clock, Compass, MapPin } from "lucide-react";
+import { Share2, Printer, Train, Star, AlertCircle, CheckCircle2, ExternalLink, Clock, Compass, MapPin, Bookmark } from "lucide-react";
 import { HOTEL_RANGES } from "@/lib/hotelPrices";
 import { generateTrainSearchUrl } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface TripResultsProps {
   plan: TripPlan;
@@ -349,6 +351,51 @@ function renderMathBreakdown(comp: any, plan: any) {
 
 const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSelectDestination }, ref) => {
   const [expandedComponent, setExpandedComponent] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSaveTrip = async () => {
+    if (!user) {
+      toast.error("Please sign in to save your trip");
+      return;
+    }
+
+    if (!plan.destination) return;
+
+    setSaveLoading(true);
+    try {
+      const budgetStr = plan.intelligence 
+        ? `₹${plan.intelligence.recommendedCarry.toLocaleString("en-IN")}`
+        : `₹${plan.budget.total.toLocaleString("en-IN")}`;
+      
+      const res = await fetch("/api/trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `Trip to ${plan.destination.name}`,
+          destination: plan.destination.name,
+          duration: plan.input.days,
+          style: plan.input.style,
+          budget: budgetStr,
+          itinerary: plan
+        })
+      });
+
+      if (res.ok) {
+        setIsSaved(true);
+        toast.success("Trip saved successfully to your Profile!");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Failed to save trip");
+      }
+    } catch (error) {
+      console.error("Save trip error:", error);
+      toast.error("Error saving trip");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   const handleWhatsAppShare = () => {
     const text = generateShareText(plan);
@@ -725,6 +772,14 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
 
         {/* Share & Actions */}
         <div className="flex flex-wrap justify-center gap-3 pt-2 print:hidden">
+          <button
+            onClick={handleSaveTrip}
+            disabled={saveLoading || isSaved}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-foreground hover:bg-muted disabled:opacity-50 text-sm font-medium transition-colors"
+          >
+            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-primary text-primary" : ""}`} />
+            {saveLoading ? "Saving..." : isSaved ? "Saved" : "Save Trip"}
+          </button>
           <button
             onClick={handleWhatsAppShare}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-foreground hover:bg-muted text-sm font-medium transition-colors"

@@ -1,16 +1,9 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/generatePlan",
-      "destination": "/api/generatePlan.js"
-    },
-    {
-      "source": "/api/chat",
-      "destination": "/api/chat.js"
-    },
-    {
-      "source": "/((?!api|assets|favicon.ico|logo.png|manifest.json|robots.txt).*)",
+      "source": "/((?!api/|node_modules/|@vite/|@react-refresh|src/|@id/|favicon.ico|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
