@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Map, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
 
-const VERSION = "3.0.0";
+const VERSION = "2.1";
 
 export default function WhatsNewModal() {
   const [open, setOpen] = useState(false);
@@ -56,44 +56,31 @@ export default function WhatsNewModal() {
         <div className="space-y-4 text-foreground flex-1">
           {/* Feature 1 */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Map className="w-5 h-5" />
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Interactive OSM Route Maps</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Google Authentication</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Explore destinations with full route intelligence and navigation on interactive map views.
+                Google Login is seamlessly integrated and synchronized across Databases.
               </p>
             </div>
           </div>
 
           {/* Feature 2 */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
+              <Bookmark className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Unified 3-DB Authentication</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Save Trips</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Google Login is seamlessly integrated and synchronized across Firebase, Supabase, and MongoDB.
+                Easily save, rename, or delete your custom travel plans directly in your profile dashboard.
               </p>
             </div>
           </div>
 
           {/* Feature 3 */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
-              <Bookmark className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Itinerary Management</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Easily save, rename, or delete your custom travel itineraries directly in your profile dashboard.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 4 */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-red-500/10 text-red-500 shrink-0">
               <Heart className="w-5 h-5" />
