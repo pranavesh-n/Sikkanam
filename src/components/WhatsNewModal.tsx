@@ -1,40 +1,83 @@
-import { useEffect, useState, MouseEvent } from "react";
+import { useState, MouseEvent } from "react";
 import { Sparkles, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
 
 const VERSION = "2.1";
 
 // Module-level variable to prevent showing the modal multiple times in the same session
-// if localStorage is blocked, cleared, or fails to write.
+// even if storage is completely blocked or wiped.
 let hasDismissedInSession = false;
 
-export default function WhatsNewModal() {
-  const [open, setOpen] = useState(false);
+// Helper to retrieve cookies
+const getCookie = (name: string): string | null => {
+  try {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+  } catch (e) {
+    return null;
+  }
+};
 
-  useEffect(() => {
+// Helper to save cookies (expires in 1 year)
+const setCookie = (name: string, value: string, days: number = 365) => {
+  try {
+    const seconds = days * 24 * 60 * 60;
+    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${seconds}; path=/; SameSite=Lax`;
+  } catch (e) {
+    console.warn("Failed to set cookie:", e);
+  }
+};
+
+export default function WhatsNewModal() {
+  // Synchronously determine if the modal should be open during initial state declaration
+  const [open, setOpen] = useState(() => {
     if (hasDismissedInSession) {
-      return;
+      return false;
     }
 
     try {
-      const seen = localStorage.getItem("sikkanam-version");
-      if (seen === VERSION) {
+      // 1. Check localStorage
+      const seenLocal = localStorage.getItem("sikkanam-version");
+      if (seenLocal === VERSION) {
         hasDismissedInSession = true;
-        return;
+        return false;
       }
     } catch (e) {
-      console.warn("localStorage is not accessible:", e);
+      console.warn("localStorage check failed:", e);
     }
 
-    setOpen(true);
-  }, []);
+    try {
+      // 2. Check Cookie (fallback for webviews/private tabs)
+      const seenCookie = getCookie("sikkanam-version");
+      if (seenCookie === VERSION) {
+        hasDismissedInSession = true;
+        
+        // Sync the result back to localStorage if it's available
+        try {
+          localStorage.setItem("sikkanam-version", VERSION);
+        } catch (err) {}
+        
+        return false;
+      }
+    } catch (e) {
+      console.warn("Cookie check failed:", e);
+    }
+
+    return true;
+  });
 
   const handleClose = () => {
     hasDismissedInSession = true;
+    
+    // Save to localStorage
     try {
       localStorage.setItem("sikkanam-version", VERSION);
     } catch (e) {
-      console.warn("Failed to write to localStorage:", e);
+      console.warn("Failed to save to localStorage:", e);
     }
+    
+    // Save to Cookie
+    setCookie("sikkanam-version", VERSION);
+    
     setOpen(false);
   };
 
