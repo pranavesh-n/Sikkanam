@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -5,6 +6,7 @@ import { toast } from "sonner";
 
 const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
+  const [showAbout, setShowAbout] = useState(false);
 
   const handleLogin = async () => {
     const success = await loginWithGoogle();
@@ -139,13 +141,13 @@ const Profile = () => {
       )}
 
       <Section title="About">
-        <Link to="/" className="block">
+        <button onClick={() => setShowAbout(true)} className="block w-full text-left focus:outline-none">
           <Row
             icon={Info}
             label="About Sikkanam"
             desc="A budget travel companion for Tamil Nadu"
           />
-        </Link>
+        </button>
 
         <a
           href="mailto:sikkanam.customerfeedback@gmail.com"
@@ -175,6 +177,33 @@ const Profile = () => {
       <p className="text-center text-[11px] text-muted-foreground pt-2">
         சிக்கனம் · Sikkanam v2.0
       </p>
+
+      {showAbout && (
+        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border border-border rounded-[2rem] max-w-sm w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative text-left">
+            <h3 className="font-display font-extrabold text-xl md:text-2xl text-foreground mb-3 flex items-center gap-2">
+              <span className="text-primary font-bold">சிக்கனம்</span> · About
+            </h3>
+            <div className="space-y-3.5 text-xs md:text-sm text-muted-foreground leading-relaxed">
+              <p>
+                <strong>Sikkanam (சிக்கனம்)</strong> is Tamil for <em>economy, frugality, or budgeting</em>.
+              </p>
+              <p>
+                This application is your intelligent, AI-powered travel assistant built to help you explore the absolute best of Tamil Nadu—from misty hills and sun-drenched beaches to historic temples—while keeping your expenditures low.
+              </p>
+              <p>
+                We fetch budget-friendly transport details, calculate optimal stay rates, estimate dining expenses, and build optimized itineraries with full cost transparency.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowAbout(false)}
+              className="w-full mt-6 py-3 rounded-xl gradient-saffron text-white font-bold text-xs md:text-sm shadow-card active:scale-[0.98] transition-transform text-center hover:opacity-95"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
