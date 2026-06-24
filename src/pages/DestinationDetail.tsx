@@ -1,7 +1,9 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDestinationById, categoryLabels } from "@/data/tnDestinations";
-import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight } from "lucide-react";
+import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Heart } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const seasonByCat: Record<string, string> = {
   hill: "Apr – Jun (cool)",
@@ -57,6 +59,66 @@ const DestinationDetail = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
 
+  const { user } = useAuth();
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (user && dest) {
+      checkWishlistStatus();
+    }
+  }, [user, dest]);
+
+  const checkWishlistStatus = async () => {
+    try {
+      const res = await fetch("/api/wishlist");
+      if (res.ok) {
+        const data = await res.json();
+        const list = data.wishlist || [];
+        setIsWishlisted(list.includes(dest?.id));
+      }
+    } catch (err) {
+      console.error("Error checking wishlist status:", err);
+    }
+  };
+
+  const toggleWishlist = async () => {
+    if (!user) {
+      toast.error("Please sign in to add to wishlist");
+      nav("/profile");
+      return;
+    }
+
+    if (!dest) return;
+
+    try {
+      if (isWishlisted) {
+        const res = await fetch(`/api/wishlist?destinationId=${dest.id}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          setIsWishlisted(false);
+          toast.success("Removed from wishlist");
+        } else {
+          toast.error("Failed to remove from wishlist");
+        }
+      } else {
+        const res = await fetch("/api/wishlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinationId: dest.id }),
+        });
+        if (res.ok) {
+          setIsWishlisted(true);
+          toast.success("Added to wishlist");
+        } else {
+          toast.error("Failed to add to wishlist");
+        }
+      }
+    } catch (err) {
+      toast.error("Network error toggling wishlist");
+    }
+  };
+
   useEffect(() => {
     if (!dest || !mapRef.current || mapInstance.current) return;
     let cancelled = false;
@@ -97,6 +159,15 @@ const DestinationDetail = () => {
     <div className="max-w-md md:max-w-5xl mx-auto md:px-6 md:pt-6 pb-6">
       {/* Hero */}
       <section className="relative h-48 gradient-saffron overflow-hidden">
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={toggleWishlist}
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-all shadow-md border border-white/10"
+            aria-label="Toggle Wishlist"
+          >
+            <Heart className={`w-5 h-5 ${isWishlisted ? "fill-red-500 stroke-red-500" : "stroke-white"}`} />
+          </button>
+        </div>
         <div className="absolute inset-0 flex items-end p-5">
           <div>
             <span className="text-5xl block">{dest.emoji}</span>
