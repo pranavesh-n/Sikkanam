@@ -1,7 +1,7 @@
 import { useState, MouseEvent } from "react";
 import { Sparkles, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
 
-const VERSION = "2.1";
+const VERSION = "2.2";
 
 // Module-level variable to prevent showing the modal multiple times in the same session
 // even if storage is completely blocked or wiped.
@@ -145,9 +145,9 @@ export default function WhatsNewModal() {
               <Bookmark className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Save Trips</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Exact Route & Distance Calculator</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Easily save, rename, or delete your custom travel plans directly in your profile dashboard.
+                Get exact road-network driving distances between any starting point and destination in Tamil Nadu.
               </p>
             </div>
           </div>
@@ -158,9 +158,21 @@ export default function WhatsNewModal() {
               <Heart className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Synced Wishlist</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Budget Transit Estimator </h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Your favorited destinations are fully synchronized and accessible across all your logged-in devices.
+                Compare instant travel times and cost breakdowns for TNSTC Buses, Express Trains, and Cabs.
+              </p>
+            </div>
+          </div>
+          {/* Feature 4 */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-red-500/10 text-red-500 shrink-0">
+              <Heart className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Calculate exact route and fare</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Get routes and fares directly from any destination detail card on the Explore page .
               </p>
             </div>
           </div>
