@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { getDestinationById, categoryLabels } from "@/data/tnDestinations";
-import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Heart } from "lucide-react";
+import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Heart, Route } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -283,7 +283,15 @@ const DestinationDetail = () => {
           <MapPin className="w-4 h-4 text-primary" /> Location
         </h2>
         <div ref={mapRef} className="h-56 rounded-2xl overflow-hidden border border-border bg-muted" />
-        <p className="text-[11px] text-muted-foreground mt-2">© OpenStreetMap contributors</p>
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-[11px] text-muted-foreground">© OpenStreetMap contributors</p>
+          <Link
+            to={`/maps?destination=${dest.id}`}
+            className="flex items-center gap-1 text-xs text-primary font-semibold hover:underline"
+          >
+            <Route className="w-3.5 h-3.5" /> Calculate Exact Route & Fares →
+          </Link>
+        </div>
       </section>
 
       {/* Travel tips */}
