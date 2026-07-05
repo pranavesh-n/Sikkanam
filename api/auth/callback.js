@@ -1,8 +1,5 @@
 import { supabase } from "../utils/db.js";
-import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret_key_change_me";
+import { signToken, createSessionCookie } from "../utils/auth.js";
 
 export default async function handler(req, res) {
   const { code } = req.query;
@@ -89,20 +86,10 @@ export default async function handler(req, res) {
     }
 
     // 4. Create stateless JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = signToken({ id: user.id, email: user.email }, "7d");
 
     // 5. Serialize JWT token into a secure HttpOnly cookie
-    const cookie = serialize("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
+    const cookie = createSessionCookie(token);
 
     res.setHeader("Set-Cookie", cookie);
 

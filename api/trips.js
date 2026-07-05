@@ -1,24 +1,14 @@
 import { supabase } from "./utils/db.js";
-import jwt from "jsonwebtoken";
-import { parse } from "cookie";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret_key_change_me";
+import { getSessionFromReq } from "./utils/auth.js";
 
 export default async function handler(req, res) {
-  const cookies = parse(req.headers.cookie || "");
-  const token = cookies.token;
+  const decoded = getSessionFromReq(req);
 
-  if (!token) {
+  if (!decoded) {
     return res.status(401).json({ error: "Unauthorized: Please log in." });
   }
 
-  let userId;
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    userId = decoded.id;
-  } catch (error) {
-    return res.status(401).json({ error: "Unauthorized: Invalid session." });
-  }
+  const userId = decoded.id;
 
   try {
     if (req.method === "GET") {

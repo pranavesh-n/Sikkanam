@@ -1,7 +1,4 @@
-import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret_key_change_me";
+import { signToken, createSessionCookie } from "../utils/auth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -16,22 +13,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Generate stateless JWT
-    const token = jwt.sign(
-      { id: uid, email, name, avatar },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // Generate stateless JWT payload
+    const token = signToken({ id: uid, email, name, avatar }, "7d");
 
     // Serialize JWT token into a secure HttpOnly cookie
-    const cookie = serialize("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
-
+    const cookie = createSessionCookie(token);
     res.setHeader("Set-Cookie", cookie);
 
     return res.status(200).json({

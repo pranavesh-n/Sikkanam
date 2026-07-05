@@ -1,13 +1,7 @@
-import { serialize } from "cookie";
+import { createClearSessionCookie } from "../utils/auth.js";
 
 export default async function handler(req, res) {
-  const cookie = serialize("token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
+  const cookie = createClearSessionCookie();
 
   res.setHeader("Set-Cookie", cookie);
   return res.status(200).json({ success: true });
