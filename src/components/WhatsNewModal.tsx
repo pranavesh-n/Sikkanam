@@ -1,7 +1,7 @@
 import { useState, MouseEvent } from "react";
 import { Sparkles, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
 
-const VERSION = "2.2";
+const VERSION = "2.3";
 
 // Module-level variable to prevent showing the modal multiple times in the same session
 // even if storage is completely blocked or wiped.
@@ -121,7 +121,7 @@ export default function WhatsNewModal() {
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          Your travel companion has been upgraded with maps, unified cloud savings, and seamless actions!
+          New destinations, legendary food spots, and smarter trip planning — all in one update!
         </p>
 
         {/* Feature List */}
@@ -166,13 +166,26 @@ export default function WhatsNewModal() {
           </div>
           {/* Feature 4 */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-red-500/10 text-red-500 shrink-0">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
               <Heart className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Calculate exact route and fare</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Calculate Exact Route & Fare</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Get routes and fares directly from any destination detail card on the Explore page .
+                Get routes and fares directly from any destination detail card on the Explore page.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 5 — New Destinations */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-violet-500/10 text-violet-500 shrink-0">
+              <span className="text-base leading-none">🪷</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">New: Srivilliputhur & Courtallam+</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Andal Kovil (TN State Emblem), Palkova sweets &amp; Kartick Mess added. Courtallam now lists all 7 falls + the legendary Rahmath Kadai parotta &amp; mutton biryani spot.
               </p>
             </div>
           </div>

@@ -486,46 +486,46 @@ const rawDestinations: TNDestination[] = [
     "lat": 12.92,
     "lng": 79.13
   },
-{
-  "id": "cuddalore",
-  "name": "Cuddalore",
-  "fullName": "Cuddalore",
-  "category": "beach",
-  "emoji": "🏖️",
-  "district": "Cuddalore",
-  "description": "Coastal town with beaches and temples.",
-  "attractions": [
-    "Silver Beach",
-    "Fort St. David",
-    "Padaleeswarar Temple",
-    "Cuddalore Harbour"
-  ],
-  "nearestStation": "Thirupathiripuliyur",
+  {
+    "id": "cuddalore",
+    "name": "Cuddalore",
+    "fullName": "Cuddalore",
+    "category": "beach",
+    "emoji": "🏖️",
+    "district": "Cuddalore",
+    "description": "Coastal town with beaches and temples.",
+    "attractions": [
+      "Silver Beach",
+      "Fort St. David",
+      "Padaleeswarar Temple",
+      "Cuddalore Harbour"
+    ],
+    "nearestStation": "Thirupathiripuliyur",
     "hasRailAccess": true,
-  "lat": 11.7447,
-  "lng": 79.7680
-},
+    "lat": 11.7447,
+    "lng": 79.7680
+  },
 
-{
-  "id": "nagapattinam",
-  "name": "Nagapattinam",
-  "fullName": "Nagapattinam Coastal Town",
-  "category": "beach",
-  "emoji": "🌊",
-  "district": "Nagapattinam",
-  "description": "Historic coastal town known for beaches and temples.",
-  "attractions": [
-    "Nagore Dargah",
-    "Velankanni Basilica",
-    "Nagapattinam Beach",
-    "Dutch Fort",
-    "Sikkal Singaravelar Temple"
-  ],
-  "nearestStation": "Nagapattinam Junction",
+  {
+    "id": "nagapattinam",
+    "name": "Nagapattinam",
+    "fullName": "Nagapattinam Coastal Town",
+    "category": "beach",
+    "emoji": "🌊",
+    "district": "Nagapattinam",
+    "description": "Historic coastal town known for beaches and temples.",
+    "attractions": [
+      "Nagore Dargah",
+      "Velankanni Basilica",
+      "Nagapattinam Beach",
+      "Dutch Fort",
+      "Sikkal Singaravelar Temple"
+    ],
+    "nearestStation": "Nagapattinam Junction",
     "hasRailAccess": true,
-  "lat": 10.7672,
-  "lng": 79.8449
-},
+    "lat": 10.7672,
+    "lng": 79.8449
+  },
 
   {
     "id": "tiruvanamalai",
@@ -850,346 +850,369 @@ const rawDestinations: TNDestination[] = [
     "lng": 79.85
   },
   {
-  "id": "thirunallar",
-  "name": "Thirunallar",
-  "fullName": "Thirunallar (Saneeswarar Temple)",
-  "category": "temple",
-  "emoji": "🪔",
-  "district": "Karaikal",
-  "description": "Famous Saneeswarar temple town near Karaikal. Best for a short temple trip with Mayiladuthurai or Karaikal as the rail/bus base.",
-  "attractions": [
-    "Dharbaranyeswarar Saneeswarar Temple",
-    "Karaikal Beach",
-    "Karaikal Ammaiyar Temple",
-    "Mayiladuthurai temple belt",
-    "Nagore Dargah nearby"
-  ],
-  "nearestStation": "Thirunallar or Karaikal",
+    "id": "thirunallar",
+    "name": "Thirunallar",
+    "fullName": "Thirunallar (Saneeswarar Temple)",
+    "category": "temple",
+    "emoji": "🪔",
+    "district": "Karaikal",
+    "description": "Famous Saneeswarar temple town near Karaikal. Best for a short temple trip with Mayiladuthurai or Karaikal as the rail/bus base.",
+    "attractions": [
+      "Dharbaranyeswarar Saneeswarar Temple",
+      "Karaikal Beach",
+      "Karaikal Ammaiyar Temple",
+      "Mayiladuthurai temple belt",
+      "Nagore Dargah nearby"
+    ],
+    "nearestStation": "Karaikal",
     "hasRailAccess": false,
-  "lat": 10.92,
-  "lng": 79.78
-},
-{
-  "id": "pillayarpatti",
-  "name": "Pillayarpatti",
-  "fullName": "Pillayarpatti (Karpaga Vinayagar Temple)",
-  "category": "temple",
-  "emoji": "🐘",
-  "district": "Sivaganga",
-  "description": "Temple village famous for the ancient rock-cut Karpaga Vinayagar / Ganapathy Temple near Karaikudi.",
-  "attractions": [
-    "Karpaga Vinayagar Temple",
-    "Karaikudi Chettinad mansions",
-    "Athangudi tiles village",
-    "Chettinad Palace area",
-    "Kundrakudi Murugan Temple"
-  ],
-  "nearestStation": "Karaikudi Junction",
+    "lat": 10.92,
+    "lng": 79.78
+  },
+  {
+    "id": "pillayarpatti",
+    "name": "Pillayarpatti",
+    "fullName": "Pillayarpatti (Karpaga Vinayagar Temple)",
+    "category": "temple",
+    "emoji": "🐘",
+    "district": "Sivaganga",
+    "description": "Temple village famous for the ancient rock-cut Karpaga Vinayagar / Ganapathy Temple near Karaikudi.",
+    "attractions": [
+      "Karpaga Vinayagar Temple",
+      "Karaikudi Chettinad mansions",
+      "Athangudi tiles village",
+      "Chettinad Palace area",
+      "Kundrakudi Murugan Temple"
+    ],
+    "nearestStation": "Karaikudi Junction",
     "hasRailAccess": false,
-  "lat": 9.84,
-  "lng": 78.48
-},
-{
-  "id": "mayiladuthurai",
-  "name": "Mayiladuthurai",
-  "fullName": "Mayiladuthurai (Temple Belt Hub)",
-  "category": "temple",
-  "emoji": "🦚",
-  "district": "Mayiladuthurai",
-  "description": "Important Cauvery delta temple hub, useful for Thirunallar, Chidambaram, Kumbakonam, Vaitheeswaran Koil, Tharangambadi and nearby temple routes.",
-  "attractions": [
-    "Mayuranathaswamy Temple",
-    "Vaitheeswaran Koil",
-    "Thirukadaiyur Temple",
-    "Kumbakonam temple belt",
-    "Thirunallar via Karaikal",
-    "Chidambaram day trip"
-  ],
-  "nearestStation": "Mayiladuthurai Junction",
+    "lat": 9.84,
+    "lng": 78.48
+  },
+  {
+    "id": "mayiladuthurai",
+    "name": "Mayiladuthurai",
+    "fullName": "Mayiladuthurai (Temple Belt Hub)",
+    "category": "temple",
+    "emoji": "🦚",
+    "district": "Mayiladuthurai",
+    "description": "Important Cauvery delta temple hub, useful for Thirunallar, Chidambaram, Kumbakonam, Vaitheeswaran Koil, Tharangambadi and nearby temple routes.",
+    "attractions": [
+      "Mayuranathaswamy Temple",
+      "Vaitheeswaran Koil",
+      "Thirukadaiyur Temple",
+      "Kumbakonam temple belt",
+      "Thirunallar via Karaikal",
+      "Chidambaram day trip"
+    ],
+    "nearestStation": "Mayiladuthurai Junction",
     "hasRailAccess": true,
-  "lat": 11.1,
-  "lng": 79.65
-},
-{
-  "id": "tiruchendur",
-  "name": "Tiruchendur",
-  "fullName": "Tiruchendur (Murugan Temple)",
-  "category": "temple",
-  "emoji": "🌊",
-  "district": "Thoothukudi",
-  "description": "Sea-shore Murugan temple and one of the most visited Arupadai Veedu pilgrimage destinations.",
-  "attractions": [
-    "Tiruchendur Murugan Temple",
-    "Temple sea shore",
-    "Nazhi Kinaru",
-    "Valli Cave",
-    "Thoothukudi day trip",
-    "Manapad beach nearby"
-  ],
-  "nearestStation": "Tiruchendur",
+    "lat": 11.1,
+    "lng": 79.65
+  },
+  {
+    "id": "tiruchendur",
+    "name": "Tiruchendur",
+    "fullName": "Tiruchendur (Murugan Temple)",
+    "category": "temple",
+    "emoji": "🌊",
+    "district": "Thoothukudi",
+    "description": "Sea-shore Murugan temple and one of the most visited Arupadai Veedu pilgrimage destinations.",
+    "attractions": [
+      "Tiruchendur Murugan Temple",
+      "Temple sea shore",
+      "Nazhi Kinaru",
+      "Valli Cave",
+      "Thoothukudi day trip",
+      "Manapad beach nearby"
+    ],
+    "nearestStation": "Tiruchendur",
     "hasRailAccess": true,
-  "lat": 8.49,
-  "lng": 78.12
-},
-{
-  "id": "tiruttani",
-  "name": "Tiruttani",
-  "fullName": "Tiruttani (Murugan Temple)",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Tiruvallur",
-  "description": "Famous Murugan temple town around 50-60km from Chennai Central, easily reached by rail via Arakkonam/Tiruttani.",
-  "attractions": [
-    "Tiruttani Murugan Temple",
-    "Hill temple steps",
-    "Arakkonam rail hub",
-    "Nagari nearby",
-    "Chennai day trip"
-  ],
-  "nearestStation": "Tiruttani",
+    "lat": 8.49,
+    "lng": 78.12
+  },
+  {
+    "id": "tiruttani",
+    "name": "Tiruttani",
+    "fullName": "Tiruttani (Murugan Temple)",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Tiruvallur",
+    "description": "Famous Murugan temple town around 50-60km from Chennai Central, easily reached by rail via Arakkonam/Tiruttani.",
+    "attractions": [
+      "Tiruttani Murugan Temple",
+      "Hill temple steps",
+      "Arakkonam rail hub",
+      "Nagari nearby",
+      "Chennai day trip"
+    ],
+    "nearestStation": "Tiruttani",
     "hasRailAccess": true,
-  "lat": 13.18,
-  "lng": 79.61
-},
-{
-  "id": "palani",
-  "name": "Palani",
-  "fullName": "Palani (Murugan Temple)",
-  "category": "temple",
-  "emoji": "⛰️",
-  "district": "Dindigul",
-  "description": "Major Murugan temple town on the Dindigul-Palakkad railway route. The easiest approach is often bus from nearby Dindigul.",
-  "attractions": [
-    "Palani Murugan Temple",
-    "Hill temple rope car",
-    "Winch train",
-    "Dindigul transit hub",
-    "Kodaikanal side trip"
-  ],
-  "nearestStation": "Palani",
+    "lat": 13.18,
+    "lng": 79.61
+  },
+  {
+    "id": "palani",
+    "name": "Palani",
+    "fullName": "Palani (Murugan Temple)",
+    "category": "temple",
+    "emoji": "⛰️",
+    "district": "Dindigul",
+    "description": "Major Murugan temple town on the Dindigul-Palakkad railway route. The easiest approach is often bus from nearby Dindigul.",
+    "attractions": [
+      "Palani Murugan Temple",
+      "Hill temple rope car",
+      "Winch train",
+      "Dindigul transit hub",
+      "Kodaikanal side trip"
+    ],
+    "nearestStation": "Palani",
     "hasRailAccess": true,
-  "lat": 10.45,
-  "lng": 77.52
-},
-{
-  "id": "swamimalai",
-  "name": "Swamimalai",
-  "fullName": "Swamimalai Murugan Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Thanjavur",
-  "description": "One of the six sacred abodes of Lord Murugan.",
-  "attractions": [
-    "Swamimalai Murugan Temple",
-    "Kumbakonam Temples",
-    "Cauvery River",
-    "Temple Steps",
-    "Bronze Idol Workshops"
-  ],
-  "nearestStation": "Kumbakonam Railway Station",
+    "lat": 10.45,
+    "lng": 77.52
+  },
+  {
+    "id": "swamimalai",
+    "name": "Swamimalai",
+    "fullName": "Swamimalai Murugan Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Thanjavur",
+    "description": "One of the six sacred abodes of Lord Murugan.",
+    "attractions": [
+      "Swamimalai Murugan Temple",
+      "Kumbakonam Temples",
+      "Cauvery River",
+      "Temple Steps",
+      "Bronze Idol Workshops"
+    ],
+    "nearestStation": "Kumbakonam Railway Station",
     "hasRailAccess": false,
-  "lat": 10.9577,
-  "lng": 79.3292
-},
-{
-  "id": "tenkasi",
-  "name": "Tenkasi",
-  "fullName": "Tenkasi (Courtallam Falls and Kasi Viswanathar)",
-  "category": "temple",
-  "emoji": "💦",
-  "district": "Tenkasi",
-  "description": "Main base for Courtallam Falls and Kasi Viswanathar Temple. Trains going towards Sengottai usually cross Tenkasi.",
-  "attractions": [
-    "Courtallam Main Falls",
-    "Kasi Viswanathar Temple",
-    "Five Falls",
-    "Old Courtallam Falls",
-    "Sengottai route",
-    "Papanasam side trip"
-  ],
-  "nearestStation": "Tenkasi Junction",
+    "lat": 10.9577,
+    "lng": 79.3292
+  },
+  {
+    "id": "tenkasi",
+    "name": "Tenkasi",
+    "fullName": "Tenkasi (Courtallam Falls and Kasi Viswanathar)",
+    "category": "temple",
+    "emoji": "💦",
+    "district": "Tenkasi",
+    "description": "Main base for Courtallam Falls and Kasi Viswanathar Temple. Trains going towards Sengottai usually cross Tenkasi.",
+    "attractions": [
+      "Courtallam Main Falls",
+      "Kasi Viswanathar Temple",
+      "Five Falls",
+      "Old Courtallam Falls",
+      "Sengottai route",
+      "Papanasam side trip"
+    ],
+    "nearestStation": "Tenkasi Junction",
     "hasRailAccess": true,
-  "lat": 8.96,
-  "lng": 77.31
-},
-{
-  "id": "thiruparankundram",
-  "name": "Thiruparankundram",
-  "fullName": "Thiruparankundram Murugan Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Madurai",
-  "description": "Ancient rock-cut Murugan temple near Madurai.",
-  "attractions": [
-    "Thiruparankundram Temple",
-    "Rock Cut Cave Temple",
-    "Temple Hill",
-    "Madurai City",
-    "Local Markets"
-  ],
-  "nearestStation": "Madurai Junction",
+    "lat": 8.96,
+    "lng": 77.31
+  },
+  {
+    "id": "thiruparankundram",
+    "name": "Thiruparankundram",
+    "fullName": "Thiruparankundram Murugan Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Madurai",
+    "description": "Ancient rock-cut Murugan temple near Madurai.",
+    "attractions": [
+      "Thiruparankundram Temple",
+      "Rock Cut Cave Temple",
+      "Temple Hill",
+      "Madurai City",
+      "Local Markets"
+    ],
+    "nearestStation": "Madurai Junction",
     "hasRailAccess": false,
-  "lat": 9.8818,
-  "lng": 78.0717
-},
-{
-  "id": "pazhamudircholai",
-  "name": "Pazhamudircholai",
-  "fullName": "Pazhamudircholai Murugan Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Madurai",
-  "description": "Hill temple dedicated to Lord Murugan near Madurai.",
-  "attractions": [
-    "Pazhamudircholai Temple",
-    "Azhagar Kovil",
-    "Hill Forest",
-    "Noopura Ganga",
-    "Nature Trails"
-  ],
-  "nearestStation": "Madurai Junction",
+    "lat": 9.8818,
+    "lng": 78.0717
+  },
+  {
+    "id": "pazhamudircholai",
+    "name": "Pazhamudircholai",
+    "fullName": "Pazhamudircholai Murugan Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Madurai",
+    "description": "Hill temple dedicated to Lord Murugan near Madurai.",
+    "attractions": [
+      "Pazhamudircholai Temple",
+      "Azhagar Kovil",
+      "Hill Forest",
+      "Noopura Ganga",
+      "Nature Trails"
+    ],
+    "nearestStation": "Madurai Junction",
     "hasRailAccess": false,
-  "lat": 10.0246,
-  "lng": 78.2138
-},
-{
-  "id": "kapaleeshwarar",
-  "name": "Kapaleeshwarar Temple",
-  "fullName": "Kapaleeshwarar Temple Mylapore",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Chennai",
-  "description": "Historic Shiva temple in Mylapore known for Dravidian architecture and spiritual significance.",
-  "attractions": [
-    "Kapaleeshwarar Temple",
-    "Janal Kadai",
-    "Temple Festivals",
-    "Santhome Basilica",
-  ],
-  "nearestStation": "Mylapore MRTS Station",
+    "lat": 10.0246,
+    "lng": 78.2138
+  },
+  {
+    "id": "kapaleeshwarar",
+    "name": "Kapaleeshwarar Temple",
+    "fullName": "Kapaleeshwarar Temple Mylapore",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Chennai",
+    "description": "Historic Shiva temple in Mylapore known for Dravidian architecture and spiritual significance.",
+    "attractions": [
+      "Kapaleeshwarar Temple",
+      "Janal Kadai",
+      "Temple Festivals",
+      "Santhome Basilica",
+    ],
+    "nearestStation": "Mylapore MRTS Station",
     "hasRailAccess": false,
-  "lat": 13.0339,
-  "lng": 80.2697
-},
-{
-  "id": "kamakshi-amman",
-  "name": "Kamakshi Amman Temple",
-  "fullName": "Kamakshi Amman Temple Kanchipuram",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Kanchipuram",
-  "description": "One of the most important Shakti Peethas dedicated to Goddess Kamakshi.",
-  "attractions": [
-    "Kamakshi Amman Temple",
-    "Ekambareswarar Temple",
-    "Silk Saree Markets",
-    "Temple Streets",
-    "Ancient Architecture"
-  ],
-  "nearestStation": "Arakkonam Junction",
+    "lat": 13.0339,
+    "lng": 80.2697
+  },
+  {
+    "id": "kamakshi-amman",
+    "name": "Kamakshi Amman Temple",
+    "fullName": "Kamakshi Amman Temple Kanchipuram",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Kanchipuram",
+    "description": "One of the most important Shakti Peethas dedicated to Goddess Kamakshi.",
+    "attractions": [
+      "Kamakshi Amman Temple",
+      "Ekambareswarar Temple",
+      "Silk Saree Markets",
+      "Temple Streets",
+      "Ancient Architecture"
+    ],
+    "nearestStation": "Arakkonam Junction",
     "hasRailAccess": false,
-  "lat": 12.8476,
-  "lng": 79.6994
-},
-{
-  "id": "kailasanathar",
-  "name": "Kailasanathar Temple",
-  "fullName": "Kailasanathar Temple Kanchipuram",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Kanchipuram",
-  "description": "Oldest sandstone temple in Kanchipuram dedicated to Lord Shiva.",
-  "attractions": [
-    "Kailasanathar Temple",
-    "Ancient Sculptures",
-    "Temple Architecture",
-    "Kanchipuram Silk Shops",
-    "Historic Monuments"
-  ],
-  "nearestStation": "Arakkonam Junction",
+    "lat": 12.8476,
+    "lng": 79.6994
+  },
+  {
+    "id": "kailasanathar",
+    "name": "Kailasanathar Temple",
+    "fullName": "Kailasanathar Temple Kanchipuram",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Kanchipuram",
+    "description": "Oldest sandstone temple in Kanchipuram dedicated to Lord Shiva.",
+    "attractions": [
+      "Kailasanathar Temple",
+      "Ancient Sculptures",
+      "Temple Architecture",
+      "Kanchipuram Silk Shops",
+      "Historic Monuments"
+    ],
+    "nearestStation": "Arakkonam Junction",
     "hasRailAccess": false,
-  "lat": 12.8476,
-  "lng": 79.6994
-},
-{
-  "id": "suchindram",
-  "name": "Suchindram",
-  "fullName": "Suchindram Thanumalayan Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Kanyakumari",
-  "description": "Famous temple dedicated to the Trinity of Shiva, Vishnu and Brahma.",
-  "attractions": [
-    "Thanumalayan Temple",
-    "Musical Pillars",
-    "Hanuman Statue",
-    "Temple Carvings",
-    "Nearby Kanyakumari"
-  ],
-  "nearestStation": "Nagercoil Junction",
+    "lat": 12.8476,
+    "lng": 79.6994
+  },
+  {
+    "id": "suchindram",
+    "name": "Suchindram",
+    "fullName": "Suchindram Thanumalayan Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Kanyakumari",
+    "description": "Famous temple dedicated to the Trinity of Shiva, Vishnu and Brahma.",
+    "attractions": [
+      "Thanumalayan Temple",
+      "Musical Pillars",
+      "Hanuman Statue",
+      "Temple Carvings",
+      "Nearby Kanyakumari"
+    ],
+    "nearestStation": "Nagercoil Junction",
     "hasRailAccess": false,
-  "lat": 8.1549,
-  "lng": 77.4670
-},
-{
-  "id": "bhagavathy-amman",
-  "name": "Bhagavathy Amman Temple",
-  "fullName": "Kanyakumari Bhagavathy Amman Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Kanyakumari",
-  "description": "Sacred seaside temple dedicated to Goddess Devi at the southern tip of India.",
-  "attractions": [
-    "Bhagavathy Amman Temple",
-    "Vivekananda Rock Memorial",
-    "Thiruvalluvar Statue",
-    "Sunrise Point",
-    "Kanyakumari Beach"
-  ],
-  "nearestStation": "Kanyakumari Railway Station",
+    "lat": 8.1549,
+    "lng": 77.4670
+  },
+  {
+    "id": "bhagavathy-amman",
+    "name": "Bhagavathy Amman Temple",
+    "fullName": "Kanyakumari Bhagavathy Amman Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Kanyakumari",
+    "description": "Sacred seaside temple dedicated to Goddess Devi at the southern tip of India.",
+    "attractions": [
+      "Bhagavathy Amman Temple",
+      "Vivekananda Rock Memorial",
+      "Thiruvalluvar Statue",
+      "Sunrise Point",
+      "Kanyakumari Beach"
+    ],
+    "nearestStation": "Kanyakumari Railway Station",
     "hasRailAccess": false,
-  "lat": 8.0780,
-  "lng": 77.5550
-},
-{
-  "id": "parthasarathy",
-  "name": "Parthasarathy Temple",
-  "fullName": "Parthasarathy Perumal Temple",
-  "category": "temple",
-  "emoji": "🛕",
-  "district": "Chennai",
-  "description": "Ancient Vishnu temple located in Triplicane dedicated to Lord Krishna.",
-  "attractions": [
-    "Parthasarathy Temple",
-    "Triplicane Streets",
-    "Marina Beach",
-    "Historic Architecture"
-  ],
-  "nearestStation": "Chepauk MRTS Station",
+    "lat": 8.0780,
+    "lng": 77.5550
+  },
+  {
+    "id": "parthasarathy",
+    "name": "Parthasarathy Temple",
+    "fullName": "Parthasarathy Perumal Temple",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Chennai",
+    "description": "Ancient Vishnu temple located in Triplicane dedicated to Lord Krishna.",
+    "attractions": [
+      "Parthasarathy Temple",
+      "Triplicane Streets",
+      "Marina Beach",
+      "Historic Architecture"
+    ],
+    "nearestStation": "Chepauk MRTS Station",
     "hasRailAccess": false,
-  "lat": 13.0530,
-  "lng": 80.2756
-},
-{
-  "id": "sankarankoil",
-  "name": "Sankarankoil",
-  "fullName": "Sankarankoil (Sankaranarayanar Temple)",
-  "category": "temple",
-  "emoji": "🔱",
-  "district": "Tenkasi",
-  "description": "Temple town in the Tenkasi belt, famous for Sankaranarayanar Temple. Easy to combine with Tenkasi and Srivilliputhur.",
-  "attractions": [
-    "Sankaranarayanar Temple",
-    "Tenkasi day trip",
-    "Srivilliputhur Andal Temple",
-    "Courtallam Falls",
-    "Rajapalayam belt"
-  ],
-  "nearestStation": "Sankarankovil",
+    "lat": 13.0530,
+    "lng": 80.2756
+  },
+  {
+    "id": "sankarankoil",
+    "name": "Sankarankoil",
+    "fullName": "Sankarankoil (Sankaranarayanar Temple)",
+    "category": "temple",
+    "emoji": "🔱",
+    "district": "Tenkasi",
+    "description": "Temple town in the Tenkasi belt, famous for Sankaranarayanar Temple. Easy to combine with Tenkasi, Srivilliputhur, and Courtallam — all within the same one-day circuit.",
+    "attractions": [
+      "Sankaranarayanar Temple 🛕",
+      "Tenkasi day trip",
+      "Srivilliputhur Andal Temple",
+      "Courtallam Falls 💦",
+      "Rajapalayam belt"
+    ],
+    "nearestStation": "Sankarankovil",
     "hasRailAccess": false,
-  "lat": 9.17,
-  "lng": 77.55
-},
+    "lat": 9.17,
+    "lng": 77.55
+  },
+  {
+    "id": "srivilliputhur",
+    "name": "Srivilliputhur",
+    "fullName": "Srivilliputhur (Andal Kovil — Emblem of Tamil Nadu)",
+    "category": "temple",
+    "emoji": "🪷",
+    "district": "Virudhunagar",
+    "description": "Home to the legendary Andal Kovil (Vadapatrasayi Perumal Temple) — whose 11-storey rajagopuram is the official emblem of the Tamil Nadu government. The presiding deity Andal is among the most revered saints of Vaishnavism. Beyond spirituality, the town is the undisputed capital of Palkova (milk fudge sweet) in Tamil Nadu. Kartick Mess near the temple serves outstanding local meals.",
+    "attractions": [
+      "Andal Kovil (Vadapatrasayi Temple) 🪷",
+      "Rajagopuram — Tamil Nadu State Emblem 🏛️",
+      "Andal Shrine (Goda Devi Sannidhi) 🌸",
+      "Palkova Sweet Shops 🍮",
+      "Kartick Mess (Local Meals near Temple) 🍛",
+      "Singampatti Wildlife Sanctuary (Nearby) 🐘",
+      "Vaigai River Viewpoint 🌊",
+      "Sundarar Temple 🛕"
+    ],
+    "nearestStation": "Srivilliputhur",
+    "hasRailAccess": true,
+    "lat": 9.51,
+    "lng": 77.63
+  },
   {
     "id": "coonoor",
     "name": "Coonoor",
@@ -1250,26 +1273,26 @@ const rawDestinations: TNDestination[] = [
     "lat": 9.74,
     "lng": 77.41
   },
-{
-  "id": "thekkady",
-  "name": "Thekkady",
-  "fullName": "Thekkady (Kumily / Periyar Tiger Reserve)",
-  "category": "wildlife",
-  "emoji": "🐘",
-  "district": "Idukki",
-  "description": "Train to Kottayam or Madurai, then buses to Kumily and Thekkady.",
-  "attractions": [
-    "Periyar Tiger Reserve",
-    "Boat safari",
-    "Spice plantations",
-    "Forest trekking",
-    "Elephant camp"
-  ],
-  "nearestStation": "Kottayam",
+  {
+    "id": "thekkady",
+    "name": "Thekkady",
+    "fullName": "Thekkady (Kumily / Periyar Tiger Reserve)",
+    "category": "wildlife",
+    "emoji": "🐘",
+    "district": "Idukki",
+    "description": "Train to Kottayam or Madurai, then buses to Kumily and Thekkady.",
+    "attractions": [
+      "Periyar Tiger Reserve",
+      "Boat safari",
+      "Spice plantations",
+      "Forest trekking",
+      "Elephant camp"
+    ],
+    "nearestStation": "Kottayam",
     "hasRailAccess": false,
-  "lat": 9.5949,
-  "lng": 77.1741
-},
+    "lat": 9.5949,
+    "lng": 77.1741
+  },
   {
     "id": "sirumalai",
     "name": "Sirumalai",
@@ -1330,17 +1353,22 @@ const rawDestinations: TNDestination[] = [
   {
     "id": "courtallam",
     "name": "Courtallam",
-    "fullName": "Courtallam Falls",
+    "fullName": "Courtallam (Kutralam Falls — Spa of South India)",
     "category": "wildlife",
-    "emoji": "🌿",
+    "emoji": "💦",
     "district": "Tenkasi",
-    "description": "All Sengottai-side trains cross Tenkasi; buses/autos connect to the falls.",
+    "description": "Kutralam is the 'Spa of South India' — medicinal waterfalls fed by the Western Ghats monsoon. The water carries herbal minerals from forest streams. Seven different falls, each with its own mood. Plus the legendary Courtallam Border Rahmath Kadai — famous across TN for its sutta parotta and mutton biryani.",
     "attractions": [
-      "Main Falls",
-      "Five Falls",
-      "Old Courtallam",
-      "Tiger Falls",
-      "Tenkasi temple"
+      "Main Falls (Peraruvi) 💦",
+      "Five Falls (Aintharuvi) 🌊",
+      "Old Courtallam Falls 🌿",
+      "Tiger Falls (Puli Aruvi) 🐯",
+      "Honey Falls (Then Aruvi) 🍯",
+      "Shenbaga Devi Falls 🌸",
+      "Chittar Falls 💧",
+      "Kasi Viswanathar Temple 🛕",
+      "Courtallam Border Rahmath Kadai 🍖 (Famous Parotta & Mutton Biryani)",
+      "Tenkasi Market 🛒"
     ],
     "nearestStation": "Tenkasi Junction",
     "hasRailAccess": false,
@@ -1839,7 +1867,7 @@ const rawDestinations: TNDestination[] = [
     "lat": 11.12,
     "lng": 79.83
   }
-  
+
 ];
 
 const SPECIFIC_METADATA: Record<string, Partial<TNDestination>> = {
@@ -1928,16 +1956,28 @@ const SPECIFIC_METADATA: Record<string, Partial<TNDestination>> = {
     budgetReliability: 90
   },
   courtallam: {
-    whyVisit: "Medicinal mountain waterfalls, local food, and refreshing monsoon mist.",
+    whyVisit: "Medicinal waterfalls fed by Western Ghats streams — called the Spa of South India. Seven different falls each with a unique character. Peak season Jun–Sep when the monsoon fills every fall. And after all that nature: head to Courtallam Border Rahmath Kadai for legendary sutta parotta and mutton biryani — a must-eat for every visitor.",
     recommendedDays: 2,
     bestMonths: ["June", "July", "August", "September"],
-    travelStyles: ["nature", "waterfalls", "relaxation"],
+    travelStyles: ["nature", "waterfalls", "relaxation", "foodie"],
     difficulty: "easy",
-    seasonalTags: ["waterfalls_active", "monsoon_special"],
+    seasonalTags: ["waterfalls_active", "monsoon_special", "non_veg_food"],
     costIndex: 3,
     mobilityProfile: "medium",
-    activityProfile: { freeAttractions: 5, paidAttractions: 1, averageEntryFee: 20 },
+    activityProfile: { freeAttractions: 6, paidAttractions: 1, averageEntryFee: 20 },
     budgetReliability: 85
+  },
+  srivilliputhur: {
+    whyVisit: "Srivilliputhur's Andal Kovil is not just a temple — its rajagopuram is the official emblem of Tamil Nadu printed on every government document. A deeply spiritual Vaishnava destination. Famous for Palkova (the best in TN, buy from shops near the temple). Kartick Mess nearby serves a filling South Indian meal for ₹80. Easy to combine with Sankarankoil, Tenkasi, and Courtallam as a 2-day Tenkasi belt circuit.",
+    recommendedDays: 1,
+    bestMonths: ["October", "November", "December", "January", "February", "March"],
+    travelStyles: ["spiritual", "heritage", "foodie", "culture"],
+    difficulty: "easy",
+    seasonalTags: ["temple_town", "andal_festival", "palkova"],
+    costIndex: 2,
+    mobilityProfile: "low",
+    activityProfile: { freeAttractions: 5, paidAttractions: 1, averageEntryFee: 0 },
+    budgetReliability: 95
   },
   madurai: {
     whyVisit: "Meenakshi Amman Temple, historical streets, and legendary street food culture.",
@@ -2081,9 +2121,9 @@ export const getDistance = (
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((fromLat * Math.PI) / 180) *
-      Math.cos((toLat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos((toLat * Math.PI) / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
