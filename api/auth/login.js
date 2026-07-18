@@ -1,9 +1,14 @@
-import { signToken, createSessionCookie } from "../utils/auth.js";
+import { signToken, createSessionCookie, verifyRequestOrigin } from "../utils/auth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+
+  // Enforce CSRF verification for login requests
+  if (!verifyRequestOrigin(req)) {
+    return res.status(403).json({ error: "Forbidden: CSRF check failed." });
   }
 
   const { uid, email, name, avatar } = req.body;

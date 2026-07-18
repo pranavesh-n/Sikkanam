@@ -2009,7 +2009,7 @@ const CATEGORY_DEFAULTS: Record<string, Partial<TNDestination>> = {
   hill: {
     whyVisit: "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     recommendedDays: 3,
-    bestMonths: ["October", "November", "December", "January", "February", "March", "April", "May"],
+    bestMonths: ["March", "April", "May"],
     travelStyles: ["nature", "scenic", "roadtrip"],
     difficulty: "moderate",
     seasonalTags: ["hill_station", "misty"],
@@ -2021,7 +2021,7 @@ const CATEGORY_DEFAULTS: Record<string, Partial<TNDestination>> = {
   beach: {
     whyVisit: "Golden sands, coastal breeze, and serene ocean views.",
     recommendedDays: 2,
-    bestMonths: ["October", "November", "December", "January", "February", "March"],
+    bestMonths: ["January", "February"],
     travelStyles: ["coastal", "relaxation", "seafood"],
     difficulty: "easy",
     seasonalTags: ["coastal", "beach_vibes"],

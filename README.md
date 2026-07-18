@@ -30,7 +30,7 @@ Sikkanam estimates hotel price ranges based on the actual number of nearby lodgi
 ### 5. Real-Time Sync & Multi-Database Backend
 Sikkanam is a fully connected full-stack application. Your travel profile, saved itineraries, and wishlists are securely stored and synced across all your devices using a highly optimized, modern cloud architecture.
 
-### 6. 76 Curated Destinations 🗺️
+### 6. 87 Curated Destinations 🗺️
 Covers the full breadth of Tamil Nadu — from the Nilgiri hills to Kanyakumari, from temple towns to remote waterfalls. Every destination has curated metadata: best travel months, difficulty level, recommended days, and local food spots.
 
 ---

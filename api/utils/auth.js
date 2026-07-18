@@ -29,9 +29,57 @@ export function verifyToken(token) {
 }
 
 /**
+ * Verifies that the request's Origin or Referer matches the Host to prevent CSRF attacks.
+ * Returns true if valid (or if the method is safe like GET), false otherwise.
+ */
+export function verifyRequestOrigin(req) {
+  // Safe methods do not require CSRF checks
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    return true;
+  }
+
+  const host = req.headers.host;
+  const origin = req.headers.origin;
+  const referer = req.headers.referer;
+
+  // 1. Try to verify using the Origin header
+  if (origin) {
+    try {
+      const originHost = new URL(origin).host;
+      if (originHost === host) {
+        return true;
+      }
+    } catch (e) {
+      console.warn("Invalid Origin header URL:", origin);
+    }
+  }
+
+  // 2. Fallback to Referer header if Origin is not present or parsing failed
+  if (referer) {
+    try {
+      const refererHost = new URL(referer).host;
+      if (refererHost === host) {
+        return true;
+      }
+    } catch (e) {
+      console.warn("Invalid Referer header URL:", referer);
+    }
+  }
+
+  // 3. Block request if neither Origin nor Referer matches host
+  console.warn(`CSRF alert: host (${host}) matches neither Origin (${origin}) nor Referer (${referer}). Request blocked.`);
+  return false;
+}
+
+/**
  * Extracts and verifies the user session token from request cookies
  */
 export function getSessionFromReq(req) {
+  // Enforce CSRF verification for mutating requests
+  if (!verifyRequestOrigin(req)) {
+    return null;
+  }
+
   const cookies = parse(req.headers.cookie || "");
   const token = cookies[COOKIE_NAME];
   if (!token) return null;
