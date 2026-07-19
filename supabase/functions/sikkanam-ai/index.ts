@@ -85,19 +85,21 @@ Deno.serve(async (req) => {
     let lastBody = "";
     let reply = "";
 
-    const geminiResponse = await callGemini(GEMINI_MODEL, contents, GEMINI_API_KEY);
+    const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    for (const model of GEMINI_MODELS) {
+      const geminiResponse = await callGemini(model, contents, GEMINI_API_KEY);
 
-    if (geminiResponse.ok) {
-      const payload = await geminiResponse.json();
-      reply = extractReply(payload);
-      if (!reply) {
+      if (geminiResponse.ok) {
+        const payload = await geminiResponse.json();
+        reply = extractReply(payload);
+        if (reply) break;
         lastStatus = 500;
         lastBody = JSON.stringify(payload);
+      } else {
+        lastStatus = geminiResponse.status;
+        lastBody = await geminiResponse.text();
+        console.error("Gemini error:", model, geminiResponse.status, lastBody);
       }
-    } else {
-      lastStatus = geminiResponse.status;
-      lastBody = await geminiResponse.text();
-      console.error("Gemini error:", GEMINI_MODEL, geminiResponse.status, lastBody);
     }
 
     if (!reply && lastStatus === 429 && LOVABLE_API_KEY) {

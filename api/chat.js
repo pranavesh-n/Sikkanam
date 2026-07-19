@@ -535,10 +535,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages } = req.body;
+    const { messages } = req.body || {};
+    // Helper to dynamically read env vars if not present in process.env or if updated in .env file
+    const getEnvVar = (key) => {
+      if (process.env[key] && !process.env[key].includes("YOUR_")) {
+        return process.env[key].trim();
+      }
+      try {
+        const envPath = path.join(process.cwd(), ".env");
+        if (fs.existsSync(envPath)) {
+          const envContent = fs.readFileSync(envPath, "utf-8");
+          for (const line of envContent.split("\n")) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith("#")) continue;
+            const [k, ...v] = trimmed.split("=");
+            if (k.trim() === key) {
+              const val = v.join("=").trim().replace(/^['"]|['"]$/g, "");
+              if (val && !val.includes("YOUR_")) {
+                process.env[key] = val;
+                return val;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        // Ignore read errors
+      }
+      return undefined;
+    };
 
-    const GROQ_API_KEY = process.env.GROQ_API_KEY;
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const GROQ_API_KEY = getEnvVar("GROQ_API_KEY");
+    const GEMINI_API_KEY = getEnvVar("GEMINI_API_KEY");
 
     const prompt = messages
       ?.map((m) => `${m.role}: ${m.content}`)
@@ -710,103 +737,109 @@ ${ragContext}
 
     // 1. Prioritize GROQ API if key is present
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
-      try {
-        console.log("[AI] Attempting GROQ API call...");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-        
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${GROQ_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [
-              {
-                role: "system",
-                content: systemPromptText,
-              },
-              ...messages,
-            ],
-            temperature: 0.7,
-            max_tokens: 2048,
-          }),
-        });
-        
-        clearTimeout(timeoutId);
-        const data = await response.json().catch(() => ({}));
-        console.log("[AI] Groq response status:", response.status, "Error:", data?.error);
+      const groqModels = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "mixtral-8x7b-32768"];
+      for (const groqModel of groqModels) {
+        try {
+          console.log(`[AI] Attempting GROQ API call with model: ${groqModel}...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+          
+          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${GROQ_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            signal: controller.signal,
+            body: JSON.stringify({
+              model: groqModel,
+              messages: [
+                {
+                  role: "system",
+                  content: systemPromptText,
+                },
+                ...messages,
+              ],
+              temperature: 0.7,
+              max_tokens: 2048,
+            }),
+          });
+          
+          clearTimeout(timeoutId);
+          const data = await response.json().catch(() => ({}));
+          console.log(`[AI] Groq (${groqModel}) status:`, response.status, "Error:", data?.error);
 
-        if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
-          const reply = data.choices[0].message.content;
-          console.log("[AI] ✅ GROQ API success");
-          saveToCache(fullNormalizedQuery, reply);
-          return res.status(200).json({ reply });
-        } else {
-          console.warn("[AI] ❌ Groq returned error:", data?.error?.message || "Unknown error", "Status:", response.status);
+          if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
+            const reply = data.choices[0].message.content;
+            console.log(`[AI] ✅ GROQ API (${groqModel}) success`);
+            saveToCache(fullNormalizedQuery, reply);
+            return res.status(200).json({ reply });
+          } else {
+            console.warn(`[AI] ❌ Groq (${groqModel}) returned error:`, data?.error?.message || "Unknown error", "Status:", response.status);
+          }
+        } catch (err) {
+          console.warn(`[AI] ❌ Groq API (${groqModel}) request failed:`, err.message);
         }
-      } catch (err) {
-        console.warn("[AI] ❌ Groq API request failed:", err.message);
       }
     }
 
     // 2. Fallback to Gemini API if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      try {
-        console.log("[AI] Attempting Gemini API call...");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-        
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: `${systemPromptText}\nUser query:\n${prompt}`,
-                    },
-                  ],
-                },
-              ],
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048,
+      const geminiModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      for (const geminiModel of geminiModels) {
+        try {
+          console.log(`[AI] Attempting Gemini API call with model: ${geminiModel}...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+          
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
               },
-            }),
-          }
-        );
-        
-        clearTimeout(timeoutId);
-        const data = await response.json().catch(() => ({}));
-        console.log("[AI] Gemini response status:", response.status, "Error:", data?.error);
+              signal: controller.signal,
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      {
+                        text: `${systemPromptText}\nUser query:\n${prompt}`,
+                      },
+                    ],
+                  },
+                ],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 2048,
+                },
+              }),
+            }
+          );
+          
+          clearTimeout(timeoutId);
+          const data = await response.json().catch(() => ({}));
+          console.log(`[AI] Gemini (${geminiModel}) status:`, response.status, "Error:", data?.error);
 
-        if (
-          response.ok &&
-          data.candidates &&
-          data.candidates[0] &&
-          data.candidates[0].content &&
-          data.candidates[0].content.parts &&
-          data.candidates[0].content.parts[0]
-        ) {
-          const reply = data.candidates[0].content.parts[0].text;
-          console.log("[AI] ✅ Gemini API success");
-          saveToCache(fullNormalizedQuery, reply);
-          return res.status(200).json({ reply });
-        } else {
-          console.warn("[AI] ❌ Gemini returned error:", data?.error?.message || "Unknown error", "Status:", response.status);
+          if (
+            response.ok &&
+            data.candidates &&
+            data.candidates[0] &&
+            data.candidates[0].content &&
+            data.candidates[0].content.parts &&
+            data.candidates[0].content.parts[0]
+          ) {
+            const reply = data.candidates[0].content.parts[0].text;
+            console.log(`[AI] ✅ Gemini API (${geminiModel}) success`);
+            saveToCache(fullNormalizedQuery, reply);
+            return res.status(200).json({ reply });
+          } else {
+            console.warn(`[AI] ❌ Gemini (${geminiModel}) returned error:`, data?.error?.message || "Unknown error", "Status:", response.status);
+          }
+        } catch (err) {
+          console.warn(`[AI] ❌ Gemini API (${geminiModel}) request failed:`, err.message);
         }
-      } catch (err) {
-        console.warn("[AI] ❌ Gemini API request failed:", err.message);
       }
     }
 
