@@ -1,7 +1,6 @@
 {
   "name": "Sikkanam — Tamil Nadu Travel Planner",
   "short_name": "Sikkanam",
-  "description": "Plan affordable trips across Tamil Nadu with AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
