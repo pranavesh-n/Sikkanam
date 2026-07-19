@@ -711,12 +711,17 @@ ${ragContext}
     // 1. Prioritize GROQ API if key is present
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
       try {
+        console.log("[AI] Attempting GROQ API call...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${GROQ_API_KEY}`,
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
           body: JSON.stringify({
             model: "llama-3.1-8b-instant",
             messages: [
@@ -730,32 +735,39 @@ ${ragContext}
             max_tokens: 2048,
           }),
         });
+        
+        clearTimeout(timeoutId);
+        const data = await response.json().catch(() => ({}));
+        console.log("[AI] Groq response status:", response.status, "Error:", data?.error);
 
-        const data = await response.json();
-        console.log("Groq response status:", response.status);
-
-        if (response.status === 200 && data.choices && data.choices[0] && data.choices[0].message) {
+        if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
           const reply = data.choices[0].message.content;
+          console.log("[AI] ✅ GROQ API success");
           saveToCache(fullNormalizedQuery, reply);
           return res.status(200).json({ reply });
         } else {
-          console.error("Groq returned status/data error:", data);
+          console.warn("[AI] ❌ Groq returned error:", data?.error?.message || "Unknown error", "Status:", response.status);
         }
       } catch (err) {
-        console.error("Groq API request failed, trying fallback to Gemini:", err);
+        console.warn("[AI] ❌ Groq API request failed:", err.message);
       }
     }
 
     // 2. Fallback to Gemini API if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
       try {
+        console.log("[AI] Attempting Gemini API call...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [
                 {
@@ -773,12 +785,13 @@ ${ragContext}
             }),
           }
         );
-
-        const data = await response.json();
-        console.log("Gemini response status:", response.status);
+        
+        clearTimeout(timeoutId);
+        const data = await response.json().catch(() => ({}));
+        console.log("[AI] Gemini response status:", response.status, "Error:", data?.error);
 
         if (
-          response.status === 200 &&
+          response.ok &&
           data.candidates &&
           data.candidates[0] &&
           data.candidates[0].content &&
@@ -786,21 +799,23 @@ ${ragContext}
           data.candidates[0].content.parts[0]
         ) {
           const reply = data.candidates[0].content.parts[0].text;
+          console.log("[AI] ✅ Gemini API success");
           saveToCache(fullNormalizedQuery, reply);
           return res.status(200).json({ reply });
         } else {
-          console.error("Gemini returned status/data error:", data);
+          console.warn("[AI] ❌ Gemini returned error:", data?.error?.message || "Unknown error", "Status:", response.status);
         }
       } catch (err) {
-        console.error("Gemini API request failed:", err);
+        console.warn("[AI] ❌ Gemini API request failed:", err.message);
       }
     }
 
     // 3. Robust Offline Fallback (If all APIs fail or keys are invalid/missing/rate-limited)
-    console.log("All AI APIs unavailable or rate-limited. Serving local database response.");
+    console.warn("[AI] ⚠️ All AI APIs unavailable. Generating local fallback response...");
     const offlineReply = generateLocalFallbackResponse(intent, params, destinations, tourismAssets, normalizedQuery);
     return res.status(200).json({
       reply: offlineReply,
+      offline: true,
     });
 
   } catch (error) {

@@ -1013,11 +1013,16 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
     let reply = "";
     if (GEMINI_API_KEY) {
       try {
+        console.log("[AI] Attempting Gemini API call for trip planning...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [
                 {
@@ -1036,8 +1041,12 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
           }
         );
 
-        const data = await response.json();
+        clearTimeout(timeoutId);
+        const data = await response.json().catch(() => ({}));
+        console.log("[AI] Gemini plan response status:", response.status);
+        
         if (
+          response.ok &&
           data.candidates &&
           data.candidates[0] &&
           data.candidates[0].content &&
@@ -1045,14 +1054,17 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
           data.candidates[0].content.parts[0]
         ) {
           reply = data.candidates[0].content.parts[0].text;
+          console.log("[AI] ✅ Gemini plan generation success");
         } else {
-          reply = "No response from AI companion";
+          console.warn("[AI] ❌ Gemini returned error, Status:", response.status);
+          reply = "Your detailed budget and route are generated above. AI companion is temporarily offline.";
         }
       } catch (err) {
-        console.warn("AI companion failed:", err);
-        reply = "Sikkanam AI companion is currently offline. Your budget is fully generated above.";
+        console.warn("[AI] ❌ Gemini API request failed:", err.message);
+        reply = "Your detailed budget and route are generated above. AI companion is temporarily offline.";
       }
     } else {
+      console.warn("[AI] ⚠️ Gemini API key not configured");
       reply = "AI Travel Companion is offline (API key not configured). Your budget and route calculations are fully detailed above.";
     }
 
