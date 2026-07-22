@@ -7,7 +7,7 @@ import { lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 import Maps from "./pages/Maps";  
 import WhatsNewModal from "./components/WhatsNewModal";
 
@@ -53,6 +53,7 @@ const App = () => (
           </Suspense>
         </AppShell>
       </BrowserRouter>
+      <Analytics />
     </TooltipProvider>
   </QueryClientProvider>
 );
