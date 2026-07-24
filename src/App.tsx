@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { Analytics } from "@vercel/analytics/next"
 import Maps from "./pages/Maps";  
 import WhatsNewModal from "./components/WhatsNewModal";
+import InstallPWAModal from "./components/InstallPWAModal";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -34,6 +35,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <WhatsNewModal />
+      <InstallPWAModal />
       <BrowserRouter>
         <AppShell>
           <Suspense fallback={<Loading />}>
