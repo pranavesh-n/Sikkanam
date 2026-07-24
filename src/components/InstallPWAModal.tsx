@@ -7,6 +7,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const SESSION_KEY = "sikkanam_pwa_dismissed_session";
+const INSTALLED_KEY = "sikkanam_pwa_installed";
 
 export default function InstallPWAModal() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -17,70 +18,83 @@ export default function InstallPWAModal() {
   const checkIsStandalone = () => {
     return (
       window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia("(display-mode: window-controls-overlay)").matches ||
       (navigator as any).standalone === true ||
       document.referrer.includes("android-app://")
     );
   };
 
+  const isAlreadyInstalled = () => {
+    try {
+      if (localStorage.getItem(INSTALLED_KEY) === "true") return true;
+    } catch (e) {}
+    return checkIsStandalone();
+  };
+
   useEffect(() => {
-    // 1. Listen for browser beforeinstallprompt
+    if (isAlreadyInstalled()) return;
+
+    // 1. Listen for Chrome/Android appinstalled event
+    const handleAppInstalled = () => {
+      try {
+        localStorage.setItem(INSTALLED_KEY, "true");
+      } catch (e) {}
+      setIsOpen(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    // 2. Listen for browser beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const promptEvent = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(promptEvent);
+
+      // Only prompt if user has not dismissed in session and hasn't installed
+      try {
+        const dismissedInSession = sessionStorage.getItem(SESSION_KEY);
+        if (!dismissedInSession && !isAlreadyInstalled()) {
+          setTimeout(() => {
+            setIsOpen(true);
+          }, 2500);
+        }
+      } catch (err) {}
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // 2. Detect iOS Safari
+    // 3. Detect iOS Safari (where beforeinstallprompt is not supported)
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+    const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
+    
     if (isIosDevice) {
       setIsIOS(true);
-    }
-
-    // 3. Initial check to prompt non-PWA users
-    const searchParams = new URLSearchParams(window.location.search);
-    const forceShow = searchParams.get("showInstall") === "true";
-
-    if (forceShow) {
-      setIsOpen(true);
-    } else if (!checkIsStandalone()) {
       try {
         const dismissedInSession = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissedInSession) {
-          const timer = setTimeout(() => {
+        if (!dismissedInSession && !isAlreadyInstalled()) {
+          setTimeout(() => {
             setIsOpen(true);
-          }, 3000);
-          return () => clearTimeout(timer);
+          }, 3500);
         }
-      } catch (e) {
-        console.warn("sessionStorage check failed", e);
-      }
+      } catch (e) {}
+    }
+
+    // 4. Check Web API getInstalledRelatedApps if supported
+    if ("getInstalledRelatedApps" in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
+        if (relatedApps && relatedApps.length > 0) {
+          try {
+            localStorage.setItem(INSTALLED_KEY, "true");
+          } catch (e) {}
+          setIsOpen(false);
+        }
+      }).catch(() => {});
     }
 
     return () => {
+      window.removeEventListener("appinstalled", handleAppInstalled);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  // Listen for user login event to trigger PWA prompt again after signing in via web
-  useEffect(() => {
-    const handleUserLogin = () => {
-      if (!checkIsStandalone()) {
-        try {
-          sessionStorage.removeItem(SESSION_KEY);
-        } catch (e) {}
-        
-        // Show prompt 1.5 seconds after login succeeds
-        setTimeout(() => {
-          setIsOpen(true);
-        }, 1500);
-      }
-    };
-
-    window.addEventListener("sikkanam:user_login", handleUserLogin);
-    return () => {
-      window.removeEventListener("sikkanam:user_login", handleUserLogin);
     };
   }, []);
 
@@ -100,7 +114,6 @@ export default function InstallPWAModal() {
     }
 
     if (!deferredPrompt) {
-      alert("To install, tap your browser's menu (⋮ or share icon) and select 'Add to Home Screen' or 'Install App'.");
       handleDismiss();
       return;
     }
@@ -109,7 +122,9 @@ export default function InstallPWAModal() {
       await deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
       if (choiceResult.outcome === "accepted") {
-        console.log("User accepted the PWA install prompt");
+        try {
+          localStorage.setItem(INSTALLED_KEY, "true");
+        } catch (e) {}
       }
       setDeferredPrompt(null);
       handleDismiss();
@@ -119,7 +134,7 @@ export default function InstallPWAModal() {
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || isAlreadyInstalled()) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
