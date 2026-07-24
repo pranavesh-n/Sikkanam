@@ -1,7 +1,7 @@
 import { useState, MouseEvent } from "react";
-import { Sparkles, ShieldCheck, Bookmark, Heart, X } from "lucide-react";
+import { Sparkles, Lock, Clock, ShieldCheck, Laptop, X } from "lucide-react";
 
-const VERSION = "2.3";
+const VERSION = "2.4";
 
 // Module-level variable to prevent showing the modal multiple times in the same session
 // even if storage is completely blocked or wiped.
@@ -111,7 +111,7 @@ export default function WhatsNewModal() {
         {/* Top Tag */}
         <div className="mb-4 self-start flex items-center gap-1.5 bg-primary/10 text-primary text-[10px] md:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          NEW • Version {VERSION}
+          NEW • VERSION {VERSION}
         </div>
 
         {/* Title */}
@@ -121,71 +121,59 @@ export default function WhatsNewModal() {
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          New destinations, legendary food spots, and smarter trip planning — all in one update!
+          App Passcode Lock, Smart Auto-Locking, Google Auth PIN Reset, and enhanced privacy features!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 */}
+          {/* Feature 1 — App Passcode Lock */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
+              <Lock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">App Passcode Lock</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Protect your saved itineraries, wishlists, and personal travel preferences with a 4-digit PIN lock.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 2 — Smart Auto-Lock */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Smart 35s Auto-Lock</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Automatically locks when switching apps or locking your device for 35+ seconds. Zero active reading interruptions.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 3 — Google Auth PIN Reset */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Google Authentication</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Google Sign-In PIN Reset</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Google Login is seamlessly integrated and synchronized across Databases.
+                Forgot your PIN? Re-authenticate securely using Google Sign-In after 3 incorrect attempts to reset your passcode.
               </p>
             </div>
           </div>
 
-          {/* Feature 2 */}
+          {/* Feature 4 — PC Keyboard & Touch */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
-              <Bookmark className="w-5 h-5" />
+            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
+              <Laptop className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Exact Route & Distance Calculator</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Desktop Keyboard & Mobile Touch</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Get exact road-network driving distances between any starting point and destination in Tamil Nadu.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-red-500/10 text-red-500 shrink-0">
-              <Heart className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Budget Transit Estimator </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Compare instant travel times and cost breakdowns for TNSTC Buses, Express Trains, and Cabs.
-              </p>
-            </div>
-          </div>
-          {/* Feature 4 */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
-              <Heart className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Calculate Exact Route & Fare</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Get routes and fares directly from any destination detail card on the Explore page.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 5 — New Destinations */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-violet-500/10 text-violet-500 shrink-0">
-              <span className="text-base leading-none">🪷</span>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">New: Srivilliputhur & Courtallam+</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Andal Kovil (TN State Emblem), Palkova sweets &amp; Kartick Mess added. Courtallam now lists all 7 falls + the legendary Rahmath Kadai parotta &amp; mutton biryani spot.
+                Type your PIN seamlessly using physical keyboard numbers (0-9, Backspace) on PC or touch keypad on mobile.
               </p>
             </div>
           </div>

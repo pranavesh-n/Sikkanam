@@ -215,8 +215,9 @@ const Profile = () => {
       </Section>
 
       <p className="text-center text-[11px] text-muted-foreground pt-2">
-        சிக்கனம் · Sikkanam v2.3
+        சிக்கனம் · Sikkanam v2.4
       </p>
+
 
       {showAbout && (
         <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-200">

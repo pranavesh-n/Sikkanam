@@ -86,7 +86,14 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 
 ## 🆕 Changelog
 
+### v2.4 — July 2026
+- 🔒 **App Passcode Lock** — Secure your saved itineraries, wishlists, and personal travel preferences with a 4-digit PIN lock.
+- ⏱️ **Smart 35s Auto-Lock** — Automatically locks when switching apps or locking your device for 35+ seconds. Zero active reading interruptions.
+- 🔑 **Google Sign-In PIN Reset** — Re-authenticate securely with Google Sign-In after 3 failed attempts to reset your passcode.
+- ⌨️ **Desktop Keyboard & Mobile Touch** — Native physical keyboard support (`0-9`, `Backspace`) for desktop users and touch keypad for mobile.
+
 ### v2.3 — July 2026
+
 - 🪷 **New destination: Srivilliputhur** — Andal Kovil (Vadapatrasayi Temple), the rajagopuram of which is the **official emblem of the Tamil Nadu government**. Also covers: Palkova sweet shops and Kartick Mess (famous local meals near the temple).
 - 💦 **Courtallam enriched** — All 7 named falls (Peraruvi, Aintharuvi, Puli Aruvi, Then Aruvi, Shenbaga Devi, Chittar, Old Courtallam) now individually listed. Added the legendary **Courtallam Border Rahmath Kadai** — famous across TN for sutta parotta and mutton biryani.
 - 🔱 **Sankarankoil updated** — Description now reflects the full **Tenkasi belt circuit** (Sankarankoil → Srivilliputhur → Tenkasi → Courtallam).
