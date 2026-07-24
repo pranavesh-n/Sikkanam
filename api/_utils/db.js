@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import mongoose from "mongoose";
 import dns from "dns";
 
-// Force Node to use Google and Cloudflare DNS to bypass local ISP SRV DNS lookup failures
 try {
   dns.setServers(["8.8.8.8", "1.1.1.1"]);
 } catch (e) {
@@ -56,4 +55,3 @@ export async function connectToDatabase() {
 
   return cached.conn;
 }
-

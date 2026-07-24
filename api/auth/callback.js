@@ -1,5 +1,6 @@
-import { supabase } from "../utils/db.js";
-import { signToken, createSessionCookie } from "../utils/auth.js";
+import { supabase } from "../_utils/db.js";
+import { signToken, createSessionCookie } from "../_utils/auth.js";
+
 
 export default async function handler(req, res) {
   const { code } = req.query;

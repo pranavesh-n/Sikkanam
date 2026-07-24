@@ -1,5 +1,6 @@
-import { supabase } from "./utils/db.js";
-import { getSessionFromReq } from "./utils/auth.js";
+import { supabase } from "./_utils/db.js";
+import { getSessionFromReq } from "./_utils/auth.js";
+
 
 export default async function handler(req, res) {
   const decoded = getSessionFromReq(req);

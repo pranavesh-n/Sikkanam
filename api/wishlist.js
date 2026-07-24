@@ -1,6 +1,6 @@
-import { connectToDatabase } from "./utils/db.js";
-import { Wishlist } from "./utils/models.js";
-import { getSessionFromReq } from "./utils/auth.js";
+import { connectToDatabase } from "./_utils/db.js";
+import { Wishlist } from "./_utils/models.js";
+import { getSessionFromReq } from "./_utils/auth.js";
 
 export default async function handler(req, res) {
   const decoded = getSessionFromReq(req);

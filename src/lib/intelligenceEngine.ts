@@ -1,8 +1,9 @@
-import { type TNDestination, type Hotel } from "../data/tnDestinations";
-import { getAttractionDetail } from "../data/activityDatabase";
-import { FOOD_PROFILES, getFoodCostIndex } from "../data/foodProfiles";
-import { HOTEL_RANGES } from "./hotelPrices";
-import { roundFriendly } from "./utils";
+import { type TNDestination, type Hotel } from "@/data/tnDestinations";
+import { getAttractionDetail } from "@/data/activityDatabase";
+import { FOOD_PROFILES, getFoodCostIndex } from "@/data/foodProfiles";
+import { HOTEL_RANGES } from "@/lib/hotelPrices";
+import { roundFriendly } from "@/lib/utils";
+
 
 export type TravelStyle = "budget" | "standard" | "comfort";
 export type TravellerType = "solo" | "couple" | "family" | "friends" | "seniors";
