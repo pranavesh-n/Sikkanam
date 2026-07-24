@@ -4,13 +4,16 @@ import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, Shi
 import { useAuth } from "@/hooks/useAuth";
 import { useAppLock } from "@/context/AppLockContext";
 import { PasscodeSetupModal } from "@/components/PasscodeSetupModal";
+import { DisablePasscodeModal } from "@/components/DisablePasscodeModal";
 import { toast } from "sonner";
 
 const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
-  const { isLockEnabled, disableAppLock, lockApp } = useAppLock();
+  const { isLockEnabled, lockApp } = useAppLock();
   const [showAbout, setShowAbout] = useState(false);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
+  const [showDisablePasscode, setShowDisablePasscode] = useState(false);
+
 
 
   const handleLogin = async () => {
@@ -138,10 +141,11 @@ const Profile = () => {
               return;
             }
             if (isLockEnabled) {
-              disableAppLock();
+              setShowDisablePasscode(true);
             } else {
               setShowPasscodeSetup(true);
             }
+
           }}
           className="block w-full text-left focus:outline-none"
         >
@@ -262,7 +266,13 @@ const Profile = () => {
         isOpen={showPasscodeSetup}
         onClose={() => setShowPasscodeSetup(false)}
       />
+
+      <DisablePasscodeModal
+        isOpen={showDisablePasscode}
+        onClose={() => setShowDisablePasscode(false)}
+      />
     </div>
+
   );
 };
 
