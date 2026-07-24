@@ -133,6 +133,10 @@ const Profile = () => {
       <Section title="Security & Privacy">
         <button
           onClick={() => {
+            if (!user) {
+              toast.error("Please sign in with Google to enable App Lock");
+              return;
+            }
             if (isLockEnabled) {
               disableAppLock();
             } else {
@@ -144,12 +148,19 @@ const Profile = () => {
           <Row
             icon={Lock}
             label="App Passcode Lock"
-            desc={isLockEnabled ? "4-digit PIN lock enabled (Tap to disable)" : "Protect app with 4-digit PIN passcode"}
-            badge={isLockEnabled ? "ON" : "OFF"}
+            desc={
+              !user
+                ? "Sign in with Google to enable 4-digit PIN passcode"
+                : isLockEnabled
+                ? "4-digit PIN lock enabled (Tap to disable)"
+                : "Protect app with 4-digit PIN passcode"
+            }
+            badge={user ? (isLockEnabled ? "ON" : "OFF") : undefined}
+            disabled={!user}
           />
         </button>
 
-        {isLockEnabled && (
+        {user && isLockEnabled && (
           <button
             onClick={() => setShowPasscodeSetup(true)}
             className="block w-full text-left focus:outline-none"
@@ -162,6 +173,7 @@ const Profile = () => {
           </button>
         )}
       </Section>
+
 
 
       {user && (

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { hashPin } from "@/lib/passcode";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface AppLockContextType {
@@ -25,6 +26,8 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading: authLoading } = useAuth();
+
   const [isLockEnabled, setIsLockEnabled] = useState<boolean>(() => {
     return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
   });
@@ -38,6 +41,10 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  // If user logs out or is not authenticated, app lock must not lock the screen
+  const effectiveLockEnabled = Boolean(user && isLockEnabled);
+  const effectiveIsLocked = Boolean(user && isLocked);
+
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_ENABLED, isLockEnabled ? "true" : "false");
   }, [isLockEnabled]);
@@ -46,9 +53,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem(LOCAL_STORAGE_FAILED, failedAttempts.toString());
   }, [failedAttempts]);
 
-  // Standard Security Architecture: Lock ONLY when leaving app / switching tabs for >= 35s or re-opening
+  // Standard Security Architecture: Lock ONLY when user is logged in & leaves app for >= 35s
   useEffect(() => {
-    if (!isLockEnabled) return;
+    if (!effectiveLockEnabled) return;
 
     const recordLeaveTime = () => {
       localStorage.setItem(LOCAL_STORAGE_LEAVE_TIME, Date.now().toString());
@@ -91,9 +98,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [isLockEnabled]);
+  }, [effectiveLockEnabled]);
 
   const setupPasscode = async (pin: string): Promise<boolean> => {
+    if (!user) {
+      toast.error("Please sign in with Google first to enable App Lock");
+      return false;
+    }
     if (pin.length !== 4) return false;
     try {
       const hashed = await hashPin(pin);
@@ -137,7 +148,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const lockApp = () => {
-    if (isLockEnabled) {
+    if (effectiveLockEnabled) {
       setIsLocked(true);
     }
   };
@@ -161,8 +172,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <AppLockContext.Provider
       value={{
-        isLockEnabled,
-        isLocked,
+        isLockEnabled: effectiveLockEnabled,
+        isLocked: effectiveIsLocked,
         failedAttempts,
         setupPasscode,
         verifyPasscode,
