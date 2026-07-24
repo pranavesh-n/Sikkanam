@@ -62,6 +62,10 @@ export function useAuth() {
 
       const data = await res.json();
       setUser(data.user);
+      
+      // Dispatch login event so PWA prompt & other listeners can trigger
+      window.dispatchEvent(new CustomEvent("sikkanam:user_login"));
+      
       return true;
     } catch (err: any) {
       console.error("Google sign in failed:", err);

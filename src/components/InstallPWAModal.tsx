@@ -6,25 +6,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const STORAGE_KEY = "sikkanam_pwa_dismissed_v1";
-
-const getCookie = (name: string): string | null => {
-  try {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  } catch (e) {
-    return null;
-  }
-};
-
-const setCookie = (name: string, value: string, days: number = 30) => {
-  try {
-    const seconds = days * 24 * 60 * 60;
-    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${seconds}; path=/; SameSite=Lax`;
-  } catch (e) {
-    console.warn("Failed to set cookie:", e);
-  }
-};
+const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 
 export default function InstallPWAModal() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -32,64 +14,82 @@ export default function InstallPWAModal() {
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
-  useEffect(() => {
-    // 1. Check if already running as installed PWA (Standalone mode)
-    const isStandalone =
+  const checkIsStandalone = () => {
+    return (
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as any).standalone === true ||
-      document.referrer.includes("android-app://");
+      document.referrer.includes("android-app://")
+    );
+  };
 
-    if (isStandalone) {
-      return; // Already installed!
-    }
+  useEffect(() => {
+    // 1. Listen for browser beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
 
-    // 2. Check if user recently dismissed prompt
-    try {
-      const dismissedLocal = localStorage.getItem(STORAGE_KEY);
-      const dismissedCookie = getCookie(STORAGE_KEY);
-      if (dismissedLocal === "true" || dismissedCookie === "true") {
-        return;
-      }
-    } catch (e) {
-      console.warn("Storage check failed", e);
-    }
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // 3. Detect iOS Safari
+    // 2. Detect iOS Safari
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
     if (isIosDevice) {
       setIsIOS(true);
-      // Show prompt on iOS after a brief delay
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 3500);
-      return () => clearTimeout(timer);
     }
 
-    // 4. Listen for beforeinstallprompt on Chromium/Android/Desktop
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show modal after 3 seconds so user gets a smooth initial landing experience
-      setTimeout(() => {
-        setIsOpen(true);
-      }, 3000);
-    };
+    // 3. Initial check to prompt non-PWA users
+    const searchParams = new URLSearchParams(window.location.search);
+    const forceShow = searchParams.get("showInstall") === "true";
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    if (forceShow) {
+      setIsOpen(true);
+    } else if (!checkIsStandalone()) {
+      try {
+        const dismissedInSession = sessionStorage.getItem(SESSION_KEY);
+        if (!dismissedInSession) {
+          const timer = setTimeout(() => {
+            setIsOpen(true);
+          }, 3000);
+          return () => clearTimeout(timer);
+        }
+      } catch (e) {
+        console.warn("sessionStorage check failed", e);
+      }
+    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
   }, []);
 
+  // Listen for user login event to trigger PWA prompt again after signing in via web
+  useEffect(() => {
+    const handleUserLogin = () => {
+      if (!checkIsStandalone()) {
+        try {
+          sessionStorage.removeItem(SESSION_KEY);
+        } catch (e) {}
+        
+        // Show prompt 1.5 seconds after login succeeds
+        setTimeout(() => {
+          setIsOpen(true);
+        }, 1500);
+      }
+    };
+
+    window.addEventListener("sikkanam:user_login", handleUserLogin);
+    return () => {
+      window.removeEventListener("sikkanam:user_login", handleUserLogin);
+    };
+  }, []);
+
   const handleDismiss = () => {
     setIsOpen(false);
     try {
-      localStorage.setItem(STORAGE_KEY, "true");
-      setCookie(STORAGE_KEY, "true", 30);
+      sessionStorage.setItem(SESSION_KEY, "true");
     } catch (e) {
-      console.warn("Failed to set dismissal", e);
+      console.warn("Failed to save dismissal in sessionStorage", e);
     }
   };
 
@@ -100,7 +100,6 @@ export default function InstallPWAModal() {
     }
 
     if (!deferredPrompt) {
-      // Fallback: If no deferred prompt event available, prompt browser default
       alert("To install, tap your browser's menu (⋮ or share icon) and select 'Add to Home Screen' or 'Install App'.");
       handleDismiss();
       return;
@@ -143,7 +142,6 @@ export default function InstallPWAModal() {
               alt="Sikkanam Logo" 
               className="w-12 h-12 object-contain"
               onError={(e) => {
-                // Fallback text logo if image fails
                 (e.target as HTMLElement).style.display = 'none';
               }}
             />
@@ -155,7 +153,7 @@ export default function InstallPWAModal() {
             Install Sikkanam
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Add to your home screen
+            Add to your home screen for the best experience
           </p>
 
           {/* Benefits List */}
@@ -184,7 +182,7 @@ export default function InstallPWAModal() {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Same app, same data</span> — seamless experience
+                  <span className="font-semibold text-slate-900 dark:text-white">Same app, same data</span> — seamless sync
                 </div>
               </div>
             </div>
