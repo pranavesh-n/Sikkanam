@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut } from "lucide-react";
+import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppLock } from "@/context/AppLockContext";
+import { PasscodeSetupModal } from "@/components/PasscodeSetupModal";
 import { toast } from "sonner";
 
 const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
+  const { isLockEnabled, disableAppLock, lockApp } = useAppLock();
   const [showAbout, setShowAbout] = useState(false);
+  const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
+
 
   const handleLogin = async () => {
     const success = await loginWithGoogle();
@@ -125,7 +130,42 @@ const Profile = () => {
         )}
       </Section>
 
+      <Section title="Security & Privacy">
+        <button
+          onClick={() => {
+            if (isLockEnabled) {
+              disableAppLock();
+            } else {
+              setShowPasscodeSetup(true);
+            }
+          }}
+          className="block w-full text-left focus:outline-none"
+        >
+          <Row
+            icon={Lock}
+            label="App Passcode Lock"
+            desc={isLockEnabled ? "4-digit PIN lock enabled (Tap to disable)" : "Protect app with 4-digit PIN passcode"}
+            badge={isLockEnabled ? "ON" : "OFF"}
+          />
+        </button>
+
+        {isLockEnabled && (
+          <button
+            onClick={() => setShowPasscodeSetup(true)}
+            className="block w-full text-left focus:outline-none"
+          >
+            <Row
+              icon={KeyRound}
+              label="Change Passcode"
+              desc="Update your 4-digit PIN code"
+            />
+          </button>
+        )}
+      </Section>
+
+
       {user && (
+
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-between px-5 py-3 rounded-2xl bg-destructive/10 text-destructive border border-destructive/20 active:scale-[0.98] transition-transform text-sm font-semibold"
@@ -204,6 +244,11 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      <PasscodeSetupModal
+        isOpen={showPasscodeSetup}
+        onClose={() => setShowPasscodeSetup(false)}
+      />
     </div>
   );
 };
@@ -220,7 +265,7 @@ const Section = ({ title, children }: any) => (
   </section>
 );
 
-const Row = ({ icon: Icon, label, desc, disabled }: any) => (
+const Row = ({ icon: Icon, label, desc, disabled, badge }: any) => (
   <div
     className={`flex items-center gap-3 px-4 py-3 ${disabled ? "opacity-60" : "active:bg-muted"
       }`}
@@ -237,6 +282,18 @@ const Row = ({ icon: Icon, label, desc, disabled }: any) => (
       </p>
     </div>
 
+    {badge && (
+      <span
+        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+          badge === "ON"
+            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+            : "bg-muted text-muted-foreground border border-border"
+        }`}
+      >
+        {badge}
+      </span>
+    )}
+
     {disabled && (
       <span className="text-[10px] uppercase font-bold text-muted-foreground">
         Soon
@@ -244,5 +301,6 @@ const Row = ({ icon: Icon, label, desc, disabled }: any) => (
     )}
   </div>
 );
+
 
 export default Profile;

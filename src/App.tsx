@@ -11,6 +11,8 @@ import { Analytics } from "@vercel/analytics/next"
 import Maps from "./pages/Maps";  
 import WhatsNewModal from "./components/WhatsNewModal";
 import InstallPWAModal from "./components/InstallPWAModal";
+import { AppLockProvider } from "./context/AppLockContext";
+import { AppLockOverlay } from "./components/AppLockOverlay";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -31,32 +33,36 @@ const Loading = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <WhatsNewModal />
-      <InstallPWAModal />
-      <BrowserRouter>
-        <AppShell>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route path="/maps" element={<Maps />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/destination/:id" element={<DestinationDetail />} />
-              <Route path="/ai" element={<AIPlanner />} />
-              <Route path="/booking" element={<Booking />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/plan" element={<TripPlanner />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/saved-trips" element={<SavedTrips />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AppShell>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AppLockProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <WhatsNewModal />
+        <InstallPWAModal />
+        <AppLockOverlay />
+        <BrowserRouter>
+          <AppShell>
+            <Suspense fallback={<Loading />}>
+              <Routes>
+                <Route path="/maps" element={<Maps />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/destination/:id" element={<DestinationDetail />} />
+                <Route path="/ai" element={<AIPlanner />} />
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/plan" element={<TripPlanner />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/saved-trips" element={<SavedTrips />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AppShell>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AppLockProvider>
   </QueryClientProvider>
 );
 
 export default App;
+
