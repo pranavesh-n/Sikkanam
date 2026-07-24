@@ -26,7 +26,7 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
 
   const [isLockEnabled, setIsLockEnabled] = useState<boolean>(() => {
     return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
@@ -49,7 +49,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const syncFromCloud = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch("/api/auth/applock");
+      const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
         if (typeof data.appLockEnabled === "boolean") {
@@ -142,8 +142,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLocked(false);
       setFailedAttempts(0);
 
-      // Cloud sync to backend database
-      fetch("/api/auth/applock", {
+      // Cloud sync to backend database via /api/auth/me
+      fetch("/api/auth/me", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ appLockEnabled: true, appLockPinHash: hashed }),
@@ -182,8 +182,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to cloud database
-    fetch("/api/auth/applock", { method: "DELETE" }).catch((err) =>
+    // Sync deletion to cloud database via /api/auth/me
+    fetch("/api/auth/me", { method: "DELETE" }).catch((err) =>
       console.warn("Failed to sync lock disable to cloud:", err)
     );
 
@@ -210,8 +210,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to cloud database
-    fetch("/api/auth/applock", { method: "DELETE" }).catch((err) =>
+    // Sync deletion to cloud database via /api/auth/me
+    fetch("/api/auth/me", { method: "DELETE" }).catch((err) =>
       console.warn("Failed to sync lock reset to cloud:", err)
     );
 
