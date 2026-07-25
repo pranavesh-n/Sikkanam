@@ -43,6 +43,14 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
   useEffect(() => {
     if (isAlreadyInstalled() && externalIsOpen === undefined) return;
 
+    // Do NOT auto-popup on desktop browsers (only auto-popup on mobile devices)
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isMobile = /mobile|iphone|ipad|ipod|android/.test(userAgent);
+
+    if (!isMobile && externalIsOpen === undefined) {
+      return;
+    }
+
     if (externalIsOpen === undefined) {
       try {
         if (sessionStorage.getItem(SESSION_KEY) === "true") return;
@@ -59,11 +67,11 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
       (window as any).deferredPwaPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
 
-      if (externalIsOpen === undefined) {
+      if (externalIsOpen === undefined && isMobile) {
         try {
           const dismissed = sessionStorage.getItem(SESSION_KEY);
           if (!dismissed && !isAlreadyInstalled()) {
-            setTimeout(() => setInternalIsOpen(true), 2000);
+            setTimeout(() => setInternalIsOpen(true), 2500);
           }
         } catch (e) {}
       }
@@ -71,7 +79,6 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
     if (isIosDevice) {
       setIsIOS(true);
@@ -79,26 +86,14 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
         try {
           const dismissed = sessionStorage.getItem(SESSION_KEY);
           if (!dismissed && !isAlreadyInstalled()) {
-            setTimeout(() => setInternalIsOpen(true), 3000);
+            setTimeout(() => setInternalIsOpen(true), 3500);
           }
         } catch (e) {}
       }
     }
 
-    const fallbackTimer = setTimeout(() => {
-      if (externalIsOpen === undefined) {
-        try {
-          const dismissed = sessionStorage.getItem(SESSION_KEY);
-          if (!dismissed && !isAlreadyInstalled()) {
-            setInternalIsOpen(true);
-          }
-        } catch (e) {}
-      }
-    }, 4000);
-
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      clearTimeout(fallbackTimer);
     };
   }, [externalIsOpen]);
 
@@ -119,7 +114,10 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
     const activePrompt = deferredPrompt || (window as any).deferredPwaPrompt;
 
     if (!activePrompt) {
-      alert("To install Sikkanam App on your device:\n\n• On Chrome Desktop: Click the 'Open in app' or install icon at the right end of your URL bar.\n• On Mobile Chrome: Tap browser menu (⋮) -> 'Add to Home Screen' or 'Install App'.");
+      try {
+        localStorage.setItem(INSTALLED_KEY, "true");
+      } catch (e) {}
+      alert("Sikkanam App is already installed or supported natively!\n\n• On Chrome/Edge Desktop: Tap 'Open in app' at the top right of your address bar.\n• On Mobile: Launch Sikkanam from your home screen.");
       handleDismiss();
       return;
     }
