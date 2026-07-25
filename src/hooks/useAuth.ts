@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
 
 export interface UserType {
   _id: string;
@@ -11,7 +11,19 @@ export interface UserType {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<UserType | null>(() => {
+    const fbUser = auth.currentUser;
+    if (fbUser) {
+      return {
+        _id: fbUser.uid,
+        email: fbUser.email || "",
+        name: fbUser.displayName || fbUser.email?.split("@")[0] || "",
+        avatar: fbUser.photoURL || undefined,
+      };
+    }
+    return null;
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,10 +34,10 @@ export function useAuth() {
         const data = await res.json();
         if (data.loggedIn) {
           setUser(data.user);
-        } else {
+        } else if (!auth.currentUser) {
           setUser(null);
         }
-      } else {
+      } else if (!auth.currentUser) {
         setUser(null);
       }
     } catch (err) {
@@ -41,6 +53,14 @@ export function useAuth() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
+
+      const newUser: UserType = {
+        _id: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+        avatar: firebaseUser.photoURL || undefined,
+      };
+      setUser(newUser);
       
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -56,16 +76,10 @@ export function useAuth() {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to establish backend session");
+        console.warn("Backend session creation notice:", res.statusText);
       }
 
-      const data = await res.json();
-      setUser(data.user);
-      
-      // Dispatch login event so PWA prompt & other listeners can trigger
       window.dispatchEvent(new CustomEvent("sikkanam:user_login"));
-      
       return true;
     } catch (err: any) {
       console.error("Google sign in failed:", err);
@@ -79,11 +93,9 @@ export function useAuth() {
   const logout = async () => {
     try {
       await auth.signOut();
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        setUser(null);
-        return true;
-      }
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      setUser(null);
+      return true;
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -91,7 +103,21 @@ export function useAuth() {
   };
 
   useEffect(() => {
-    checkAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          _id: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+          avatar: firebaseUser.photoURL || undefined,
+        });
+      } else {
+        checkAuth();
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return { user, loading, error, refetch: checkAuth, loginWithGoogle, logout };

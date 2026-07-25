@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { hashPin } from "@/lib/passcode";
 import { useAuth } from "@/hooks/useAuth";
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
@@ -28,8 +28,9 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
 const getUserKey = (u: any) => {
-  if (!u) return null;
-  const rawKey = u.id || u.email || "";
+  const activeUser = u || auth.currentUser;
+  if (!activeUser) return null;
+  const rawKey = activeUser.uid || activeUser.id || activeUser.email || "";
   return String(rawKey).replace(/[.#$/[\]]/g, "_");
 };
 
@@ -49,14 +50,21 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  const activeUser = user || (auth.currentUser ? {
+    id: auth.currentUser.uid,
+    _id: auth.currentUser.uid,
+    email: auth.currentUser.email || "",
+    name: auth.currentUser.displayName || ""
+  } : null);
+
   // If user logs out or is not authenticated, app lock must not lock the screen
-  const effectiveLockEnabled = Boolean(user && isLockEnabled);
-  const effectiveIsLocked = Boolean(user && isLocked);
+  const effectiveLockEnabled = Boolean(activeUser && isLockEnabled);
+  const effectiveIsLocked = Boolean(activeUser && isLocked);
 
   // Real-time synchronization with Cloud Firestore
   useEffect(() => {
-    if (!user) return;
-    const key = getUserKey(user);
+    if (!activeUser) return;
+    const key = getUserKey(activeUser);
     if (!key) return;
 
     const userSettingsRef = doc(db, "usersettings", key);
@@ -86,7 +94,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [activeUser]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_ENABLED, isLockEnabled ? "true" : "false");
@@ -144,7 +152,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [effectiveLockEnabled]);
 
   const setupPasscode = async (pin: string): Promise<boolean> => {
-    if (!user) {
+    const currentUserObj = activeUser || auth.currentUser;
+    if (!currentUserObj) {
       toast.error("Please sign in with Google first to enable App Lock");
       return false;
     }
@@ -157,7 +166,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setFailedAttempts(0);
 
       // Real-time Cloud Sync to Cloud Firestore
-      const key = getUserKey(user);
+      const key = getUserKey(currentUserObj);
       if (key) {
         setDoc(
           doc(db, "usersettings", key),
@@ -204,8 +213,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setFailedAttempts(0);
 
     // Sync deletion to Cloud Firestore
-    if (user) {
-      const key = getUserKey(user);
+    const currentUserObj = activeUser || auth.currentUser;
+    if (currentUserObj) {
+      const key = getUserKey(currentUserObj);
       if (key) {
         setDoc(
           doc(db, "usersettings", key),
@@ -243,8 +253,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setFailedAttempts(0);
 
     // Sync deletion to Cloud Firestore
-    if (user) {
-      const key = getUserKey(user);
+    const currentUserObj = activeUser || auth.currentUser;
+    if (currentUserObj) {
+      const key = getUserKey(currentUserObj);
       if (key) {
         setDoc(
           doc(db, "usersettings", key),
