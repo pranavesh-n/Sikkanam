@@ -9,11 +9,18 @@ interface BeforeInstallPromptEvent extends Event {
 const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
 
-export default function InstallPWAModal() {
+interface InstallPWAModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: InstallPWAModalProps = {}) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => {
     return (window as any).deferredPwaPrompt || null;
   });
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
@@ -34,14 +41,14 @@ export default function InstallPWAModal() {
   };
 
   useEffect(() => {
-    if (isAlreadyInstalled()) return;
+    if (isAlreadyInstalled() && externalIsOpen === undefined) return;
 
-    // Check if dismissed in current session
-    try {
-      if (sessionStorage.getItem(SESSION_KEY) === "true") return;
-    } catch (e) {}
+    if (externalIsOpen === undefined) {
+      try {
+        if (sessionStorage.getItem(SESSION_KEY) === "true") return;
+      } catch (e) {}
+    }
 
-    // Check window.deferredPwaPrompt
     if ((window as any).deferredPwaPrompt) {
       setDeferredPrompt((window as any).deferredPwaPrompt);
     }
@@ -52,52 +59,55 @@ export default function InstallPWAModal() {
       (window as any).deferredPwaPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
 
-      try {
-        const dismissed = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissed && !isAlreadyInstalled()) {
-          setTimeout(() => setIsOpen(true), 2000);
-        }
-      } catch (e) {}
+      if (externalIsOpen === undefined) {
+        try {
+          const dismissed = sessionStorage.getItem(SESSION_KEY);
+          if (!dismissed && !isAlreadyInstalled()) {
+            setTimeout(() => setInternalIsOpen(true), 2000);
+          }
+        } catch (e) {}
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Detect iOS Safari
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
     if (isIosDevice) {
       setIsIOS(true);
-      try {
-        const dismissed = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissed && !isAlreadyInstalled()) {
-          setTimeout(() => setIsOpen(true), 3000);
-        }
-      } catch (e) {}
+      if (externalIsOpen === undefined) {
+        try {
+          const dismissed = sessionStorage.getItem(SESSION_KEY);
+          if (!dismissed && !isAlreadyInstalled()) {
+            setTimeout(() => setInternalIsOpen(true), 3000);
+          }
+        } catch (e) {}
+      }
     }
 
-    // Fallback trigger for Chrome/Android
     const fallbackTimer = setTimeout(() => {
-      try {
-        const dismissed = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissed && !isAlreadyInstalled()) {
-          setIsOpen(true);
-        }
-      } catch (e) {}
+      if (externalIsOpen === undefined) {
+        try {
+          const dismissed = sessionStorage.getItem(SESSION_KEY);
+          if (!dismissed && !isAlreadyInstalled()) {
+            setInternalIsOpen(true);
+          }
+        } catch (e) {}
+      }
     }, 4000);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       clearTimeout(fallbackTimer);
     };
-  }, []);
+  }, [externalIsOpen]);
 
   const handleDismiss = () => {
-    setIsOpen(false);
+    setInternalIsOpen(false);
+    if (onClose) onClose();
     try {
       sessionStorage.setItem(SESSION_KEY, "true");
-    } catch (e) {
-      console.warn("Failed to save dismissal in sessionStorage", e);
-    }
+    } catch (e) {}
   };
 
   const handleInstallClick = async () => {
@@ -109,7 +119,7 @@ export default function InstallPWAModal() {
     const activePrompt = deferredPrompt || (window as any).deferredPwaPrompt;
 
     if (!activePrompt) {
-      alert("To install, tap your browser menu (⋮ or share icon) and select 'Add to Home Screen' or 'Install App'.");
+      alert("To install Sikkanam App on your device:\n\n• On Chrome Desktop: Click the 'Open in app' or install icon at the right end of your URL bar.\n• On Mobile Chrome: Tap browser menu (⋮) -> 'Add to Home Screen' or 'Install App'.");
       handleDismiss();
       return;
     }
@@ -131,16 +141,16 @@ export default function InstallPWAModal() {
     }
   };
 
-  if (!isOpen || isAlreadyInstalled()) return null;
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9990] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 transition-all transform scale-100">
+    <div className="fixed inset-0 z-[99990] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-md bg-card text-card-foreground rounded-3xl shadow-2xl overflow-hidden border border-border transition-all transform scale-100">
         
         {/* Close Button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -160,54 +170,54 @@ export default function InstallPWAModal() {
           </div>
 
           {/* Title & Subtitle */}
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground">
             Install Sikkanam App
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
+          <p className="text-sm text-muted-foreground mt-1 mb-6">
             Add to your home screen for 1-tap fast access
           </p>
 
           {/* Benefits List */}
           {!showIOSInstructions ? (
-            <div className="w-full space-y-3.5 text-left mb-8 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+            <div className="w-full space-y-3.5 text-left mb-8 bg-muted/40 p-4 rounded-2xl border border-border/50">
               <div className="flex items-start space-x-3">
-                <div className="mt-0.5 p-1 bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 rounded-lg">
+                <div className="mt-0.5 p-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-lg">
                   <Smartphone className="w-4 h-4" />
                 </div>
-                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">1-Tap Access</span> — Opens directly from home screen
+                <div className="text-xs sm:text-sm text-foreground">
+                  <span className="font-semibold text-foreground">1-Tap Access</span> — Opens directly from home screen
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <div className="mt-0.5 p-1 bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 rounded-lg">
+                <div className="mt-0.5 p-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-lg">
                   <Zap className="w-4 h-4" />
                 </div>
-                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Full-Screen Display</span> — Zero address bar or extra browser tabs
+                <div className="text-xs sm:text-sm text-foreground">
+                  <span className="font-semibold text-foreground">Full-Screen Display</span> — Zero address bar or extra browser tabs
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <div className="mt-0.5 p-1 bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 rounded-lg">
+                <div className="mt-0.5 p-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-lg">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
-                <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Real-Time Cloud Sync</span> — Instant travel & passcode sync
+                <div className="text-xs sm:text-sm text-foreground">
+                  <span className="font-semibold text-foreground">Real-Time Cloud Sync</span> — Instant travel & passcode sync
                 </div>
               </div>
             </div>
           ) : (
             /* iOS Specific Instructions */
-            <div className="w-full text-left mb-6 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-2xl border border-orange-200 dark:border-orange-900/50 space-y-3">
-              <p className="text-xs sm:text-sm text-orange-900 dark:text-orange-200 font-medium">
+            <div className="w-full text-left mb-6 bg-orange-500/10 p-4 rounded-2xl border border-orange-500/30 space-y-3">
+              <p className="text-xs sm:text-sm text-foreground font-medium">
                 To install on iOS:
               </p>
-              <div className="flex items-center space-x-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+              <div className="flex items-center space-x-3 text-xs sm:text-sm text-muted-foreground">
                 <span className="font-bold text-orange-600">1.</span>
                 <span>Tap the <Share className="w-4 h-4 inline text-orange-600 mx-1" /> <strong>Share</strong> button in Safari toolbar.</span>
               </div>
-              <div className="flex items-center space-x-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+              <div className="flex items-center space-x-3 text-xs sm:text-sm text-muted-foreground">
                 <span className="font-bold text-orange-600">2.</span>
                 <span>Scroll down and select <PlusSquare className="w-4 h-4 inline text-orange-600 mx-1" /> <strong>Add to Home Screen</strong>.</span>
               </div>
@@ -225,7 +235,7 @@ export default function InstallPWAModal() {
 
             <button
               onClick={handleDismiss}
-              className="w-full py-2.5 px-4 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium text-xs sm:text-sm rounded-xl transition-colors"
+              className="w-full py-2.5 px-4 text-muted-foreground hover:text-foreground font-medium text-xs sm:text-sm rounded-xl transition-colors"
             >
               Not now
             </button>

@@ -28,7 +28,22 @@ const Profile = () => {
         window.matchMedia("(display-mode: standalone)").matches ||
         (navigator as any).standalone === true ||
         localStorage.getItem("sikkanam_pwa_installed") === "true";
-      setIsPwaInstalled(isStandalone);
+      
+      if (isStandalone) {
+        setIsPwaInstalled(true);
+        return;
+      }
+
+      if ("getInstalledRelatedApps" in navigator) {
+        (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
+          if (apps && apps.length > 0) {
+            setIsPwaInstalled(true);
+            try {
+              localStorage.setItem("sikkanam_pwa_installed", "true");
+            } catch (e) {}
+          }
+        }).catch(() => {});
+      }
     };
 
     checkInstalled();
@@ -71,6 +86,46 @@ const Profile = () => {
     } else {
       toast.error("Logout failed");
     }
+  };
+
+  const handlePwaClick = async () => {
+    if (isPwaInstalled) {
+      toast.info("Sikkanam App is already installed! Tap 'Open in app' at top right or open from your home screen.");
+      return;
+    }
+
+    if ("getInstalledRelatedApps" in navigator) {
+      try {
+        const apps = await (navigator as any).getInstalledRelatedApps();
+        if (apps && apps.length > 0) {
+          setIsPwaInstalled(true);
+          try {
+            localStorage.setItem("sikkanam_pwa_installed", "true");
+          } catch (e) {}
+          toast.info("Sikkanam App is already installed on your device!");
+          return;
+        }
+      } catch (e) {}
+    }
+
+    const promptEvent = (window as any).deferredPwaPrompt;
+    if (promptEvent) {
+      try {
+        await promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice.outcome === "accepted") {
+          setIsPwaInstalled(true);
+          try {
+            localStorage.setItem("sikkanam_pwa_installed", "true");
+          } catch (e) {}
+          toast.success("Sikkanam App installed successfully!");
+        }
+        (window as any).deferredPwaPrompt = null;
+        return;
+      } catch (e) {}
+    }
+
+    setShowPwaModal(true);
   };
 
   if (loading) {
@@ -221,18 +276,7 @@ const Profile = () => {
       {/* App Experience Section */}
       <Section title="App Experience">
         <button
-          onClick={() => {
-            if (isPwaInstalled) {
-              toast.info("Sikkanam App is already installed on your device!");
-            } else {
-              const promptEvent = (window as any).deferredPwaPrompt;
-              if (promptEvent) {
-                promptEvent.prompt();
-              } else {
-                setShowPwaModal(true);
-              }
-            }
-          }}
+          onClick={handlePwaClick}
           className="block w-full text-left focus:outline-none"
         >
           <Row
@@ -240,7 +284,7 @@ const Profile = () => {
             label="Sikkanam App"
             desc={
               isPwaInstalled
-                ? "App is installed & ready on your home screen"
+                ? "App is installed & ready on your device"
                 : "Add to home screen for 1-tap fast access"
             }
             customBadge={
@@ -359,9 +403,10 @@ const Profile = () => {
       />
 
       {/* PWA Install Modal Fallback */}
-      {showPwaModal && (
-        <InstallPWAModal />
-      )}
+      <InstallPWAModal
+        isOpen={showPwaModal}
+        onClose={() => setShowPwaModal(false)}
+      />
     </div>
   );
 };
