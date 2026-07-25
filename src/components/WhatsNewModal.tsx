@@ -1,13 +1,11 @@
 import { useState, MouseEvent } from "react";
-import { Sparkles, Lock, Clock, ShieldCheck, Laptop, X } from "lucide-react";
+import { Sparkles, Lock, Flame, ShieldCheck, UserCheck, Smartphone, X } from "lucide-react";
 
 const VERSION = "2.4";
 
 // Module-level variable to prevent showing the modal multiple times in the same session
-// even if storage is completely blocked or wiped.
 let hasDismissedInSession = false;
 
-// Helper to retrieve cookies
 const getCookie = (name: string): string | null => {
   try {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -17,7 +15,6 @@ const getCookie = (name: string): string | null => {
   }
 };
 
-// Helper to save cookies (expires in 1 year)
 const setCookie = (name: string, value: string, days: number = 365) => {
   try {
     const seconds = days * 24 * 60 * 60;
@@ -28,56 +25,39 @@ const setCookie = (name: string, value: string, days: number = 365) => {
 };
 
 export default function WhatsNewModal() {
-  // Synchronously determine if the modal should be open during initial state declaration
   const [open, setOpen] = useState(() => {
     if (hasDismissedInSession) {
       return false;
     }
 
     try {
-      // 1. Check localStorage
       const seenLocal = localStorage.getItem("sikkanam-version");
       if (seenLocal === VERSION) {
         hasDismissedInSession = true;
         return false;
       }
-    } catch (e) {
-      console.warn("localStorage check failed:", e);
-    }
+    } catch (e) {}
 
     try {
-      // 2. Check Cookie (fallback for webviews/private tabs)
       const seenCookie = getCookie("sikkanam-version");
       if (seenCookie === VERSION) {
         hasDismissedInSession = true;
-        
-        // Sync the result back to localStorage if it's available
         try {
           localStorage.setItem("sikkanam-version", VERSION);
         } catch (err) {}
-        
         return false;
       }
-    } catch (e) {
-      console.warn("Cookie check failed:", e);
-    }
+    } catch (e) {}
 
     return true;
   });
 
   const handleClose = () => {
     hasDismissedInSession = true;
-    
-    // Save to localStorage
     try {
       localStorage.setItem("sikkanam-version", VERSION);
-    } catch (e) {
-      console.warn("Failed to save to localStorage:", e);
-    }
-    
-    // Save to Cookie
+    } catch (e) {}
     setCookie("sikkanam-version", VERSION);
-    
     setOpen(false);
   };
 
@@ -92,9 +72,9 @@ export default function WhatsNewModal() {
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-300"
+      className="fixed inset-0 z-[99999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-300"
     >
-      <div className="bg-card/95 border border-border/80 rounded-[2.5rem] max-w-sm md:max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden">
+      <div className="bg-card/95 border border-border/80 rounded-[2.5rem] max-w-sm md:max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden text-left">
         {/* Decorative background glow */}
         <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -121,59 +101,59 @@ export default function WhatsNewModal() {
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          App Passcode Lock, Smart Auto-Locking, Google Auth PIN Reset, and enhanced privacy features!
+          Cloud Firestore sync, "Already a Sikkanam User?" Web Gateway, Profile Redesign, and App Lock!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — App Passcode Lock */}
+          {/* Feature 1 — Cloud Firestore Sync */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
+              <Flame className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Cloud Firestore Real-Time Sync</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Passcode lock status and credentials sync instantly across PC and Mobile in real-time.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 2 — Already a Sikkanam User Gateway */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">"Already a Sikkanam User?" Gateway</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Seamless web entry modal for browser visitors to sign in with Google or continue exploring as guest.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 3 — App Passcode Lock */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
               <Lock className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">App Passcode Lock</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">4-Digit App Passcode Lock</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Protect your saved itineraries, wishlists, and personal travel preferences with a 4-digit PIN lock.
+                Protect saved itineraries, wishlists, and travel plans with 35s background auto-lock & PIN verification.
               </p>
             </div>
           </div>
 
-          {/* Feature 2 — Smart Auto-Lock */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Smart 35s Auto-Lock</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Automatically locks when switching apps or locking your device for 35+ seconds. Zero active reading interruptions.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 3 — Google Auth PIN Reset */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Google Sign-In PIN Reset</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Forgot your PIN? Re-authenticate securely using Google Sign-In after 3 incorrect attempts to reset your passcode.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 4 — PC Keyboard & Touch */}
+          {/* Feature 4 — Smart PWA Adoption */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
-              <Laptop className="w-5 h-5" />
+              <Smartphone className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Desktop Keyboard & Mobile Touch</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Smart PWA & Profile Redesign</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Type your PIN seamlessly using physical keyboard numbers (0-9, Backspace) on PC or touch keypad on mobile.
+                1-tap mobile installation, uninstallation detection, and interactive stat counter badges on Profile.
               </p>
             </div>
           </div>
@@ -191,7 +171,6 @@ export default function WhatsNewModal() {
   );
 }
 
-// Simple local Helper for ArrowRight icon inside button
 function ArrowRight({ className }: { className?: string }) {
   return (
     <svg

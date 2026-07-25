@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Download, X, Smartphone } from "lucide-react";
+import { Download, X } from "lucide-react";
 
 const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
+const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 
 export default function MobileInstallBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,21 +31,26 @@ export default function MobileInstallBanner() {
       if (sessionStorage.getItem(SESSION_KEY) === "true") return;
     } catch (e) {}
 
-    // Only show on small screen devices or mobile user agents
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isMobile = /mobile|iphone|ipad|ipod|android/.test(userAgent) || window.innerWidth <= 768;
 
-    if (isMobile) {
-      const timer = setTimeout(() => {
-        try {
-          const dismissed = sessionStorage.getItem(SESSION_KEY);
-          if (!dismissed && !isAlreadyInstalled()) {
-            setIsVisible(true);
-          }
-        } catch (e) {}
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
+    if (!isMobile) return;
+
+    // Wait until WelcomeAuthModal has been closed/dismissed
+    const interval = setInterval(() => {
+      try {
+        const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY);
+        if (authDismissed === "true" && !isAlreadyInstalled()) {
+          setIsVisible(true);
+          clearInterval(interval);
+        }
+      } catch (e) {
+        setIsVisible(true);
+        clearInterval(interval);
+      }
+    }, 600);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleDismiss = () => {

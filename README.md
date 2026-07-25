@@ -87,12 +87,13 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 ## 🆕 Changelog
 
 ### v2.4 — July 2026
-- 🔒 **App Passcode Lock** — Protect saved itineraries, personal travel plans, and wishlists with a secure 4-digit PIN passcode. Requires current PIN verification to disable.
-- 🔥 **Cloud Firestore Real-Time Sync** — Passcode status (`App Lock ON/OFF`) and hashed credentials sync instantly across PC and Mobile devices in real-time using Cloud Firestore document listeners (`onSnapshot`).
-- ⏱️ **Smart 35s Auto-Lock** — Standard security app architecture that auto-locks only when switching apps or backgrounding for 35+ seconds. Zero active reading interruptions.
-- 🔑 **Google Sign-In PIN Reset** — Automatic Google OAuth re-authentication popup after 3 failed PIN attempts to safely recover access.
+- 🌐 **"Already a Sikkanam User?" Web Gateway** — Automatic Google Auth gateway modal for browser visitors to seamlessly restore saved trips, wishlists, and cloud PIN lock, or continue exploring as guest.
+- 🎨 **Profile UI/UX Redesign** — Interactive stat counter cards (`Saved Trips` & `Wishlist` counts), grouped setting cards, and instant desktop PWA status detection.
+- 🔥 **Cloud Firestore Real-Time Sync** — Real-time Firestore `onSnapshot` listeners syncing passcode lock status & PIN hashes instantly across PC and Mobile devices.
+- 🔒 **App Passcode Lock & Verification** — 4-digit PIN lock with 35s background auto-lock, current PIN verification to turn OFF lock, and 3-attempt Google OAuth reset.
+- 📲 **Smart PWA Adoption Engine** — Sticky mobile installation banner, uninstallation detection via `getInstalledRelatedApps`, and zero-spam session dismissal rules.
 - ⌨️ **Universal Input Support** — Full support for physical PC keyboards (`0-9`, `Backspace`) and mobile touch keypads.
-- 📲 **PWA Intelligent Prompting** — Automatically suppresses install popups for users who have already installed the app using native `appinstalled` & `getInstalledRelatedApps` browser APIs.
+
 
 
 

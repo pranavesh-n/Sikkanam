@@ -3,6 +3,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthPromptModal } from "./AuthPromptModal";
 
 const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
+const VERSION_KEY = "sikkanam-version";
+const CURRENT_VERSION = "2.4";
 
 export default function WelcomeAuthModal() {
   const { user, loading } = useAuth();
@@ -11,24 +13,31 @@ export default function WelcomeAuthModal() {
   useEffect(() => {
     if (loading) return;
 
-    // If user is already logged in, do not show welcome prompt
     if (user) {
       setIsOpen(false);
       return;
     }
 
-    // Check if user dismissed in current browser session
     try {
       const dismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY);
       if (dismissed === "true") return;
     } catch (e) {}
 
-    // Popup "Already a Sikkanam User?" modal on website entry
-    const timer = setTimeout(() => {
-      setIsOpen(true);
-    }, 1200);
+    // Wait until WhatsNewModal has closed (or was previously seen)
+    const interval = setInterval(() => {
+      try {
+        const seenVersion = localStorage.getItem(VERSION_KEY);
+        if (seenVersion === CURRENT_VERSION) {
+          setIsOpen(true);
+          clearInterval(interval);
+        }
+      } catch (e) {
+        setIsOpen(true);
+        clearInterval(interval);
+      }
+    }, 400);
 
-    return () => clearTimeout(timer);
+    return () => clearInterval(interval);
   }, [user, loading]);
 
   const handleClose = () => {
