@@ -10,7 +10,9 @@ const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
 
 export default function InstallPWAModal() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => {
+    return (window as any).deferredPwaPrompt || null;
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
@@ -34,67 +36,58 @@ export default function InstallPWAModal() {
   useEffect(() => {
     if (isAlreadyInstalled()) return;
 
-    // 1. Listen for Chrome/Android appinstalled event
-    const handleAppInstalled = () => {
-      try {
-        localStorage.setItem(INSTALLED_KEY, "true");
-      } catch (e) {}
-      setIsOpen(false);
-      setDeferredPrompt(null);
-    };
+    // Check if dismissed in current session
+    try {
+      if (sessionStorage.getItem(SESSION_KEY) === "true") return;
+    } catch (e) {}
 
-    window.addEventListener("appinstalled", handleAppInstalled);
+    // Check window.deferredPwaPrompt
+    if ((window as any).deferredPwaPrompt) {
+      setDeferredPrompt((window as any).deferredPwaPrompt);
+    }
 
-    // 2. Listen for browser beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
+      (window as any).deferredPwaPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
 
-      // Only prompt if user has not dismissed in session and hasn't installed
       try {
-        const dismissedInSession = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissedInSession && !isAlreadyInstalled()) {
-          setTimeout(() => {
-            setIsOpen(true);
-          }, 2500);
+        const dismissed = sessionStorage.getItem(SESSION_KEY);
+        if (!dismissed && !isAlreadyInstalled()) {
+          setTimeout(() => setIsOpen(true), 2000);
         }
-      } catch (err) {}
+      } catch (e) {}
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // 3. Detect iOS Safari (where beforeinstallprompt is not supported)
+    // Detect iOS Safari
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
-    
     if (isIosDevice) {
       setIsIOS(true);
       try {
-        const dismissedInSession = sessionStorage.getItem(SESSION_KEY);
-        if (!dismissedInSession && !isAlreadyInstalled()) {
-          setTimeout(() => {
-            setIsOpen(true);
-          }, 3500);
+        const dismissed = sessionStorage.getItem(SESSION_KEY);
+        if (!dismissed && !isAlreadyInstalled()) {
+          setTimeout(() => setIsOpen(true), 3000);
         }
       } catch (e) {}
     }
 
-    // 4. Check Web API getInstalledRelatedApps if supported
-    if ("getInstalledRelatedApps" in navigator) {
-      (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
-        if (relatedApps && relatedApps.length > 0) {
-          try {
-            localStorage.setItem(INSTALLED_KEY, "true");
-          } catch (e) {}
-          setIsOpen(false);
+    // Fallback trigger for Chrome/Android
+    const fallbackTimer = setTimeout(() => {
+      try {
+        const dismissed = sessionStorage.getItem(SESSION_KEY);
+        if (!dismissed && !isAlreadyInstalled()) {
+          setIsOpen(true);
         }
-      }).catch(() => {});
-    }
+      } catch (e) {}
+    }, 4000);
 
     return () => {
-      window.removeEventListener("appinstalled", handleAppInstalled);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -113,20 +106,24 @@ export default function InstallPWAModal() {
       return;
     }
 
-    if (!deferredPrompt) {
+    const activePrompt = deferredPrompt || (window as any).deferredPwaPrompt;
+
+    if (!activePrompt) {
+      alert("To install, tap your browser menu (⋮ or share icon) and select 'Add to Home Screen' or 'Install App'.");
       handleDismiss();
       return;
     }
 
     try {
-      await deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
+      await activePrompt.prompt();
+      const choiceResult = await activePrompt.userChoice;
       if (choiceResult.outcome === "accepted") {
         try {
           localStorage.setItem(INSTALLED_KEY, "true");
         } catch (e) {}
       }
       setDeferredPrompt(null);
+      (window as any).deferredPwaPrompt = null;
       handleDismiss();
     } catch (err) {
       console.error("Install prompt error:", err);
@@ -137,7 +134,7 @@ export default function InstallPWAModal() {
   if (!isOpen || isAlreadyInstalled()) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[9990] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 transition-all transform scale-100">
         
         {/* Close Button */}
@@ -160,15 +157,14 @@ export default function InstallPWAModal() {
                 (e.target as HTMLElement).style.display = 'none';
               }}
             />
-            <span className="text-white text-2xl font-bold font-serif hidden">S</span>
           </div>
 
           {/* Title & Subtitle */}
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            Install Sikkanam
+            Install Sikkanam App
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Add to your home screen for the best experience
+            Add to your home screen for 1-tap fast access
           </p>
 
           {/* Benefits List */}
@@ -179,7 +175,7 @@ export default function InstallPWAModal() {
                   <Smartphone className="w-4 h-4" />
                 </div>
                 <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Opens instantly</span> — no browser, no tabs
+                  <span className="font-semibold text-slate-900 dark:text-white">1-Tap Access</span> — Opens directly from home screen
                 </div>
               </div>
 
@@ -188,7 +184,7 @@ export default function InstallPWAModal() {
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Faster loads</span> with offline travel caching
+                  <span className="font-semibold text-slate-900 dark:text-white">Full-Screen Display</span> — Zero address bar or extra browser tabs
                 </div>
               </div>
 
@@ -197,7 +193,7 @@ export default function InstallPWAModal() {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                  <span className="font-semibold text-slate-900 dark:text-white">Same app, same data</span> — seamless sync
+                  <span className="font-semibold text-slate-900 dark:text-white">Real-Time Cloud Sync</span> — Instant travel & passcode sync
                 </div>
               </div>
             </div>

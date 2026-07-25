@@ -11,8 +11,10 @@ import { Analytics } from "@vercel/analytics/next"
 import Maps from "./pages/Maps";  
 import WhatsNewModal from "./components/WhatsNewModal";
 import InstallPWAModal from "./components/InstallPWAModal";
+import MobileInstallBanner from "./components/MobileInstallBanner";
 import { AppLockProvider } from "./context/AppLockContext";
 import { AppLockOverlay } from "./components/AppLockOverlay";
+
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -39,7 +41,9 @@ const App = () => (
         <Sonner />
         <WhatsNewModal />
         <InstallPWAModal />
+        <MobileInstallBanner />
         <AppLockOverlay />
+
         <BrowserRouter>
           <AppShell>
             <Suspense fallback={<Loading />}>
