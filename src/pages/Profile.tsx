@@ -20,7 +20,17 @@ const Profile = () => {
 
   const [savedCount, setSavedCount] = useState<number>(0);
   const [wishlistCount, setWishlistCount] = useState<number>(0);
-  const [isPwaInstalled, setIsPwaInstalled] = useState<boolean>(false);
+  const [isPwaInstalled, setIsPwaInstalled] = useState<boolean>(() => {
+    try {
+      return (
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (navigator as any).standalone === true ||
+        localStorage.getItem("sikkanam_pwa_installed") === "true"
+      );
+    } catch (e) {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const checkInstalled = () => {
@@ -90,7 +100,7 @@ const Profile = () => {
 
   const handlePwaClick = async () => {
     if (isPwaInstalled) {
-      toast.info("Sikkanam App is already installed! Tap 'Open in app' at top right or open from your home screen.");
+      toast.info("Sikkanam App is already installed! Tap 'Open in app' at the top right of your browser or open it from your home screen.");
       return;
     }
 
@@ -123,6 +133,20 @@ const Profile = () => {
         (window as any).deferredPwaPrompt = null;
         return;
       } catch (e) {}
+    }
+
+    // On Desktop Chrome/Edge when app is already installed, Chrome suppresses beforeinstallprompt (promptEvent is null).
+    // If user clicks Install, mark as installed since Chrome shows "Open in app" at the top right!
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isDesktop = !/mobile|iphone|ipad|ipod|android/.test(userAgent);
+
+    if (isDesktop && !promptEvent) {
+      setIsPwaInstalled(true);
+      try {
+        localStorage.setItem("sikkanam_pwa_installed", "true");
+      } catch (e) {}
+      toast.info("Sikkanam App is already installed! Tap 'Open in app' at the top right of your browser address bar.");
+      return;
     }
 
     setShowPwaModal(true);
