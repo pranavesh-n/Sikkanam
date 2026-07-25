@@ -12,8 +12,10 @@ import Maps from "./pages/Maps";
 import WhatsNewModal from "./components/WhatsNewModal";
 import InstallPWAModal from "./components/InstallPWAModal";
 import MobileInstallBanner from "./components/MobileInstallBanner";
+import WelcomeAuthModal from "./components/WelcomeAuthModal";
 import { AppLockProvider } from "./context/AppLockContext";
 import { AppLockOverlay } from "./components/AppLockOverlay";
+
 
 
 const Explore = lazy(() => import("./pages/Explore"));
@@ -42,7 +44,9 @@ const App = () => (
         <WhatsNewModal />
         <InstallPWAModal />
         <MobileInstallBanner />
+        <WelcomeAuthModal />
         <AppLockOverlay />
+
 
         <BrowserRouter>
           <AppShell>
