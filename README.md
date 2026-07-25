@@ -88,11 +88,13 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 
 ### v2.4 — July 2026
 - 🔒 **App Passcode Lock** — Protect saved itineraries, personal travel plans, and wishlists with a secure 4-digit PIN passcode. Requires current PIN verification to disable.
-- ☁️ **Cross-Device Cloud Sync** — Passcode status (`App Lock ON/OFF`) and hashed credentials sync seamlessly across PC and Mobile devices via MongoDB Atlas (`/api/auth/me`).
+- 🔥 **Cloud Firestore Real-Time Sync** — Passcode status (`App Lock ON/OFF`) and hashed credentials sync instantly across PC and Mobile devices in real-time using Cloud Firestore document listeners (`onSnapshot`).
 - ⏱️ **Smart 35s Auto-Lock** — Standard security app architecture that auto-locks only when switching apps or backgrounding for 35+ seconds. Zero active reading interruptions.
 - 🔑 **Google Sign-In PIN Reset** — Automatic Google OAuth re-authentication popup after 3 failed PIN attempts to safely recover access.
 - ⌨️ **Universal Input Support** — Full support for physical PC keyboards (`0-9`, `Backspace`) and mobile touch keypads.
 - 📲 **PWA Intelligent Prompting** — Automatically suppresses install popups for users who have already installed the app using native `appinstalled` & `getInstalledRelatedApps` browser APIs.
+
+
 
 
 

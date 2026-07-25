@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { hashPin } from "@/lib/passcode";
 import { useAuth } from "@/hooks/useAuth";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 interface AppLockContextType {
@@ -25,6 +27,12 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 // Lock timeout when leaving/backgrounding app: 35 seconds
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
+const getUserKey = (u: any) => {
+  if (!u) return null;
+  const rawKey = u.id || u.email || "";
+  return String(rawKey).replace(/[.#$/[\]]/g, "_");
+};
+
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
 
@@ -45,34 +53,40 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const effectiveLockEnabled = Boolean(user && isLockEnabled);
   const effectiveIsLocked = Boolean(user && isLocked);
 
-  // Sync with cloud backend database whenever user logs in
-  const syncFromCloud = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await fetch("/api/auth/me");
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof data.appLockEnabled === "boolean") {
-          setIsLockEnabled(data.appLockEnabled);
-          localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
-          if (data.appLockPinHash) {
-            localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
-          }
-          if (data.appLockEnabled) {
-            setIsLocked(true);
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Failed to sync App Lock from cloud", err);
-    }
-  }, [user]);
-
+  // Real-time synchronization with Cloud Firestore
   useEffect(() => {
-    if (user) {
-      syncFromCloud();
-    }
-  }, [user, syncFromCloud]);
+    if (!user) return;
+    const key = getUserKey(user);
+    if (!key) return;
+
+    const userSettingsRef = doc(db, "usersettings", key);
+    const unsubscribe = onSnapshot(
+      userSettingsRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (typeof data.appLockEnabled === "boolean") {
+            setIsLockEnabled(data.appLockEnabled);
+            localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
+            if (data.appLockPinHash) {
+              localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
+            }
+            if (data.appLockEnabled) {
+              setIsLocked(true);
+            }
+          }
+        } else {
+          setIsLockEnabled(false);
+          localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
+        }
+      },
+      (error) => {
+        console.warn("Cloud Firestore sync error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_ENABLED, isLockEnabled ? "true" : "false");
@@ -142,12 +156,19 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLocked(false);
       setFailedAttempts(0);
 
-      // Cloud sync to backend database via /api/auth/me
-      fetch("/api/auth/me", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appLockEnabled: true, appLockPinHash: hashed }),
-      }).catch((err) => console.warn("Failed to sync app lock to cloud:", err));
+      // Real-time Cloud Sync to Cloud Firestore
+      const key = getUserKey(user);
+      if (key) {
+        setDoc(
+          doc(db, "usersettings", key),
+          {
+            appLockEnabled: true,
+            appLockPinHash: hashed,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch((err) => console.warn("Cloud Firestore write error:", err));
+      }
 
       toast.success("App Lock enabled successfully!");
       return true;
@@ -182,10 +203,21 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to cloud database via /api/auth/me
-    fetch("/api/auth/me", { method: "DELETE" }).catch((err) =>
-      console.warn("Failed to sync lock disable to cloud:", err)
-    );
+    // Sync deletion to Cloud Firestore
+    if (user) {
+      const key = getUserKey(user);
+      if (key) {
+        setDoc(
+          doc(db, "usersettings", key),
+          {
+            appLockEnabled: false,
+            appLockPinHash: "",
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch((err) => console.warn("Cloud Firestore delete error:", err));
+      }
+    }
 
     toast.info("App Lock has been disabled");
   };
@@ -210,10 +242,21 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to cloud database via /api/auth/me
-    fetch("/api/auth/me", { method: "DELETE" }).catch((err) =>
-      console.warn("Failed to sync lock reset to cloud:", err)
-    );
+    // Sync deletion to Cloud Firestore
+    if (user) {
+      const key = getUserKey(user);
+      if (key) {
+        setDoc(
+          doc(db, "usersettings", key),
+          {
+            appLockEnabled: false,
+            appLockPinHash: "",
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch((err) => console.warn("Cloud Firestore reset error:", err));
+      }
+    }
 
     toast.success("App Lock has been reset");
   };
