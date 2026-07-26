@@ -42,16 +42,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const purgeStaleSession = async () => {
+    // Clear storage FIRST, before auth.signOut(), so that when onAuthStateChanged
+    // fires (triggered by signOut), all keys are already clean. This prevents the
+    // race condition where OnboardingContext initializes with stale storage values.
     try {
-      await auth.signOut();
       sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
+      // Clear from BOTH storages — localStorage persists across sessions and must
+      // also be cleared so the "Already a Sikkanam User?" modal can reappear.
       sessionStorage.removeItem("sikkanam_welcome_auth_dismissed");
+      localStorage.removeItem("sikkanam_welcome_auth_dismissed");
       sessionStorage.removeItem("sikkanam_pwa_dismissed_session");
       localStorage.removeItem(APPLOCK_ENABLED_KEY);
       localStorage.removeItem(APPLOCK_PIN_KEY);
     } catch (e) {}
     setUser(null);
     setExplicitLogin(false);
+    // Sign out AFTER storage is cleared
+    try {
+      await auth.signOut();
+    } catch (e) {}
   };
 
   const checkAuth = async () => {
