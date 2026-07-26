@@ -58,29 +58,37 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (loading) return;
 
-    // 1. Detect PWA Uninstall / Standalone Mode Loss:
-    // If the app was previously installed, but the user is currently in non-standalone browser mode
-    try {
-      const wasInstalled = localStorage.getItem(INSTALLED_KEY) === "true";
-      const standalone = checkIsStandalone();
+    const standalone = checkIsStandalone();
+    const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";
+    const webAuthenticated = sessionStorage.getItem("sikkanam_web_authenticated") === "true";
 
-      if (wasInstalled && !standalone) {
-        console.info("PWA uninstall or web browser switch detected. Performing auto-logout.");
-        // Sign out Firebase user
-        auth.signOut().catch(() => {});
-        // Clean stale local storage flags
-        localStorage.removeItem(INSTALLED_KEY);
-        localStorage.removeItem(APPLOCK_ENABLED_KEY);
-        localStorage.removeItem(APPLOCK_PIN_KEY);
-        // Reset session flags so fresh onboarding presents cleanly
-        sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
-        sessionStorage.removeItem(PWA_DISMISSED_SESSION_KEY);
-      }
-    } catch (err) {
-      console.warn("Uninstall check error:", err);
+    // 1. Fresh PWA App Launch:
+    // If user opens the standalone PWA app, but hasn't explicitly signed in inside this app session yet
+    if (standalone && !pwaAuthenticated && user) {
+      console.info("Fresh PWA standalone launch detected. Signing out stale background session.");
+      auth.signOut().catch(() => {});
+      localStorage.removeItem(INSTALLED_KEY);
+      localStorage.removeItem(APPLOCK_ENABLED_KEY);
+      localStorage.removeItem(APPLOCK_PIN_KEY);
+      sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+      setStep("WELCOME_AUTH");
+      return;
     }
 
-    // 2. Determine initial step
+    // 2. Web Browser Switch / Uninstall Return:
+    // If user is running in standard web browser after uninstalling PWA, without explicit web login
+    if (!standalone && !webAuthenticated && localStorage.getItem(INSTALLED_KEY) === "true" && user) {
+      console.info("Uninstalled PWA return detected. Signing out stale background session.");
+      auth.signOut().catch(() => {});
+      localStorage.removeItem(INSTALLED_KEY);
+      localStorage.removeItem(APPLOCK_ENABLED_KEY);
+      localStorage.removeItem(APPLOCK_PIN_KEY);
+      sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+      setStep("WELCOME_AUTH");
+      return;
+    }
+
+    // 3. Determine initial step
     const seenLocal = localStorage.getItem(VERSION_KEY);
     const seenCookie = getCookie(VERSION_KEY);
     const hasSeenWhatsNew = seenLocal === VERSION || seenCookie === VERSION;

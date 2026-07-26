@@ -79,6 +79,11 @@ export function useAuth() {
         console.warn("Backend session creation notice:", res.statusText);
       }
 
+      try {
+        sessionStorage.setItem("sikkanam_pwa_authenticated", "true");
+        sessionStorage.setItem("sikkanam_web_authenticated", "true");
+      } catch (e) {}
+
       window.dispatchEvent(new CustomEvent("sikkanam:user_login"));
       return true;
     } catch (err: any) {
@@ -94,6 +99,10 @@ export function useAuth() {
     try {
       await auth.signOut();
       await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      try {
+        sessionStorage.removeItem("sikkanam_pwa_authenticated");
+        sessionStorage.removeItem("sikkanam_web_authenticated");
+      } catch (e) {}
       setUser(null);
       return true;
     } catch (err) {
