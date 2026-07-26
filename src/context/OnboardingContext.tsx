@@ -18,6 +18,8 @@ const VERSION = "2.4";
 const VERSION_KEY = "sikkanam-version";
 const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 const PWA_DISMISSED_SESSION_KEY = "sikkanam_pwa_dismissed_session";
+// Persistent 30-day suppression for the Install popup ("Not now" dismissal)
+const PWA_DISMISSED_UNTIL_KEY = "sikkanam_pwa_dismissed_until";
 
 const getCookie = (name: string): string | null => {
   try {
@@ -111,10 +113,13 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     // Step C: Install PWA prompt
-    // Guard: isPwaInstalled = true if app is already on device (localStorage flag OR standalone).
-    // Even if they are visiting in browser, if they already have the app installed → skip this.
-    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-    if (!isPwaInstalled && !pwaDismissed) {
+    // Guard 1: app already installed (localStorage flag or standalone) → skip.
+    // Guard 2: user dismissed "Not now" this session → skip.
+    // Guard 3: user dismissed "Not now" within the last 30 days → skip.
+    const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    const pwaDismissedUntil = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
+    const pwaDismissedLong = Date.now() < pwaDismissedUntil;
+    if (!isPwaInstalled && !pwaDismissedSession && !pwaDismissedLong) {
       setStep("INSTALL_PWA");
       return;
     }
@@ -138,9 +143,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     }
 
-    // Regardless of standalone/browser: if not installed, offer install prompt
-    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-    if (!isPwaInstalled && !pwaDismissed) {
+    // Regardless of standalone/browser: check install prompt guards
+    const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    const pwaDismissedUntil = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
+    const pwaDismissedLong = Date.now() < pwaDismissedUntil;
+    if (!isPwaInstalled && !pwaDismissedSession && !pwaDismissedLong) {
       setStep("INSTALL_PWA");
       return;
     }
@@ -155,8 +162,10 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
     } catch (e) {}
 
-    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-    if (!isPwaInstalled && !pwaDismissed) {
+    const pwaDismissedSession2 = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    const pwaDismissedUntil2 = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
+    const pwaDismissedLong2 = Date.now() < pwaDismissedUntil2;
+    if (!isPwaInstalled && !pwaDismissedSession2 && !pwaDismissedLong2) {
       setStep("INSTALL_PWA");
     } else {
       setStep("NONE");
@@ -166,6 +175,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const dismissInstallPWA = () => {
     try {
       sessionStorage.setItem(PWA_DISMISSED_SESSION_KEY, "true");
+      // Persist "Not now" dismissal for 30 days so the popup doesn't reappear every browser session.
+      // Once the user actually installs the app (appinstalled event), the localStorage installed flag
+      // takes over and the popup is suppressed permanently, regardless of this timer.
+      const thirtyDays = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(PWA_DISMISSED_UNTIL_KEY, String(thirtyDays));
     } catch (e) {}
     setStep("NONE");
   };
