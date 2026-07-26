@@ -94,6 +94,13 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 - 📲 **Robust PWA Installation States** — Dedicated PWA adoption logic featuring real-time uninstallation detection via `getInstalledRelatedApps` (reverting to "INSTALL" status immediately) and strict dismissal state retention.
 - ⌨️ **Universal Keypad Support** — Full support for physical keyboards (`0-9`, `Backspace`, `Delete`) and mobile touch interfaces.
 
+### v2.4.2 — July 26, 2026 (Intelligent Onboarding & PWA Lifecycle Patch)
+- 🧠 **Smart Onboarding Progression**:
+  - Automatically transitions from **"Already a Sikkanam User?"** (Auth Modal) to **"Install Sikkanam App"** modal as soon as Google Sign-In completes or the user clicks "Continue as Guest".
+  - Strictly distinguishes browser visits from standalone installed app usage: browser visitors see appropriate onboarding prompts, while installed PWA app users bypass modals straight to PIN AppLock security.
+- 📱 **Intelligent PWA Uninstallation Detection**:
+  - Dynamically clears stale `sikkanam_pwa_installed` flags when `beforeinstallprompt` fires in non-standalone browser mode. If a user uninstalls/deletes Sikkanam from their device, the web app instantly detects the uninstall and prompts them to install again on their next web visit.
+
 ### v2.4.1 — July 26, 2026 (Patch)
 - 🐛 **Fixed: Onboarding modals not appearing on browser visit or after PWA uninstall** — Resolved three interlocking bugs that silently suppressed the "Already a Sikkanam User?" and "Install Sikkanam" popups:
   - **Async race condition** in `AuthContext.purgeStaleSession()` — `auth.signOut()` was called before clearing storage keys, causing Firebase's `onAuthStateChanged` to fire while stale session data was still present. `OnboardingContext` would initialize at that exact moment with wrong state. Fixed by clearing all storage keys *before* `auth.signOut()`.
