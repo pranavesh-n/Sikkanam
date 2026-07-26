@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
+import { useAuth } from "@/hooks/useAuth";
 
 export type OnboardingStep = "WHATS_NEW" | "WELCOME_AUTH" | "INSTALL_PWA" | "NONE";
 
@@ -48,9 +49,12 @@ const isAlreadyInstalled = () => {
 };
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
   const [step, setStep] = useState<OnboardingStep>("NONE");
 
   useEffect(() => {
+    if (loading) return;
+
     // 1. Detect PWA Uninstall / Standalone Mode Loss:
     // If the app was previously installed, but the user is currently in non-standalone browser mode
     try {
@@ -84,9 +88,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
-    const isLoggedIn = Boolean(auth.currentUser);
 
-    if (!isLoggedIn && !authDismissed) {
+    if (!user && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;
     }
@@ -98,7 +101,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     setStep("NONE");
-  }, []);
+  }, [user, loading]);
 
   const dismissWhatsNew = () => {
     try {
@@ -108,9 +111,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
-    const isLoggedIn = Boolean(auth.currentUser);
 
-    if (!isLoggedIn && !authDismissed) {
+    if (!user && !authDismissed) {
       setStep("WELCOME_AUTH");
     } else if (!isAlreadyInstalled() && sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) !== "true") {
       setStep("INSTALL_PWA");
