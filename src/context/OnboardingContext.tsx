@@ -108,7 +108,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
-    } else if (!checkIsStandalone() && !pwaDismissed) {
+    } else if (!isAlreadyInstalled() && !pwaDismissed) {
       setStep("INSTALL_PWA");
     } else {
       setStep("NONE");
@@ -122,7 +122,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
 
     const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-    if (!checkIsStandalone() && !pwaDismissed) {
+    if (!isAlreadyInstalled() && !pwaDismissed) {
       setStep("INSTALL_PWA");
     } else {
       setStep("NONE");
