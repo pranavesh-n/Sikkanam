@@ -57,6 +57,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     if (loading) return;
+    // Once an onboarding step is active, keep it open until explicit user interaction
+    if (step !== "NONE") return;
 
     const standalone = checkIsStandalone();
     const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";

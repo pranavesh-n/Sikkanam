@@ -41,9 +41,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
   });
 
-  const [isLocked, setIsLocked] = useState<boolean>(() => {
-    return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
-  });
+  // App MUST NOT start locked on initial page render. Lock activates only after explicit session authentication & background leave.
+  const [isLocked, setIsLocked] = useState<boolean>(false);
 
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_FAILED);
@@ -57,9 +56,17 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     name: auth.currentUser.displayName || ""
   } : null);
 
-  // Lock is ONLY active when user is logged in
-  const effectiveLockEnabled = Boolean(user && isLockEnabled);
-  const effectiveIsLocked = Boolean(user && isLocked);
+  const isExplicitLogin = () => {
+    try {
+      return sessionStorage.getItem("sikkanam_explicit_login") === "true";
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Lock is ONLY active when user is explicitly logged in during this session
+  const effectiveLockEnabled = Boolean(user && isLockEnabled && isExplicitLogin());
+  const effectiveIsLocked = Boolean(user && isLocked && isExplicitLogin());
 
   // If user logs out, clear lock state
   useEffect(() => {

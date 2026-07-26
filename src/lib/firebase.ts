@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -14,5 +14,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+// Use session persistence so uninstalling app / closing browser tab automatically logs out background sessions
+setPersistence(auth, browserSessionPersistence).catch((err) => {
+  console.warn("Failed to set Firebase auth persistence:", err);
+});
+
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();

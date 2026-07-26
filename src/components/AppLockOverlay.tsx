@@ -91,7 +91,8 @@ export const AppLockOverlay: React.FC = () => {
     };
   }, [isLocked, showResetModal, handleKeyPress, handleDelete]);
 
-  if (!isLocked || !user || isOnboardingActive) return null;
+  const isExplicitLogin = sessionStorage.getItem("sikkanam_explicit_login") === "true";
+  if (!isLocked || !user || !isExplicitLogin || isOnboardingActive) return null;
 
   const handleGoogleAuthReset = async () => {
     setIsAuthenticating(true);
