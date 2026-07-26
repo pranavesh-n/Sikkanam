@@ -20,7 +20,7 @@ export function usePwaInstall() {
   const [isInstalled, setIsInstalled] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
-      // Immediate signals: running as PWA or localStorage flag from a previous install
+      // Immediate check: running as PWA (standalone) or previously installed (localStorage flag)
       if (checkIsStandalone()) return true;
       return localStorage.getItem(INSTALLED_KEY) === "true";
     } catch (e) {
@@ -30,7 +30,7 @@ export function usePwaInstall() {
 
   useEffect(() => {
     // ── SIGNAL 1: appinstalled ──────────────────────────────────────────────
-    // Chrome fires this when the user successfully installs the PWA.
+    // Fired when the user successfully installs the PWA via browser prompt.
     const handleAppInstalled = () => {
       try {
         localStorage.setItem(INSTALLED_KEY, "true");
@@ -39,24 +39,25 @@ export function usePwaInstall() {
     };
 
     // ── SIGNAL 2: beforeinstallprompt ───────────────────────────────────────
-    // Chrome ONLY fires this when the app is installable AND not yet installed.
-    // If the app IS already installed, this event will NEVER fire.
-    // Therefore it is the most reliable "not installed" signal available.
-    // When it fires: clear the localStorage flag and mark as not installed.
+    // Captures the install prompt for the Install button to use later.
+    // NOTE: Chrome can fire this event even when the PWA is already installed
+    // on some desktop builds. Therefore we DO NOT use it as an "installed" status
+    // indicator. The localStorage flag is the source of truth.
+    // Only mark as not installed if there is no existing localStorage flag.
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      // Store prompt for later use by the install button
       (window as any).deferredPwaPrompt = e;
-      // This event firing is definitive proof the app is NOT installed.
-      // Clear any stale localStorage flag (e.g., from a previous install that was uninstalled).
+      // Only update state if we have no prior installation record.
+      // If localStorage says installed, trust it — don't override with this event.
       try {
-        localStorage.removeItem(INSTALLED_KEY);
+        if (localStorage.getItem(INSTALLED_KEY) !== "true" && !checkIsStandalone()) {
+          setIsInstalled(false);
+        }
       } catch (e) {}
-      setIsInstalled(false);
     };
 
     // ── SIGNAL 3: display-mode change ──────────────────────────────────────
-    // Fires when the user opens the PWA from the home screen.
+    // Fires when the user switches to standalone mode (opened from home screen).
     const mediaQuery = window.matchMedia("(display-mode: standalone)");
     const handleMediaChange = (e: MediaQueryListEvent) => {
       if (e.matches) {
