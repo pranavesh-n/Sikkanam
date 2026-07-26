@@ -78,6 +78,21 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
       sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
     const isAuthenticatedUser = Boolean(user && explicitLogin);
+    const isUninstalledPwaReturn = localStorage.getItem(INSTALLED_KEY) === "true" && !checkIsStandalone();
+
+    // On uninstalled PWA return to web browser: auto sign-out background session for security and show WelcomeAuthModal
+    if (isUninstalledPwaReturn && !sessionStorage.getItem("sikkanam_pwa_return_handled")) {
+      try {
+        sessionStorage.setItem("sikkanam_pwa_return_handled", "true");
+        localStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+        sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+      } catch (e) {}
+      if (user) {
+        auth.signOut().catch(() => {});
+      }
+      setStep("WELCOME_AUTH");
+      return;
+    }
 
     // WelcomeAuthModal appears for unauthenticated visits until explicitly signed in or dismissed
     if (!isAuthenticatedUser && !authDismissed) {
