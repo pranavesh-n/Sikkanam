@@ -28,12 +28,44 @@ const getCookie = (name: string): string | null => {
   }
 };
 
+/**
+ * Returns true ONLY if the app is currently RUNNING as an installed PWA
+ * (standalone display mode, iOS standalone, or Android app referrer).
+ * This is different from isPwaInstalled — a user can have the app installed
+ * but still be visiting via a regular browser tab.
+ */
+const checkIsRunningStandalone = (): boolean => {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+  try {
+    const isStandalone = window.matchMedia
+      ? window.matchMedia("(display-mode: standalone)").matches
+      : false;
+    const isOverlay = window.matchMedia
+      ? window.matchMedia("(display-mode: window-controls-overlay)").matches
+      : false;
+    const isNavStandalone = (navigator as any)?.standalone === true;
+    const isAndroidApp = Boolean(
+      document.referrer &&
+        typeof document.referrer === "string" &&
+        document.referrer.includes("android-app://")
+    );
+    return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
+  } catch (e) {
+    return false;
+  }
+};
+
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, authReady, explicitLogin } = useAuth();
-  // usePwaInstall is now mounted at the app root so PWA status is tracked globally,
-  // not just on the Profile page. It also detects uninstalls via getInstalledRelatedApps.
+  // isPwaInstalled = true if the app is installed on device (localStorage flag OR standalone).
+  // Used to skip the INSTALL_PWA prompt — no need to ask someone to install what they have.
   const { isInstalled: isPwaInstalled } = usePwaInstall();
   const [step, setStep] = useState<OnboardingStep>("NONE");
+
+  // isRunningStandalone = true ONLY if currently running inside the PWA app shell.
+  // Used to skip WELCOME_AUTH — in the app, only PIN AppLock applies.
+  // A user can have the app installed but visit via browser — they should still see WELCOME_AUTH.
+  const isRunningStandalone = checkIsRunningStandalone();
 
   useEffect(() => {
     // 1. Wait until Auth has fully bootstrapped (including purgeStaleSession completing).
@@ -54,23 +86,24 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return;
     }
 
-    // Step B: Welcome / Auth modal ("Already a Sikkanam User?")
-    // Check both storages — sessionStorage for current session dismissal,
-    // localStorage is cleared by purgeStaleSession on logout/auto-signout.
-    const authDismissed =
-      localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
-      sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
-    const isAuthenticatedUser = Boolean(user && explicitLogin);
-    if (!isAuthenticatedUser && !authDismissed) {
-      setStep("WELCOME_AUTH");
-      return;
+    // Step B: "Already a Sikkanam User?" auth modal
+    // Guard: running inside the installed PWA → skip (PIN AppLock handles security there).
+    // A user who HAS the app installed but visits via browser → still sees this modal
+    // because the browser session must be treated as a fresh/untrusted visit for security.
+    if (!isRunningStandalone) {
+      const authDismissed =
+        localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
+        sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      const isAuthenticatedUser = Boolean(user && explicitLogin);
+      if (!isAuthenticatedUser && !authDismissed) {
+        setStep("WELCOME_AUTH");
+        return;
+      }
     }
 
-    // Step C: Install PWA
-    // isPwaInstalled comes from the usePwaInstall hook which checks:
-    // - standalone display mode (running as installed app)
-    // - localStorage flag
-    // - navigator.getInstalledRelatedApps() (detects uninstalls)
+    // Step C: Install PWA prompt
+    // Guard: isPwaInstalled = true if app is already on device (localStorage flag OR standalone).
+    // Even if they are visiting in browser, if they already have the app installed → skip this.
     const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
     if (!isPwaInstalled && !pwaDismissed) {
       setStep("INSTALL_PWA");
@@ -78,7 +111,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     setStep("NONE");
-  }, [authReady, user, explicitLogin, isPwaInstalled, step]);
+  }, [authReady, user, explicitLogin, isPwaInstalled, isRunningStandalone, step]);
 
   const dismissWhatsNew = () => {
     try {
@@ -87,19 +120,25 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       document.cookie = `${VERSION_KEY}=${encodeURIComponent(VERSION)}; max-age=${seconds}; path=/; SameSite=Lax`;
     } catch (e) {}
 
-    const authDismissed =
-      localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
-      sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
-    const isAuthenticatedUser = Boolean(user && explicitLogin);
-    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-
-    if (!isAuthenticatedUser && !authDismissed) {
-      setStep("WELCOME_AUTH");
-    } else if (!isPwaInstalled && !pwaDismissed) {
-      setStep("INSTALL_PWA");
-    } else {
-      setStep("NONE");
+    if (!isRunningStandalone) {
+      const authDismissed =
+        localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
+        sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      const isAuthenticatedUser = Boolean(user && explicitLogin);
+      if (!isAuthenticatedUser && !authDismissed) {
+        setStep("WELCOME_AUTH");
+        return;
+      }
     }
+
+    // Regardless of standalone/browser: if not installed, offer install prompt
+    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    if (!isPwaInstalled && !pwaDismissed) {
+      setStep("INSTALL_PWA");
+      return;
+    }
+
+    setStep("NONE");
   };
 
   const dismissWelcomeAuth = () => {
