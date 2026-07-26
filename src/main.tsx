@@ -21,22 +21,6 @@ if (typeof window !== "undefined") {
       localStorage.setItem("sikkanam_pwa_installed", "true");
     } catch (err) {}
   });
-
-  if ("getInstalledRelatedApps" in navigator) {
-    (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
-      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
-      if (relatedApps && relatedApps.length > 0) {
-        try {
-          localStorage.setItem("sikkanam_pwa_installed", "true");
-        } catch (e) {}
-      } else if (!isStandalone) {
-        try {
-          // App uninstalled: remove stale flag so returning web browser users get prompted cleanly
-          localStorage.removeItem("sikkanam_pwa_installed");
-        } catch (e) {}
-      }
-    }).catch(() => {});
-  }
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

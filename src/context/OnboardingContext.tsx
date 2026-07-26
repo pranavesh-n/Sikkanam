@@ -77,6 +77,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
     const isAuthenticatedUser = Boolean(user && explicitLogin);
 
+    // WelcomeAuthModal appears for unauthenticated visits until explicitly signed in or dismissed as Guest
     if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;

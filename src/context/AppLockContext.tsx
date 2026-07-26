@@ -53,7 +53,22 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     name: auth.currentUser.displayName || ""
   } : null);
 
-  // Lock is strictly gated by authReady, authenticated user, explicit session login, and completed onboarding
+  const checkIsStandalone = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return false;
+    try {
+      const isStandalone = window.matchMedia ? window.matchMedia("(display-mode: standalone)").matches : false;
+      const isOverlay = window.matchMedia ? window.matchMedia("(display-mode: window-controls-overlay)").matches : false;
+      const isNavStandalone = (navigator as any)?.standalone === true;
+      const isAndroidApp = Boolean(document.referrer && typeof document.referrer === "string" && document.referrer.includes("android-app://"));
+      return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const isAppInstalled = Boolean(checkIsStandalone() || localStorage.getItem("sikkanam_pwa_installed") === "true");
+
+  // Lock works across Mobile PWA, PC PWA, and Web Browsers whenever a logged-in Google user enables PIN passcode lock
   const effectiveLockEnabled = Boolean(authReady && user && explicitLogin && isLockEnabled);
   const effectiveIsLocked = Boolean(authReady && user && explicitLogin && isLocked && step === "NONE");
 

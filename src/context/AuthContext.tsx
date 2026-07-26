@@ -47,7 +47,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
       sessionStorage.removeItem("sikkanam_welcome_auth_dismissed");
       sessionStorage.removeItem("sikkanam_pwa_dismissed_session");
-      localStorage.removeItem(INSTALLED_KEY);
       localStorage.removeItem(APPLOCK_ENABLED_KEY);
       localStorage.removeItem(APPLOCK_PIN_KEY);
     } catch (e) {}

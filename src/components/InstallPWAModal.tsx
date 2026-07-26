@@ -74,6 +74,9 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
   }, [externalIsOpen]);
 
   const handleDismiss = () => {
+    try {
+      localStorage.setItem(INSTALLED_KEY, "true");
+    } catch (e) {}
     if (onClose) {
       onClose();
     } else {
