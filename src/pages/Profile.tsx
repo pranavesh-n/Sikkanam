@@ -9,9 +9,13 @@ import InstallPWAModal from "@/components/InstallPWAModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { toast } from "sonner";
 
+import { usePwaInstall } from "@/hooks/usePwaInstall";
+
 const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
   const { isLockEnabled } = useAppLock();
+  const { isInstalled: isPwaInstalled, markInstalled } = usePwaInstall();
+
   const [showAbout, setShowAbout] = useState(false);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
   const [showDisablePasscode, setShowDisablePasscode] = useState(false);
@@ -20,39 +24,6 @@ const Profile = () => {
 
   const [savedCount, setSavedCount] = useState<number>(0);
   const [wishlistCount, setWishlistCount] = useState<number>(0);
-  const [isPwaInstalled, setIsPwaInstalled] = useState<boolean>(() => {
-    try {
-      return (
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (navigator as any).standalone === true ||
-        localStorage.getItem("sikkanam_pwa_installed") === "true"
-      );
-    } catch (e) {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    const handleAppInstalled = () => {
-      setIsPwaInstalled(true);
-      try {
-        localStorage.setItem("sikkanam_pwa_installed", "true");
-      } catch (e) {}
-    };
-
-    if (
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as any).standalone === true ||
-      localStorage.getItem("sikkanam_pwa_installed") === "true"
-    ) {
-      setIsPwaInstalled(true);
-    }
-
-    window.addEventListener("appinstalled", handleAppInstalled);
-    return () => {
-      window.removeEventListener("appinstalled", handleAppInstalled);
-    };
-  }, []);
 
   useEffect(() => {
     if (user) {
@@ -103,10 +74,7 @@ const Profile = () => {
       await promptEvent.prompt();
       const choice = await promptEvent.userChoice;
       if (choice.outcome === "accepted") {
-        setIsPwaInstalled(true);
-        try {
-          localStorage.setItem("sikkanam_pwa_installed", "true");
-        } catch (e) {}
+        markInstalled();
         toast.success("Sikkanam App installed successfully!");
       }
       (window as any).deferredPwaPrompt = null;
