@@ -58,23 +58,8 @@ const Profile = () => {
 
     checkInstalled();
 
-    // On Desktop Chromium browsers: If Chrome suppressed beforeinstallprompt (window.deferredPwaPrompt is null),
-    // it means the app is already installed on the OS!
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isDesktop = !/mobile|iphone|ipad|ipod|android/.test(userAgent);
-
-    const timer = setTimeout(() => {
-      if (isDesktop && !(window as any).deferredPwaPrompt) {
-        setIsPwaInstalled(true);
-        try {
-          localStorage.setItem("sikkanam_pwa_installed", "true");
-        } catch (e) {}
-      }
-    }, 800);
-
     window.addEventListener("appinstalled", checkInstalled);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener("appinstalled", checkInstalled);
     };
   }, []);
@@ -119,27 +104,9 @@ const Profile = () => {
   const handlePwaClick = async () => {
     const promptEvent = (window as any).deferredPwaPrompt;
 
-    if (isPwaInstalled || !promptEvent) {
-      setIsPwaInstalled(true);
-      try {
-        localStorage.setItem("sikkanam_pwa_installed", "true");
-      } catch (e) {}
-      toast.info("Sikkanam App is already installed! Tap 'Open in app' at the top right of your browser or open it from your home screen.");
+    if (!promptEvent) {
+      setShowPwaModal(true);
       return;
-    }
-
-    if ("getInstalledRelatedApps" in navigator) {
-      try {
-        const apps = await (navigator as any).getInstalledRelatedApps();
-        if (apps && apps.length > 0) {
-          setIsPwaInstalled(true);
-          try {
-            localStorage.setItem("sikkanam_pwa_installed", "true");
-          } catch (e) {}
-          toast.info("Sikkanam App is already installed on your device!");
-          return;
-        }
-      } catch (e) {}
     }
 
     try {
