@@ -84,11 +84,18 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const effectiveLockEnabled = Boolean(authReady && user && explicitLogin && isLockEnabled);
   const effectiveIsLocked = Boolean(authReady && user && explicitLogin && isLocked && step === "NONE");
 
-  // Reset lock state when logged out or when explicit login session is invalid
+  // Preserve and restore lock state once auth is ready
   useEffect(() => {
-    if (!authReady || !user || !explicitLogin) {
+    if (!authReady) return;
+    if (!user || !explicitLogin) {
       setIsLocked(false);
       setIsLockEnabled(false);
+    } else {
+      const savedEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+      if (savedEnabled) {
+        setIsLockEnabled(true);
+        setIsLocked(true);
+      }
     }
   }, [authReady, user, explicitLogin]);
 
