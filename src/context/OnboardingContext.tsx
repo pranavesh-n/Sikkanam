@@ -67,6 +67,15 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // A user can have the app installed but visit via browser — they should still see WELCOME_AUTH.
   const isRunningStandalone = checkIsRunningStandalone();
 
+  // One-time migration cleanup: old code wrote WELCOME_AUTH_SESSION_KEY to localStorage,
+  // which permanently suppressed the modal for guest users across all sessions.
+  // We now only use sessionStorage for this key, so clear any stale localStorage value.
+  useEffect(() => {
+    try {
+      localStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
     // 1. Wait until Auth has fully bootstrapped (including purgeStaleSession completing).
     if (!authReady) return;
@@ -91,9 +100,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // A user who HAS the app installed but visits via browser → still sees this modal
     // because the browser session must be treated as a fresh/untrusted visit for security.
     if (!isRunningStandalone) {
-      const authDismissed =
-        localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
-        sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      // Only sessionStorage — dismissal is per-session. localStorage is NOT used here
+      // because guest dismissals would permanently suppress the modal across all future sessions.
+      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
       const isAuthenticatedUser = Boolean(user && explicitLogin);
       if (!isAuthenticatedUser && !authDismissed) {
         setStep("WELCOME_AUTH");
@@ -121,9 +130,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
 
     if (!isRunningStandalone) {
-      const authDismissed =
-        localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
-        sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
       const isAuthenticatedUser = Boolean(user && explicitLogin);
       if (!isAuthenticatedUser && !authDismissed) {
         setStep("WELCOME_AUTH");
@@ -143,7 +150,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const dismissWelcomeAuth = () => {
     try {
-      localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+      // Only sessionStorage — not localStorage. Guest dismissal is per-session only.
+      // If stored in localStorage, guests would never see the modal again across sessions.
       sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
     } catch (e) {}
 
