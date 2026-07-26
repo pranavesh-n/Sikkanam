@@ -94,8 +94,12 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 - 📲 **Robust PWA Installation States** — Dedicated PWA adoption logic featuring real-time uninstallation detection via `getInstalledRelatedApps` (reverting to "INSTALL" status immediately) and strict dismissal state retention.
 - ⌨️ **Universal Keypad Support** — Full support for physical keyboards (`0-9`, `Backspace`, `Delete`) and mobile touch interfaces.
 
-
-
+### v2.4.1 — July 26, 2026 (Patch)
+- 🐛 **Fixed: Onboarding modals not appearing on browser visit or after PWA uninstall** — Resolved three interlocking bugs that silently suppressed the "Already a Sikkanam User?" and "Install Sikkanam" popups:
+  - **Async race condition** in `AuthContext.purgeStaleSession()` — `auth.signOut()` was called before clearing storage keys, causing Firebase's `onAuthStateChanged` to fire while stale session data was still present. `OnboardingContext` would initialize at that exact moment with wrong state. Fixed by clearing all storage keys *before* `auth.signOut()`.
+  - **Persistent localStorage suppression** — The welcome modal dismissal key (`sikkanam_welcome_auth_dismissed`) was only removed from `sessionStorage` on purge but was written to `localStorage` on dismiss. This meant returning users after an uninstall or logout would never see the modal again. Fixed by clearing from both storages.
+  - **One-shot init lock** in `OnboardingContext` — A `hasInitializedRef` guard locked in whatever (stale) state was computed on first render, making the context unable to recover when true auth/install state arrived milliseconds later. Fixed by removing the lock and making the effect fully reactive — re-evaluating whenever `authReady`, `user`, `explicitLogin`, or `isPwaInstalled` changes.
+- 🔌 **PWA install tracking moved to app root** — `usePwaInstall` hook is now mounted inside `OnboardingProvider` (app root) rather than only on the Profile page, so uninstall detection via `getInstalledRelatedApps` is active from the first page load.
 
 
 
