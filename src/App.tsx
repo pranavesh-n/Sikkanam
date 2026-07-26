@@ -15,8 +15,7 @@ import MobileInstallBanner from "./components/MobileInstallBanner";
 import WelcomeAuthModal from "./components/WelcomeAuthModal";
 import { AppLockProvider } from "./context/AppLockContext";
 import { AppLockOverlay } from "./components/AppLockOverlay";
-
-
+import { OnboardingProvider } from "./context/OnboardingContext";
 
 const Explore = lazy(() => import("./pages/Explore"));
 const DestinationDetail = lazy(() => import("./pages/DestinationDetail"));
@@ -38,14 +37,15 @@ const Loading = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppLockProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <WhatsNewModal />
-        <InstallPWAModal />
-        <MobileInstallBanner />
-        <WelcomeAuthModal />
-        <AppLockOverlay />
+      <OnboardingProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <WhatsNewModal />
+          <WelcomeAuthModal />
+          <InstallPWAModal />
+          <MobileInstallBanner />
+          <AppLockOverlay />
 
 
         <BrowserRouter>
@@ -67,10 +67,10 @@ const App = () => (
             </Suspense>
           </AppShell>
         </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </OnboardingProvider>
     </AppLockProvider>
   </QueryClientProvider>
 );
 
 export default App;
-

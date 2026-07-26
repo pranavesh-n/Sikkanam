@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { X, Smartphone, Zap, ShieldCheck, Share, PlusSquare } from "lucide-react";
+import { useOnboarding } from "@/context/OnboardingContext";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
 
 interface InstallPWAModalProps {
@@ -15,11 +15,13 @@ interface InstallPWAModalProps {
 }
 
 export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: InstallPWAModalProps = {}) {
+  const { step, dismissInstallPWA } = useOnboarding();
+
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => {
     return (window as any).deferredPwaPrompt || null;
   });
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : step === "INSTALL_PWA";
 
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
@@ -43,20 +45,6 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
   useEffect(() => {
     if (isAlreadyInstalled() && externalIsOpen === undefined) return;
 
-    // Do NOT auto-popup on desktop browsers (only auto-popup on mobile devices)
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isMobile = /mobile|iphone|ipad|ipod|android/.test(userAgent);
-
-    if (!isMobile && externalIsOpen === undefined) {
-      return;
-    }
-
-    if (externalIsOpen === undefined) {
-      try {
-        if (sessionStorage.getItem(SESSION_KEY) === "true") return;
-      } catch (e) {}
-    }
-
     if ((window as any).deferredPwaPrompt) {
       setDeferredPrompt((window as any).deferredPwaPrompt);
     }
@@ -66,30 +54,14 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
       const promptEvent = e as BeforeInstallPromptEvent;
       (window as any).deferredPwaPrompt = promptEvent;
       setDeferredPrompt(promptEvent);
-
-      if (externalIsOpen === undefined && isMobile) {
-        try {
-          const dismissed = sessionStorage.getItem(SESSION_KEY);
-          if (!dismissed && !isAlreadyInstalled()) {
-            setTimeout(() => setInternalIsOpen(true), 2500);
-          }
-        } catch (e) {}
-      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
     if (isIosDevice) {
       setIsIOS(true);
-      if (externalIsOpen === undefined) {
-        try {
-          const dismissed = sessionStorage.getItem(SESSION_KEY);
-          if (!dismissed && !isAlreadyInstalled()) {
-            setTimeout(() => setInternalIsOpen(true), 3500);
-          }
-        } catch (e) {}
-      }
     }
 
     return () => {
@@ -98,11 +70,11 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
   }, [externalIsOpen]);
 
   const handleDismiss = () => {
-    setInternalIsOpen(false);
-    if (onClose) onClose();
-    try {
-      sessionStorage.setItem(SESSION_KEY, "true");
-    } catch (e) {}
+    if (onClose) {
+      onClose();
+    } else {
+      dismissInstallPWA();
+    }
   };
 
   const handleInstallClick = async () => {

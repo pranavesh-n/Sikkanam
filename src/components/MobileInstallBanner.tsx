@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
+import { useOnboarding } from "@/context/OnboardingContext";
 
 const SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
-const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 
 export default function MobileInstallBanner() {
+  const { step, dismissInstallPWA } = useOnboarding();
   const [isVisible, setIsVisible] = useState(false);
 
   const checkIsStandalone = () => {
@@ -36,28 +37,15 @@ export default function MobileInstallBanner() {
 
     if (!isMobile) return;
 
-    // Wait until WelcomeAuthModal has been closed/dismissed
-    const interval = setInterval(() => {
-      try {
-        const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY);
-        if (authDismissed === "true" && !isAlreadyInstalled()) {
-          setIsVisible(true);
-          clearInterval(interval);
-        }
-      } catch (e) {
-        setIsVisible(true);
-        clearInterval(interval);
-      }
-    }, 600);
-
-    return () => clearInterval(interval);
-  }, []);
+    // Show banner after main modal onboarding step has completed
+    if (step === "NONE") {
+      setIsVisible(true);
+    }
+  }, [step]);
 
   const handleDismiss = () => {
     setIsVisible(false);
-    try {
-      sessionStorage.setItem(SESSION_KEY, "true");
-    } catch (e) {}
+    dismissInstallPWA();
   };
 
   const handleInstallClick = async () => {

@@ -1,64 +1,16 @@
-import { useState, MouseEvent } from "react";
-import { Sparkles, Lock, Flame, ShieldCheck, UserCheck, Smartphone, X } from "lucide-react";
+import { MouseEvent } from "react";
+import { Sparkles, Lock, Flame, UserCheck, Smartphone, X } from "lucide-react";
+import { useOnboarding } from "@/context/OnboardingContext";
 
 const VERSION = "2.4";
 
-// Module-level variable to prevent showing the modal multiple times in the same session
-let hasDismissedInSession = false;
-
-const getCookie = (name: string): string | null => {
-  try {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  } catch (e) {
-    return null;
-  }
-};
-
-const setCookie = (name: string, value: string, days: number = 365) => {
-  try {
-    const seconds = days * 24 * 60 * 60;
-    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${seconds}; path=/; SameSite=Lax`;
-  } catch (e) {
-    console.warn("Failed to set cookie:", e);
-  }
-};
-
 export default function WhatsNewModal() {
-  const [open, setOpen] = useState(() => {
-    if (hasDismissedInSession) {
-      return false;
-    }
+  const { step, dismissWhatsNew } = useOnboarding();
 
-    try {
-      const seenLocal = localStorage.getItem("sikkanam-version");
-      if (seenLocal === VERSION) {
-        hasDismissedInSession = true;
-        return false;
-      }
-    } catch (e) {}
-
-    try {
-      const seenCookie = getCookie("sikkanam-version");
-      if (seenCookie === VERSION) {
-        hasDismissedInSession = true;
-        try {
-          localStorage.setItem("sikkanam-version", VERSION);
-        } catch (err) {}
-        return false;
-      }
-    } catch (e) {}
-
-    return true;
-  });
+  if (step !== "WHATS_NEW") return null;
 
   const handleClose = () => {
-    hasDismissedInSession = true;
-    try {
-      localStorage.setItem("sikkanam-version", VERSION);
-    } catch (e) {}
-    setCookie("sikkanam-version", VERSION);
-    setOpen(false);
+    dismissWhatsNew();
   };
 
   const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -66,8 +18,6 @@ export default function WhatsNewModal() {
       handleClose();
     }
   };
-
-  if (!open) return null;
 
   return (
     <div

@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAppLock } from "@/context/AppLockContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboarding } from "@/context/OnboardingContext";
 import { Delete, Lock, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const AppLockOverlay: React.FC = () => {
   const { isLocked, verifyPasscode, failedAttempts, resetAppLock } = useAppLock();
-  const { loginWithGoogle, logout } = useAuth();
+  const { user, loginWithGoogle, logout } = useAuth();
+  const { isOnboardingActive } = useOnboarding();
   const [pin, setPin] = useState<string>("");
   const [shake, setShake] = useState<boolean>(false);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -89,7 +91,7 @@ export const AppLockOverlay: React.FC = () => {
     };
   }, [isLocked, showResetModal, handleKeyPress, handleDelete]);
 
-  if (!isLocked) return null;
+  if (!isLocked || !user || isOnboardingActive) return null;
 
   const handleGoogleAuthReset = async () => {
     setIsAuthenticating(true);

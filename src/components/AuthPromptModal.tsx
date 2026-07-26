@@ -65,24 +65,31 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
         {/* Features Unlocked List */}
         <div className="w-full space-y-2.5 text-left bg-muted/40 p-3.5 rounded-2xl border border-border/50 mb-6">
           <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary grid place-items-center">
+            <span className="w-6 h-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 grid place-items-center flex-shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </span>
+            <span>Cloud Firestore Real-Time Sync Across Devices</span>
+          </div>
+
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
+            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary grid place-items-center flex-shrink-0">
               <Bookmark className="w-3.5 h-3.5" />
             </span>
-            <span>Sync Saved Itineraries</span>
+            <span>Save AI Itineraries & Detailed Cost Plans</span>
           </div>
 
           <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary grid place-items-center">
+            <span className="w-6 h-6 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 grid place-items-center flex-shrink-0">
               <Heart className="w-3.5 h-3.5" />
             </span>
-            <span>Handpicked Wishlists</span>
+            <span>Bookmark Handpicked Wishlist Destinations</span>
           </div>
 
           <div className="flex items-center gap-2.5 text-xs font-semibold text-foreground">
-            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary grid place-items-center">
+            <span className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 grid place-items-center flex-shrink-0">
               <Lock className="w-3.5 h-3.5" />
             </span>
-            <span>4-Digit App Passcode Security</span>
+            <span>4-Digit App Passcode Security Lock</span>
           </div>
         </div>
 
