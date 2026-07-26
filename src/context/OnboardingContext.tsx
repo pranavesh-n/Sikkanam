@@ -58,17 +58,15 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     if (loading) return;
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
 
     const standalone = checkIsStandalone();
     const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";
     const webAuthenticated = sessionStorage.getItem("sikkanam_web_authenticated") === "true";
     const sessionAuth = standalone ? pwaAuthenticated : webAuthenticated;
 
-    // If Firebase has a background logged-in user, but this browser/PWA session has not explicitly authenticated
+    // 1. If background Firebase session exists without explicit session authentication:
     if (user && !sessionAuth) {
-      console.info("Unauthenticated session detected. Signing out background Firebase user.");
+      console.info("Unauthenticated background session detected. Performing sign-out.");
       auth.signOut().catch(() => {});
       localStorage.removeItem(INSTALLED_KEY);
       localStorage.removeItem(APPLOCK_ENABLED_KEY);
@@ -78,7 +76,10 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return;
     }
 
-    // Determine initial step
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    // 2. Determine initial step
     const seenLocal = localStorage.getItem(VERSION_KEY);
     const seenCookie = getCookie(VERSION_KEY);
     const hasSeenWhatsNew = seenLocal === VERSION || seenCookie === VERSION;
@@ -90,7 +91,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
 
-    if ((!user || !sessionAuth) && !authDismissed) {
+    if (!user && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;
     }
