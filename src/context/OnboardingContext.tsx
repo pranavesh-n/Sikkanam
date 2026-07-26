@@ -54,11 +54,12 @@ const isAlreadyInstalled = () => {
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   const [step, setStep] = useState<OnboardingStep>("NONE");
+  const hasInitializedRef = React.useRef(false);
 
   useEffect(() => {
     if (loading) return;
-    // Once an onboarding step is active, keep it open until explicit user interaction
-    if (step !== "NONE") return;
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
 
     const standalone = checkIsStandalone();
     const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";
