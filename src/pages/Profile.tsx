@@ -24,7 +24,8 @@ const Profile = () => {
     try {
       return (
         window.matchMedia("(display-mode: standalone)").matches ||
-        (navigator as any).standalone === true
+        (navigator as any).standalone === true ||
+        localStorage.getItem("sikkanam_pwa_installed") === "true"
       );
     } catch (e) {
       return false;
@@ -32,18 +33,24 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const checkInstalled = () => {
-      const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (navigator as any).standalone === true;
-      
-      setIsPwaInstalled(isStandalone);
+    const handleAppInstalled = () => {
+      setIsPwaInstalled(true);
+      try {
+        localStorage.setItem("sikkanam_pwa_installed", "true");
+      } catch (e) {}
     };
 
-    checkInstalled();
-    window.addEventListener("appinstalled", checkInstalled);
+    if (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as any).standalone === true ||
+      localStorage.getItem("sikkanam_pwa_installed") === "true"
+    ) {
+      setIsPwaInstalled(true);
+    }
+
+    window.addEventListener("appinstalled", handleAppInstalled);
     return () => {
-      window.removeEventListener("appinstalled", checkInstalled);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
