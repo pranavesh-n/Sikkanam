@@ -38,7 +38,7 @@ const Home = () => {
             சிக்கனம் · Tamil Nadu
           </span>
           <h1 className="font-display text-4xl md:text-6xl font-extrabold text-primary-foreground leading-tight">
-            Travel Smart.<br />Spend Sikkanam.
+            Travel Smart<br />Spend Sikkanam.
           </h1>
           <p className="text-primary-foreground/85 mt-3 text-sm md:text-lg md:max-w-xl">
             AI-powered budget trip planning across  Tamil Nadu destinations — buses, trains, stays, food, and itineraries in ₹.
