@@ -143,9 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      const isExplicit = sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
-
-      if (firebaseUser && isExplicit) {
+      if (firebaseUser) {
         setUser({
           _id: firebaseUser.uid,
           email: firebaseUser.email || "",
@@ -153,15 +151,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: firebaseUser.photoURL || undefined,
         });
         setExplicitLogin(true);
-        setLoading(false);
-        setAuthReady(true);
-      } else if (firebaseUser && !isExplicit) {
-        console.info("Purging background Firebase session without explicit in-session login.");
-        await purgeStaleSession();
+        try {
+          localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+          sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+        } catch (e) {}
         setLoading(false);
         setAuthReady(true);
       } else {
-        await checkAuth();
+        setUser(null);
+        setExplicitLogin(false);
+        setLoading(false);
+        setAuthReady(true);
       }
     });
 

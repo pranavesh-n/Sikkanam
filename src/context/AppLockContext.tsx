@@ -45,7 +45,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return false;
     }
   });
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+    } catch (e) {
+      return false;
+    }
+  });
 
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_FAILED);

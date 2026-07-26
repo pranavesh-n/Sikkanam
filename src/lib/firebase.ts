@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -15,9 +15,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Enforce session-only persistence so stale credentials do not persist across app uninstalls or new browser sessions
-setPersistence(auth, browserSessionPersistence).catch((err) => {
-  console.warn("Failed to set Firebase auth session persistence:", err);
+// Use browserLocalPersistence so logged-in users remain signed in across PWA restarts
+setPersistence(auth, browserLocalPersistence).catch((err) => {
+  console.warn("Failed to set Firebase auth persistence:", err);
 });
 
 export const db = getFirestore(app);
