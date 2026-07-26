@@ -101,10 +101,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
     const isAuthenticatedUser = Boolean(user && explicitLogin);
+    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
 
     if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
-    } else if (!isAlreadyInstalled() && sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) !== "true") {
+    } else if (!checkIsStandalone() && !pwaDismissed) {
       setStep("INSTALL_PWA");
     } else {
       setStep("NONE");
@@ -116,7 +117,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
     } catch (e) {}
 
-    if (!isAlreadyInstalled() && sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) !== "true") {
+    const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    if (!checkIsStandalone() && !pwaDismissed) {
       setStep("INSTALL_PWA");
     } else {
       setStep("NONE");
