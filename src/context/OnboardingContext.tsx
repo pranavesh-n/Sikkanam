@@ -61,7 +61,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { user, authReady, explicitLogin } = useAuth();
   // isPwaInstalled = true if the app is installed on device (localStorage flag OR standalone).
   // Used to skip the INSTALL_PWA prompt — no need to ask someone to install what they have.
-  const { isInstalled: isPwaInstalled } = usePwaInstall();
+  const { isInstalled: isPwaInstalled, pwaInstallAvailable } = usePwaInstall();
   const [step, setStep] = useState<OnboardingStep>("NONE");
 
   // isRunningStandalone = true ONLY if currently running inside the PWA app shell.
@@ -77,6 +77,16 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       localStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
     } catch (e) {}
   }, []);
+
+  // When Chrome fires beforeinstallprompt after an uninstall, clear the session auth-dismissed
+  // flag so WELCOME_AUTH can show again in this session (treating the user as a new visitor).
+  useEffect(() => {
+    if (pwaInstallAvailable) {
+      try {
+        sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
+      } catch (e) {}
+    }
+  }, [pwaInstallAvailable]);
 
   useEffect(() => {
     // 1. Wait until Auth has fully bootstrapped (including purgeStaleSession completing).
@@ -116,16 +126,18 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // Guard 1: app already installed (localStorage flag or standalone) → skip.
     // Guard 2: user dismissed "Not now" this session → skip.
     // Guard 3: user dismissed "Not now" within the last 30 days → skip.
+    //   Exception: if pwaInstallAvailable (beforeinstallprompt fired), Chrome has confirmed
+    //   the app is currently uninstalled → bypass the 30-day flag so the popup shows again.
     const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
     const pwaDismissedUntil = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
-    const pwaDismissedLong = Date.now() < pwaDismissedUntil;
+    const pwaDismissedLong = !pwaInstallAvailable && Date.now() < pwaDismissedUntil;
     if (!isPwaInstalled && !pwaDismissedSession && !pwaDismissedLong) {
       setStep("INSTALL_PWA");
       return;
     }
 
     setStep("NONE");
-  }, [authReady, user, explicitLogin, isPwaInstalled, isRunningStandalone, step]);
+  }, [authReady, user, explicitLogin, isPwaInstalled, pwaInstallAvailable, isRunningStandalone, step]);
 
   const dismissWhatsNew = () => {
     try {
@@ -146,7 +158,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // Regardless of standalone/browser: check install prompt guards
     const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
     const pwaDismissedUntil = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
-    const pwaDismissedLong = Date.now() < pwaDismissedUntil;
+    const pwaDismissedLong = !pwaInstallAvailable && Date.now() < pwaDismissedUntil;
     if (!isPwaInstalled && !pwaDismissedSession && !pwaDismissedLong) {
       setStep("INSTALL_PWA");
       return;
@@ -164,7 +176,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const pwaDismissedSession2 = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
     const pwaDismissedUntil2 = parseInt(localStorage.getItem(PWA_DISMISSED_UNTIL_KEY) || "0", 10);
-    const pwaDismissedLong2 = Date.now() < pwaDismissedUntil2;
+    const pwaDismissedLong2 = !pwaInstallAvailable && Date.now() < pwaDismissedUntil2;
     if (!isPwaInstalled && !pwaDismissedSession2 && !pwaDismissedLong2) {
       setStep("INSTALL_PWA");
     } else {

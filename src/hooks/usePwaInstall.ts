@@ -28,6 +28,11 @@ export function usePwaInstall() {
     }
   });
 
+  // True when Chrome has fired beforeinstallprompt — meaning the app is currently
+  // installable (not running as an installed PWA). Used to bypass long-term dismissal
+  // flags when the user has uninstalled the app and revisits in the browser.
+  const [pwaInstallAvailable, setPwaInstallAvailable] = useState(false);
+
   useEffect(() => {
     // ── SIGNAL 1: appinstalled ──────────────────────────────────────────────
     // Fired when the user successfully installs the PWA via browser prompt.
@@ -47,7 +52,9 @@ export function usePwaInstall() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       (window as any).deferredPwaPrompt = e;
-      // Only update state if we have no prior installation record.
+      // Signal that the app is currently installable (Chrome confirmed it is NOT running as installed PWA)
+      setPwaInstallAvailable(true);
+      // Only update install state if we have no prior installation record.
       // If localStorage says installed, trust it — don't override with this event.
       try {
         if (localStorage.getItem(INSTALLED_KEY) !== "true" && !checkIsStandalone()) {
@@ -97,5 +104,5 @@ export function usePwaInstall() {
     setIsInstalled(false);
   };
 
-  return { isInstalled, markInstalled, markUninstalled };
+  return { isInstalled, pwaInstallAvailable, markInstalled, markUninstalled };
 }
