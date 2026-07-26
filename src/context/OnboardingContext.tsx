@@ -64,11 +64,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const standalone = checkIsStandalone();
     const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";
     const webAuthenticated = sessionStorage.getItem("sikkanam_web_authenticated") === "true";
+    const sessionAuth = standalone ? pwaAuthenticated : webAuthenticated;
 
-    // 1. Fresh PWA App Launch:
-    // If user opens the standalone PWA app, but hasn't explicitly signed in inside this app session yet
-    if (standalone && !pwaAuthenticated && user) {
-      console.info("Fresh PWA standalone launch detected. Signing out stale background session.");
+    // If Firebase has a background logged-in user, but this browser/PWA session has not explicitly authenticated
+    if (user && !sessionAuth) {
+      console.info("Unauthenticated session detected. Signing out background Firebase user.");
       auth.signOut().catch(() => {});
       localStorage.removeItem(INSTALLED_KEY);
       localStorage.removeItem(APPLOCK_ENABLED_KEY);
@@ -78,20 +78,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return;
     }
 
-    // 2. Web Browser Switch / Uninstall Return:
-    // If user is running in standard web browser after uninstalling PWA, without explicit web login
-    if (!standalone && !webAuthenticated && localStorage.getItem(INSTALLED_KEY) === "true" && user) {
-      console.info("Uninstalled PWA return detected. Signing out stale background session.");
-      auth.signOut().catch(() => {});
-      localStorage.removeItem(INSTALLED_KEY);
-      localStorage.removeItem(APPLOCK_ENABLED_KEY);
-      localStorage.removeItem(APPLOCK_PIN_KEY);
-      sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
-      setStep("WELCOME_AUTH");
-      return;
-    }
-
-    // 3. Determine initial step
+    // Determine initial step
     const seenLocal = localStorage.getItem(VERSION_KEY);
     const seenCookie = getCookie(VERSION_KEY);
     const hasSeenWhatsNew = seenLocal === VERSION || seenCookie === VERSION;
@@ -103,7 +90,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
 
-    if (!user && !authDismissed) {
+    if ((!user || !sessionAuth) && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;
     }
