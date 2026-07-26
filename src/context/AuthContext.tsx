@@ -81,6 +81,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
+      // Mark explicit login in sessionStorage BEFORE triggering OAuth popup so onAuthStateChanged recognizes the login
+      try {
+        sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+      } catch (e) {}
+      setExplicitLogin(true);
+
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
 
@@ -91,10 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatar: firebaseUser.photoURL || undefined,
       };
 
-      try {
-        sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-      } catch (e) {}
-      setExplicitLogin(true);
       setUser(newUser);
 
       await fetch("/api/auth/login", {
@@ -112,6 +114,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     } catch (err: any) {
       console.error("Google sign-in error:", err);
+      // If sign in failed or popup closed, reset explicit login flag
+      try {
+        sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
+      } catch (e) {}
+      setExplicitLogin(false);
       setError(err.message || "Sign in failed");
       return false;
     } finally {
