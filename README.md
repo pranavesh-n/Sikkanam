@@ -87,12 +87,12 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 ## 🆕 Changelog
 
 ### v2.4 — July 2026
-- 🌐 **"Already a Sikkanam User?" Web Gateway** — Automatic Google Auth gateway modal for browser visitors to seamlessly restore saved trips, wishlists, and cloud PIN lock, or continue exploring as guest.
-- 🎨 **Profile UI/UX Redesign** — Interactive stat counter cards (`Saved Trips` & `Wishlist` counts), grouped setting cards, and instant desktop PWA status detection.
-- 🔥 **Cloud Firestore Real-Time Sync** — Real-time Firestore `onSnapshot` listeners syncing passcode lock status & PIN hashes instantly across PC and Mobile devices.
-- 🔒 **App Passcode Lock & Verification** — 4-digit PIN lock with 35s background auto-lock, current PIN verification to turn OFF lock, and 3-attempt Google OAuth reset.
-- 📲 **Smart PWA Adoption Engine** — Sticky mobile installation banner, uninstallation detection via `getInstalledRelatedApps`, and zero-spam session dismissal rules.
-- ⌨️ **Universal Input Support** — Full support for physical PC keyboards (`0-9`, `Backspace`) and mobile touch keypads.
+- 🌐 **"Already a Sikkanam User?" Web Onboarding** — Smart Google Auth gateway modal for browser/guest visits. Complete with single-click Google Sign-In or "Continue as Guest" session options to bypass future popups.
+- 🎨 **Profile UI/UX Redesign** — Interactive stat counters, grouped setting cards, and native OS install state detection.
+- 🔥 **Cloud Firestore Settings Sync** — Real-time Firestore settings listener syncing passcode status and PIN hashes instantly across all device instances.
+- 🔒 **Deterministic Passcode Lock** — Secure 4-digit PIN lock operating across PWA and Web Browsers for Google-linked accounts. Implemented instant (0ms) background lock detection using local synchronous storage.
+- 📲 **Robust PWA Installation States** — Dedicated PWA adoption logic featuring real-time uninstallation detection via `getInstalledRelatedApps` (reverting to "INSTALL" status immediately) and strict dismissal state retention.
+- ⌨️ **Universal Keypad Support** — Full support for physical keyboards (`0-9`, `Backspace`, `Delete`) and mobile touch interfaces.
 
 
 
