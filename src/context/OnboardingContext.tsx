@@ -74,10 +74,12 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return;
     }
 
-    const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+    const authDismissed =
+      localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
+      sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
     const isAuthenticatedUser = Boolean(user && explicitLogin);
 
-    // WelcomeAuthModal appears for unauthenticated visits until explicitly signed in or dismissed as Guest
+    // WelcomeAuthModal appears for unauthenticated visits until explicitly signed in or dismissed
     if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;
@@ -99,7 +101,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       document.cookie = `${VERSION_KEY}=${encodeURIComponent(VERSION)}; max-age=${seconds}; path=/; SameSite=Lax`;
     } catch (e) {}
 
-    const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+    const authDismissed =
+      localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" ||
+      sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
     const isAuthenticatedUser = Boolean(user && explicitLogin);
     const pwaDismissed = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
 
@@ -114,6 +118,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const dismissWelcomeAuth = () => {
     try {
+      localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
       sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
     } catch (e) {}
 

@@ -96,7 +96,6 @@ export default function InstallPWAModal({ isOpen: externalIsOpen, onClose }: Ins
       try {
         localStorage.setItem(INSTALLED_KEY, "true");
       } catch (e) {}
-      alert("Sikkanam App is already installed or supported natively!\n\n• On Chrome/Edge Desktop: Tap 'Open in app' at the top right of your address bar.\n• On Mobile: Launch Sikkanam from your home screen.");
       handleDismiss();
       return;
     }

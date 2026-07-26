@@ -104,6 +104,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
             if (data.appLockPinHash) {
               localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
             }
+            if (data.appLockEnabled) {
+              setIsLocked(true);
+            }
           }
         } else {
           setIsLockEnabled(false);
