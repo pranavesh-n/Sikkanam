@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { hashPin } from "@/lib/passcode";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboarding } from "@/context/OnboardingContext";
 import { auth, db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
@@ -24,7 +25,6 @@ const LOCAL_STORAGE_PIN = "sikkanam_applock_pin";
 const LOCAL_STORAGE_FAILED = "sikkanam_applock_failed_attempts";
 const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 
-// Lock timeout when leaving/backgrounding app: 35 seconds
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
 const getUserKey = (u: any) => {
@@ -35,13 +35,10 @@ const getUserKey = (u: any) => {
 };
 
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, authReady, explicitLogin } = useAuth();
+  const { step } = useOnboarding();
 
-  const [isLockEnabled, setIsLockEnabled] = useState<boolean>(() => {
-    return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
-  });
-
-  // App MUST NOT start locked on initial page render. Lock activates only after explicit session authentication & background leave.
+  const [isLockEnabled, setIsLockEnabled] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
 
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
@@ -56,29 +53,22 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     name: auth.currentUser.displayName || ""
   } : null);
 
-  const isExplicitLogin = () => {
-    try {
-      return sessionStorage.getItem("sikkanam_explicit_login") === "true";
-    } catch (e) {
-      return false;
-    }
-  };
+  // Lock is strictly gated by authReady, authenticated user, explicit session login, and completed onboarding
+  const effectiveLockEnabled = Boolean(authReady && user && explicitLogin && isLockEnabled);
+  const effectiveIsLocked = Boolean(authReady && user && explicitLogin && isLocked && step === "NONE");
 
-  // Lock is ONLY active when user is explicitly logged in during this session
-  const effectiveLockEnabled = Boolean(user && isLockEnabled && isExplicitLogin());
-  const effectiveIsLocked = Boolean(user && isLocked && isExplicitLogin());
-
-  // If user logs out, clear lock state
+  // Reset lock state when logged out or when explicit login session is invalid
   useEffect(() => {
-    if (!user) {
+    if (!authReady || !user || !explicitLogin) {
       setIsLocked(false);
+      setIsLockEnabled(false);
     }
-  }, [user]);
+  }, [authReady, user, explicitLogin]);
 
   // Real-time synchronization with Cloud Firestore
   useEffect(() => {
-    if (!activeUser) return;
-    const key = getUserKey(activeUser);
+    if (!authReady || !user || !explicitLogin) return;
+    const key = getUserKey(user);
     if (!key) return;
 
     const userSettingsRef = doc(db, "usersettings", key);
@@ -93,9 +83,6 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
             if (data.appLockPinHash) {
               localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
             }
-            if (data.appLockEnabled) {
-              setIsLocked(true);
-            }
           }
         } else {
           setIsLockEnabled(false);
@@ -108,17 +95,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
 
     return () => unsubscribe();
-  }, [activeUser]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_ENABLED, isLockEnabled ? "true" : "false");
-  }, [isLockEnabled]);
+  }, [authReady, user, explicitLogin]);
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_FAILED, failedAttempts.toString());
   }, [failedAttempts]);
 
-  // Standard Security Architecture: Lock ONLY when user is logged in & leaves app for >= 35s
+  // Standard Security Architecture: Lock ONLY when user is logged in, explicit, and leaves app for >= 35s
   useEffect(() => {
     if (!effectiveLockEnabled) return;
 
@@ -167,7 +150,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const setupPasscode = async (pin: string): Promise<boolean> => {
     const currentUserObj = activeUser || auth.currentUser;
-    if (!currentUserObj) {
+    if (!currentUserObj || !explicitLogin) {
       toast.error("Please sign in with Google first to enable App Lock");
       return false;
     }
@@ -226,7 +209,6 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to Cloud Firestore
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
       const key = getUserKey(currentUserObj);
@@ -266,7 +248,6 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
 
-    // Sync deletion to Cloud Firestore
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
       const key = getUserKey(currentUserObj);

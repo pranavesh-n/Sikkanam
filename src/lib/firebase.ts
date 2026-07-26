@@ -15,9 +15,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Use session persistence so uninstalling app / closing browser tab automatically logs out background sessions
+// Enforce session-only persistence so stale credentials do not persist across app uninstalls or new browser sessions
 setPersistence(auth, browserSessionPersistence).catch((err) => {
-  console.warn("Failed to set Firebase auth persistence:", err);
+  console.warn("Failed to set Firebase auth session persistence:", err);
 });
 
 export const db = getFirestore(app);

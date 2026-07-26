@@ -7,12 +7,13 @@ import { lazy, Suspense } from "react";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 import Maps from "./pages/Maps";  
 import WhatsNewModal from "./components/WhatsNewModal";
 import InstallPWAModal from "./components/InstallPWAModal";
 import MobileInstallBanner from "./components/MobileInstallBanner";
 import WelcomeAuthModal from "./components/WelcomeAuthModal";
+import { AuthProvider } from "./context/AuthContext";
 import { AppLockProvider } from "./context/AppLockContext";
 import { AppLockOverlay } from "./components/AppLockOverlay";
 import { OnboardingProvider } from "./context/OnboardingContext";
@@ -36,40 +37,41 @@ const Loading = () => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AppLockProvider>
-      <OnboardingProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <WhatsNewModal />
-          <WelcomeAuthModal />
-          <InstallPWAModal />
-          <MobileInstallBanner />
-          <AppLockOverlay />
+    <AuthProvider>
+      <AppLockProvider>
+        <OnboardingProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <WhatsNewModal />
+            <WelcomeAuthModal />
+            <InstallPWAModal />
+            <MobileInstallBanner />
+            <AppLockOverlay />
 
-
-        <BrowserRouter>
-          <AppShell>
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                <Route path="/maps" element={<Maps />} />
-                <Route path="/" element={<Home />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/destination/:id" element={<DestinationDetail />} />
-                <Route path="/ai" element={<AIPlanner />} />
-                <Route path="/booking" element={<Booking />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/plan" element={<TripPlanner />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/saved-trips" element={<SavedTrips />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </AppShell>
-        </BrowserRouter>
-        </TooltipProvider>
-      </OnboardingProvider>
-    </AppLockProvider>
+            <BrowserRouter>
+              <AppShell>
+                <Suspense fallback={<Loading />}>
+                  <Routes>
+                    <Route path="/maps" element={<Maps />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/explore" element={<Explore />} />
+                    <Route path="/destination/:id" element={<DestinationDetail />} />
+                    <Route path="/ai" element={<AIPlanner />} />
+                    <Route path="/booking" element={<Booking />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/plan" element={<TripPlanner />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/saved-trips" element={<SavedTrips />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </AppShell>
+            </BrowserRouter>
+          </TooltipProvider>
+        </OnboardingProvider>
+      </AppLockProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

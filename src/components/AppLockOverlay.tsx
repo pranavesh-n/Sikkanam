@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export const AppLockOverlay: React.FC = () => {
   const { isLocked, verifyPasscode, failedAttempts, resetAppLock } = useAppLock();
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, authReady, explicitLogin, loginWithGoogle, logout } = useAuth();
   const { isOnboardingActive } = useOnboarding();
   const [pin, setPin] = useState<string>("");
   const [shake, setShake] = useState<boolean>(false);
@@ -91,8 +91,7 @@ export const AppLockOverlay: React.FC = () => {
     };
   }, [isLocked, showResetModal, handleKeyPress, handleDelete]);
 
-  const isExplicitLogin = sessionStorage.getItem("sikkanam_explicit_login") === "true";
-  if (!isLocked || !user || !isExplicitLogin || isOnboardingActive) return null;
+  if (!authReady || !isLocked || !user || !explicitLogin || isOnboardingActive) return null;
 
   const handleGoogleAuthReset = async () => {
     setIsAuthenticating(true);

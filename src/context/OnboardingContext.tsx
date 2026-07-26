@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { auth } from "@/lib/firebase";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 export type OnboardingStep = "WHATS_NEW" | "WELCOME_AUTH" | "INSTALL_PWA" | "NONE";
@@ -19,8 +18,6 @@ const VERSION_KEY = "sikkanam-version";
 const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 const PWA_DISMISSED_SESSION_KEY = "sikkanam_pwa_dismissed_session";
 const INSTALLED_KEY = "sikkanam_pwa_installed";
-const APPLOCK_ENABLED_KEY = "sikkanam_applock_enabled";
-const APPLOCK_PIN_KEY = "sikkanam_applock_pin";
 
 const getCookie = (name: string): string | null => {
   try {
@@ -52,34 +49,22 @@ const isAlreadyInstalled = () => {
 };
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, authReady, explicitLogin } = useAuth();
   const [step, setStep] = useState<OnboardingStep>("NONE");
-  const hasInitializedRef = React.useRef(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (loading) return;
+    // 1. Wait until Auth Bootstrap has completely initialized and purged stale sessions
+    if (!authReady) return;
 
-    const standalone = checkIsStandalone();
-    const pwaAuthenticated = sessionStorage.getItem("sikkanam_pwa_authenticated") === "true";
-    const webAuthenticated = sessionStorage.getItem("sikkanam_web_authenticated") === "true";
-    const sessionAuth = standalone ? pwaAuthenticated : webAuthenticated;
+    // 2. Strict Step Guard: If a modal is currently open on screen, DO NOT auto-dismiss it
+    if (step !== "NONE") return;
 
-    // 1. If background Firebase session exists without explicit session authentication:
-    if (user && !sessionAuth) {
-      console.info("Unauthenticated background session detected. Performing sign-out.");
-      auth.signOut().catch(() => {});
-      localStorage.removeItem(INSTALLED_KEY);
-      localStorage.removeItem(APPLOCK_ENABLED_KEY);
-      localStorage.removeItem(APPLOCK_PIN_KEY);
-      sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
-      setStep("WELCOME_AUTH");
-      return;
-    }
-
+    // 3. Run initialization logic exactly once per session
     if (hasInitializedRef.current) return;
     hasInitializedRef.current = true;
 
-    // 2. Determine initial step
+    // Determine starting step
     const seenLocal = localStorage.getItem(VERSION_KEY);
     const seenCookie = getCookie(VERSION_KEY);
     const hasSeenWhatsNew = seenLocal === VERSION || seenCookie === VERSION;
@@ -90,8 +75,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+    const isAuthenticatedUser = Boolean(user && explicitLogin);
 
-    if (!user && !authDismissed) {
+    if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
       return;
     }
@@ -103,7 +89,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     setStep("NONE");
-  }, [user, loading]);
+  }, [authReady, user, explicitLogin, step]);
 
   const dismissWhatsNew = () => {
     try {
@@ -113,8 +99,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
 
     const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+    const isAuthenticatedUser = Boolean(user && explicitLogin);
 
-    if (!user && !authDismissed) {
+    if (!isAuthenticatedUser && !authDismissed) {
       setStep("WELCOME_AUTH");
     } else if (!isAlreadyInstalled() && sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) !== "true") {
       setStep("INSTALL_PWA");
