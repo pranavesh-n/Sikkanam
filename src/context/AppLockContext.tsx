@@ -38,7 +38,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { user, authReady, explicitLogin } = useAuth();
   const { step } = useOnboarding();
 
-  const [isLockEnabled, setIsLockEnabled] = useState<boolean>(false);
+  const [isLockEnabled, setIsLockEnabled] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+    } catch (e) {
+      return false;
+    }
+  });
   const [isLocked, setIsLocked] = useState<boolean>(false);
 
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
