@@ -50,6 +50,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  const activeUser = user || (auth.currentUser ? {
+    id: auth.currentUser.uid,
+    _id: auth.currentUser.uid,
+    email: auth.currentUser.email || "",
+    name: auth.currentUser.displayName || ""
+  } : null);
+
   // Lock is ONLY active when user is logged in
   const effectiveLockEnabled = Boolean(user && isLockEnabled);
   const effectiveIsLocked = Boolean(user && isLocked);
