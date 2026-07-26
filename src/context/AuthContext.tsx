@@ -141,22 +141,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
+  const checkIsStandalone = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return false;
+    try {
+      const isStandalone = window.matchMedia ? window.matchMedia("(display-mode: standalone)").matches : false;
+      const isOverlay = window.matchMedia ? window.matchMedia("(display-mode: window-controls-overlay)").matches : false;
+      const isNavStandalone = (navigator as any)?.standalone === true;
+      const isAndroidApp = Boolean(document.referrer && typeof document.referrer === "string" && document.referrer.includes("android-app://"));
+      return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
+    } catch (e) {
+      return false;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const isStandalone = checkIsStandalone();
+      const isExplicitInSession = sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+
       if (firebaseUser) {
-        setUser({
-          _id: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
-          avatar: firebaseUser.photoURL || undefined,
-        });
-        setExplicitLogin(true);
-        try {
-          localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-          sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-        } catch (e) {}
-        setLoading(false);
-        setAuthReady(true);
+        if (!isStandalone && !isExplicitInSession) {
+          console.info("Browser visit without explicit session login. Auto signing out.");
+          await purgeStaleSession();
+          setLoading(false);
+          setAuthReady(true);
+        } else {
+          setUser({
+            _id: firebaseUser.uid,
+            email: firebaseUser.email || "",
+            name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+            avatar: firebaseUser.photoURL || undefined,
+          });
+          setExplicitLogin(true);
+          try {
+            sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+          } catch (e) {}
+          setLoading(false);
+          setAuthReady(true);
+        }
       } else {
         setUser(null);
         setExplicitLogin(false);

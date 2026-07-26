@@ -43,6 +43,23 @@ export function usePwaInstall() {
       mediaQuery.addEventListener("change", handleMediaChange);
     }
 
+    if ("getInstalledRelatedApps" in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
+        const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+        if (relatedApps && relatedApps.length > 0) {
+          try {
+            localStorage.setItem(INSTALLED_KEY, "true");
+          } catch (e) {}
+          setIsInstalled(true);
+        } else if (!isStandalone) {
+          try {
+            localStorage.removeItem(INSTALLED_KEY);
+          } catch (e) {}
+          setIsInstalled(false);
+        }
+      }).catch(() => {});
+    }
+
     return () => {
       window.removeEventListener("appinstalled", handleAppInstalled);
       if (mediaQuery.removeEventListener) {
