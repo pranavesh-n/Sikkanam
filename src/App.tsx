@@ -38,8 +38,8 @@ const Loading = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <AppLockProvider>
-        <OnboardingProvider>
+      <OnboardingProvider>
+        <AppLockProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -69,8 +69,8 @@ const App = () => (
               </AppShell>
             </BrowserRouter>
           </TooltipProvider>
-        </OnboardingProvider>
-      </AppLockProvider>
+        </AppLockProvider>
+      </OnboardingProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
