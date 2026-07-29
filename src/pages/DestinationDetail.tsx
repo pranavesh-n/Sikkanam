@@ -4,6 +4,7 @@ import { getDestinationById, categoryLabels } from "@/data/tnDestinations";
 import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Heart, Route } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { WeatherWidget } from "@/components/WeatherWidget";
 
 const seasonByCat: Record<string, string> = {
   hill: "Apr – Jun (cool)",
@@ -227,6 +228,15 @@ const DestinationDetail = () => {
         <Stat icon={Cloud} label="Weather" value={dest.category === "hill" ? "Cool" : dest.category === "beach" ? "Warm" : "Mild"} />
         <Stat icon={Ticket} label="Budget" value={budgetByCat[dest.category]?.budget || "₹1,500/day"} />
       </section>
+
+      {/* Live Weather Forecast & Sikkanam AI Rain Risk System */}
+      <WeatherWidget
+        lat={dest.lat}
+        lng={dest.lng}
+        destinationId={dest.id}
+        destinationName={dest.name}
+        category={dest.category}
+      />
 
       {/* AI CTA */}
       <section className="px-5 mt-4">

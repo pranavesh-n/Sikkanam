@@ -33,6 +33,13 @@ Sikkanam is a fully connected full-stack application. Your travel profile, saved
 ### 6. 87 Curated Destinations 🗺️
 Covers the full breadth of Tamil Nadu — from the Nilgiri hills to Kanyakumari, from temple towns to remote waterfalls. Every destination has curated metadata: best travel months, difficulty level, recommended days, and local food spots.
 
+### 7. Live Weather Forecast & Sikkanam AI Rain Risk System 🌤️
+Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model** (`models=ecmwf_ifs025`).
+- **Live Travel Metrics**: Real-time current temperature ("NOW"), 3-day forecast selector, Feels Like (°C), Wind Speed (km/h), Humidity (%), UV Index Category, and formatted Sunrise & Sunset times.
+- **Sikkanam Travel Intelligence**: Calculates hourly precipitation windows (*"Most likely rain window: 3 PM – 11 PM"*) and provides actionable traveler advice (*"Carry an umbrella or raincoat"*, *"Best time for outdoor sightseeing: 6 AM – 1 PM"*).
+- **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across Tamil Nadu destinations (e.g. *Anna Nagar*, *T. Nagar*, *Velachery* in Chennai; *Dhanushkodi*, *Pamban Bridge* in Rameswaram; *Coonoor*, *Doddabetta* in Ooty) plus a **"🎯 Use precise GPS location"** button.
+- **Sikkanam AI Rain Risk Alert**: Triggers smart rain risk warnings and recommends curated indoor alternatives (museums, indoor palaces, art galleries, historic churches) to replace outdoor viewpoints when heavy rain threatens sightseeing.
+
 ---
 
 ## ⚙️ Full-Stack System Architecture
@@ -85,6 +92,12 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 ---
 
 ## 🆕 Changelog
+
+### v2.5 — July 2026 (Live Weather & Sikkanam AI Rain Risk System)
+- 🌤️ **Live Open-Meteo ECMWF Model Feed**: Real-time 3-day weather forecast powered by the Open-Meteo ECMWF model (`models=ecmwf_ifs025`) with automatic fallback to standard parameters.
+- 🎯 **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across all Tamil Nadu destinations (e.g. *Dhanushkodi* in Rameswaram, *Coonoor* in Ooty, *T. Nagar* in Chennai) plus a **"🎯 Use precise GPS location"** button (`navigator.geolocation`).
+- ⏱️ **Hourly Travel Intelligence & Rain Windows**: Analyzes hourly precipitation probability and volume to identify exact rain windows (*"Most likely rain window: 3 PM – 11 PM"*) and optimal sightseeing hours.
+- 🏛️ **Contextual Indoor Spot Recommendations**: Automatically presents curated indoor alternatives (museums, science centres, art galleries, historic churches) to replace outdoor viewpoints when rain threatens travel plans.
 
 ### v2.4 — July 2026
 - 🌐 **"Already a Sikkanam User?" Web Onboarding** — Smart Google Auth gateway modal for browser/guest visits. Complete with single-click Google Sign-In or "Continue as Guest" session options to bypass future popups.
