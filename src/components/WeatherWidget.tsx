@@ -189,20 +189,20 @@ export const WeatherWidget = ({
   };
 
   return (
-    <section className="px-5 mt-5 space-y-4">
+    <section className="px-3 sm:px-5 mt-5 space-y-4">
       {/* Outer Weather Card Container */}
-      <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-3xl p-5 shadow-xs transition-all relative">
+      <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs transition-all relative">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-500 shrink-0">
-              <Sun className="w-5 h-5" />
+        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-500 shrink-0">
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <h3 className="font-display font-extrabold text-slate-800 dark:text-white text-base leading-tight">
+            <div className="min-w-0">
+              <h3 className="font-display font-extrabold text-slate-800 dark:text-white text-sm sm:text-base leading-tight truncate">
                 {activeLocationName} Live Weather
               </h3>
-              <p className="text-[11px] text-muted-foreground font-medium">
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium truncate">
                 Open-Meteo (ECMWF Model Feed)
               </p>
             </div>
@@ -211,11 +211,11 @@ export const WeatherWidget = ({
           {/* Clickable Location / Choose Area Pill Badge */}
           <button
             onClick={() => setShowAreaModal(true)}
-            className="px-3 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/90 dark:bg-blue-950/80 dark:hover:bg-blue-900/90 text-blue-700 dark:text-blue-300 font-semibold text-xs border border-blue-200/60 dark:border-blue-800/60 flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-2.5 sm:px-3 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/90 dark:bg-blue-950/80 dark:hover:bg-blue-900/90 text-blue-700 dark:text-blue-300 font-semibold text-xs border border-blue-200/60 dark:border-blue-800/60 flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
             title="Choose area or precise location"
           >
             <MapPin className="w-3.5 h-3.5 text-blue-500" />
-            <span>{activeLocationName}</span>
+            <span className="truncate max-w-[120px] sm:max-w-none">{activeLocationName}</span>
             <span className="text-[10px] text-blue-500 font-normal">▼</span>
           </button>
         </div>
