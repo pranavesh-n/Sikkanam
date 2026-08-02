@@ -2,7 +2,7 @@ import { MouseEvent } from "react";
 import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.6";
+const VERSION = "2.6.0";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
