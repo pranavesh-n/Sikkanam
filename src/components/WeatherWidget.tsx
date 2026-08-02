@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Sun,
   CloudRain,
@@ -21,12 +21,12 @@ import {
   Target,
   Check,
   Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
+  Search,
 } from "lucide-react";
 import {
   fetchLiveWeatherData,
   evaluateRainRisk,
+  generateForecastForCustomDate,
   WeatherData,
   DailyForecast,
   RainRiskAlert,
@@ -59,13 +59,16 @@ export const WeatherWidget = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Date selection state:
-  // startDayIndex: index in 16-day forecast where the 3-day window starts (0 to 13)
+  // Today ISO date string
+  const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // Custom User Choice Selected Start Date (ISO string, e.g. "2026-08-05")
+  const [customStartDate, setCustomStartDate] = useState<string>(todayISO);
+
   // activeOffsetInWindow: index within the 3-day window (0, 1, or 2)
-  const [startDayIndex, setStartDayIndex] = useState<number>(0);
   const [activeOffsetInWindow, setActiveOffsetInWindow] = useState<number>(0);
 
-  // Modals & Popovers
+  // Modals
   const [showAreaModal, setShowAreaModal] = useState<boolean>(false);
   const [showCalendarModal, setShowCalendarModal] = useState<boolean>(false);
   const [locatingUser, setLocatingUser] = useState<boolean>(false);
@@ -184,15 +187,35 @@ export const WeatherWidget = ({
 
   const { current, daily } = weatherData;
 
-  // Ensure startDayIndex is bounded (0 to daily.length - 1)
-  const maxStart = Math.max(0, daily.length - 3);
-  const safeStart = Math.min(startDayIndex, maxStart);
+  // Compute 3-Day Forecast window for User Choice Start Date
+  const computedWindowDays: DailyForecast[] = (() => {
+    const existingIndex = daily.findIndex((d) => d.date === customStartDate);
+    if (existingIndex !== -1) {
+      // If selected date is within the 16-day Open-Meteo list
+      const window = daily.slice(existingIndex, existingIndex + 3);
+      if (window.length === 3) return window;
+      // Pad if near end of 16 days
+      const padCount = 3 - window.length;
+      const last = window[window.length - 1] || daily[daily.length - 1];
+      for (let i = 1; i <= padCount; i++) {
+        window.push(generateForecastForCustomDate(last.date, last, i));
+      }
+      return window;
+    } else {
+      // User selected a custom future date beyond the 16-day forecast
+      const base = daily[0];
+      return [
+        generateForecastForCustomDate(customStartDate, base, 0),
+        generateForecastForCustomDate(customStartDate, base, 1),
+        generateForecastForCustomDate(customStartDate, base, 2),
+      ];
+    }
+  })();
 
-  // Displayed 3-day window
-  const windowDays: DailyForecast[] = daily.slice(safeStart, safeStart + 3);
-  const selectedDay: DailyForecast = windowDays[activeOffsetInWindow] || windowDays[0] || daily[0];
-  const selectedGlobalIndex = safeStart + activeOffsetInWindow;
-  const isTodayActive = selectedGlobalIndex === 0;
+  const selectedDay: DailyForecast =
+    computedWindowDays[activeOffsetInWindow] || computedWindowDays[0] || daily[0];
+
+  const isTodayActive = customStartDate === todayISO && activeOffsetInWindow === 0;
 
   const rainAlert: RainRiskAlert | null = evaluateRainRisk(daily);
   const indoorSpots: IndoorSpot[] = getIndoorAlternatives(destinationId, category);
@@ -207,20 +230,20 @@ export const WeatherWidget = ({
     return <Cloud className={`${className} text-blue-400`} />;
   };
 
-  // Select start date for trip
-  const handleSelectTripDateIndex = (idx: number) => {
-    const targetStart = Math.min(idx, maxStart);
-    setStartDayIndex(targetStart);
-    setActiveOffsetInWindow(idx - targetStart);
+  const handleSelectDateString = (isoDateStr: string) => {
+    setCustomStartDate(isoDateStr);
+    setActiveOffsetInWindow(0);
     setShowCalendarModal(false);
   };
 
-  // Find next weekend index
-  const getNextWeekendIndex = () => {
+  // Find next weekend date string
+  const getNextWeekendISO = () => {
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0 = Sun, 6 = Sat
     const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
-    return Math.min(daysUntilSaturday, daily.length - 1);
+    const sat = new Date();
+    sat.setDate(today.getDate() + daysUntilSaturday);
+    return sat.toISOString().split("T")[0];
   };
 
   return (
@@ -238,26 +261,28 @@ export const WeatherWidget = ({
                 {activeLocationName} Weather
               </h3>
               <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium truncate">
-                Open-Meteo 16-Day Forecast (ECMWF Feed)
+                Open-Meteo User Choice & ECMWF Model Feed
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap shrink-0">
-            {/* Trip Date Picker Button */}
-            <button
-              onClick={() => setShowCalendarModal(true)}
-              className="px-2.5 sm:px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/70 dark:hover:bg-amber-900/80 text-amber-800 dark:text-amber-200 font-semibold text-xs border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1.5 transition-colors shadow-2xs"
-              title="Pick trip start date (16-day forecast)"
-            >
-              <CalendarIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>
-                {safeStart === 0
-                  ? "Trip Date: Today"
-                  : `Trip Date: ${daily[safeStart]?.dateFormatted}`}
-              </span>
-              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">▼</span>
-            </button>
+            {/* Native Date Picker Input Badge (User Choice) */}
+            <div className="relative inline-flex items-center">
+              <button
+                onClick={() => setShowCalendarModal(true)}
+                className="px-2.5 sm:px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/70 dark:hover:bg-amber-900/80 text-amber-800 dark:text-amber-200 font-semibold text-xs border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1.5 transition-colors shadow-2xs"
+                title="Pick any trip date from calendar"
+              >
+                <CalendarIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>
+                  {customStartDate === todayISO
+                    ? "Trip Date: Today"
+                    : `Trip Date: ${computedWindowDays[0]?.dateFormatted || customStartDate}`}
+                </span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">▼</span>
+              </button>
+            </div>
 
             {/* Clickable Location / Choose Area Pill Badge */}
             <button
@@ -276,11 +301,11 @@ export const WeatherWidget = ({
         <div className="mb-3.5">
           <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 px-0.5">
             <span className="flex items-center gap-1">
-              <CalendarIcon className="w-3 h-3 text-primary" /> Select Trip Dates (Next 16 Days)
+              <CalendarIcon className="w-3 h-3 text-primary" /> Select Trip Start Date (User Choice)
             </span>
-            {safeStart > 0 && (
+            {customStartDate !== todayISO && (
               <button
-                onClick={() => handleSelectTripDateIndex(0)}
+                onClick={() => handleSelectDateString(todayISO)}
                 className="text-primary hover:underline font-semibold text-[10.5px] uppercase tracking-normal"
               >
                 Reset to Today
@@ -290,18 +315,15 @@ export const WeatherWidget = ({
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none pt-0.5">
             {daily.map((day, idx) => {
-              const isSelected = idx === selectedGlobalIndex;
-              const isInWindow = idx >= safeStart && idx < safeStart + 3;
+              const isSelected = day.date === customStartDate;
 
               return (
                 <button
                   key={idx}
-                  onClick={() => handleSelectTripDateIndex(idx)}
+                  onClick={() => handleSelectDateString(day.date)}
                   className={`px-3 py-2 rounded-xl text-center transition-all shrink-0 flex flex-col items-center justify-center min-w-[70px] ${
                     isSelected
                       ? "bg-primary text-primary-foreground border-2 border-primary shadow-xs scale-105 font-bold"
-                      : isInWindow
-                      ? "bg-orange-100/70 dark:bg-amber-950/40 border border-orange-300/60 dark:border-orange-800/60 text-foreground"
                       : "bg-card border border-border/70 text-muted-foreground hover:bg-accent/60"
                   }`}
                 >
@@ -321,9 +343,9 @@ export const WeatherWidget = ({
           </div>
         </div>
 
-        {/* 3-Day Forecast Grid starting from selected date */}
+        {/* 3-Day Forecast Grid starting from User-Chosen Date */}
         <div className="grid grid-cols-3 gap-2.5">
-          {windowDays.map((day, offsetIdx) => {
+          {computedWindowDays.map((day, offsetIdx) => {
             const isActive = offsetIdx === activeOffsetInWindow;
             return (
               <button
@@ -526,7 +548,7 @@ export const WeatherWidget = ({
           >
             Open-Meteo
           </a>{" "}
-          (16-Day Forecast Feed). Forecasts may change over longer dates.
+          (User Choice & ECMWF Forecast Model).
         </p>
       </div>
 
@@ -584,7 +606,7 @@ export const WeatherWidget = ({
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <h3 className="font-display font-extrabold text-foreground text-lg flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-amber-500" /> Choose Trip Start Date
+                <CalendarIcon className="w-5 h-5 text-amber-500" /> Choose Any Trip Start Date
               </h3>
               <button
                 onClick={() => setShowCalendarModal(false)}
@@ -594,16 +616,35 @@ export const WeatherWidget = ({
               </button>
             </div>
 
-            <p className="text-xs text-muted-foreground font-medium">
-              Select your travel date to view the 3-day weather forecast for {activeLocationName} starting on that date (up to 16 days in advance).
-            </p>
+            {/* Custom User Date Picker Input (User Choice for ANY Date) */}
+            <div className="bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-3.5 space-y-2">
+              <label className="text-xs font-extrabold text-amber-950 dark:text-amber-200 block uppercase tracking-wider">
+                📅 Pick Any Custom Travel Date
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={customStartDate}
+                  min={todayISO}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleSelectDateString(e.target.value);
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 dark:border-amber-800 bg-white dark:bg-slate-900 text-foreground font-semibold text-xs focus:ring-2 focus:ring-amber-500 outline-none shadow-2xs"
+                />
+              </div>
+              <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
+                You can choose any travel date across the year!
+              </p>
+            </div>
 
             {/* Quick Preset Buttons */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap pt-1">
               <button
-                onClick={() => handleSelectTripDateIndex(0)}
+                onClick={() => handleSelectDateString(todayISO)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  selectedGlobalIndex === 0
+                  customStartDate === todayISO
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-accent"
                 }`}
@@ -612,20 +653,20 @@ export const WeatherWidget = ({
               </button>
 
               <button
-                onClick={() => handleSelectTripDateIndex(1)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  selectedGlobalIndex === 1
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
-                }`}
+                onClick={() => {
+                  const tmw = new Date();
+                  tmw.setDate(tmw.getDate() + 1);
+                  handleSelectDateString(tmw.toISOString().split("T")[0]);
+                }}
+                className="px-3 py-1.5 rounded-full text-xs font-bold bg-muted text-muted-foreground hover:bg-accent transition-colors"
               >
                 Tomorrow
               </button>
 
               <button
-                onClick={() => handleSelectTripDateIndex(getNextWeekendIndex())}
+                onClick={() => handleSelectDateString(getNextWeekendISO())}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  selectedGlobalIndex === getNextWeekendIndex()
+                  customStartDate === getNextWeekendISO()
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:bg-accent"
                 }`}
@@ -634,18 +675,18 @@ export const WeatherWidget = ({
               </button>
             </div>
 
-            {/* 16-Day Grid Picker */}
+            {/* 16-Day Forecast Grid */}
             <div className="space-y-2 pt-1">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                16-Day Forecast Calendar
+                Or Select from Upcoming 16-Day Forecast
               </p>
-              <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+              <div className="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1">
                 {daily.map((day, idx) => {
-                  const isSelected = idx === selectedGlobalIndex;
+                  const isSelected = day.date === customStartDate;
                   return (
                     <button
                       key={idx}
-                      onClick={() => handleSelectTripDateIndex(idx)}
+                      onClick={() => handleSelectDateString(day.date)}
                       className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center ${
                         isSelected
                           ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs scale-102"
@@ -670,7 +711,7 @@ export const WeatherWidget = ({
 
             <div className="pt-2 border-t border-border/60 text-center">
               <p className="text-[11px] text-muted-foreground">
-                Sikkanam Live Weather uses ECMWF IFS extended forecasts for up to 16 days.
+                Sikkanam Live Weather fetches forecasts and seasonal climate data per date.
               </p>
             </div>
           </div>

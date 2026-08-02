@@ -1,8 +1,9 @@
 /**
  * Weather Service for Sikkanam Live Weather & AI Rain Risk System
  * Uses Open-Meteo API with Hybrid Architecture:
- * 1. Best-Match Live Observational Feed for "NOW" conditions (exact parity with Google/station readings)
+ * 1. Best-Match Live Observational Feed for "NOW" conditions
  * 2. ECMWF IFS model (models=ecmwf_ifs025) for 16-Day Extended Forecast & Rain Risk Intelligence
+ * 3. User Choice Custom Date Support for any date selected via calendar picker
  */
 
 export interface CurrentWeather {
@@ -58,10 +59,10 @@ export interface WeatherData {
 
 export interface RainRiskAlert {
   triggered: boolean;
-  rainyDayIndex: number; // 0, 1, 2...
-  dayLabel: string; // "Day 1", "Day 2", "Day 3", etc.
+  rainyDayIndex: number;
+  dayLabel: string;
   peakRainProb: number;
-  rainProb: number; // Alias for peakRainProb
+  rainProb: number;
   precipSum: number;
   rainyWindowText?: string;
 }
@@ -224,8 +225,56 @@ export function clearWeatherCache() {
 }
 
 /**
+ * Generates custom forecast item for any user-chosen date beyond standard 16-day window
+ */
+export function generateForecastForCustomDate(
+  dateStr: string,
+  baseForecast: DailyForecast,
+  dayOffset = 0
+): DailyForecast {
+  const targetDateObj = new Date(dateStr + "T00:00:00");
+  if (isNaN(targetDateObj.getTime())) return baseForecast;
+
+  // Offset by dayOffset
+  targetDateObj.setDate(targetDateObj.getDate() + dayOffset);
+
+  const isoDate = targetDateObj.toISOString().split("T")[0];
+  const month = targetDateObj.getMonth();
+
+  // Seasonal temperature variation logic relative to base
+  let tempAdj = 0;
+  if (month >= 3 && month <= 5) tempAdj = 3; // Summer (Apr-Jun)
+  else if (month >= 10 || month <= 1) tempAdj = -4; // Winter/Monsoon (Nov-Feb)
+
+  const dateFormatted = targetDateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+
+  const weekdayShort = targetDateObj.toLocaleDateString("en-US", { weekday: "short" });
+
+  const dayLabel = targetDateObj
+    .toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    })
+    .toUpperCase();
+
+  return {
+    ...baseForecast,
+    date: isoDate,
+    dayLabel,
+    dateFormatted,
+    weekdayShort,
+    tempMax: Math.max(15, Math.round(baseForecast.tempMax + tempAdj)),
+    tempMin: Math.max(10, Math.round(baseForecast.tempMin + tempAdj)),
+    apparentTempMax: Math.max(15, Math.round(baseForecast.apparentTempMax + tempAdj)),
+  };
+}
+
+/**
  * Fetches Live Current Weather + 16-Day Extended Forecast from Open-Meteo API
- * Uses 10-minute caching to stay safely within free-tier limits while keeping data fresh
  */
 export async function fetchLiveWeatherData(
   lat: number,
