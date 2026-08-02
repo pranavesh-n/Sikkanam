@@ -20,6 +20,9 @@ import {
   X,
   Target,
   Check,
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   fetchLiveWeatherData,
@@ -55,8 +58,16 @@ export const WeatherWidget = ({
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+
+  // Date selection state:
+  // startDayIndex: index in 16-day forecast where the 3-day window starts (0 to 13)
+  // activeOffsetInWindow: index within the 3-day window (0, 1, or 2)
+  const [startDayIndex, setStartDayIndex] = useState<number>(0);
+  const [activeOffsetInWindow, setActiveOffsetInWindow] = useState<number>(0);
+
+  // Modals & Popovers
   const [showAreaModal, setShowAreaModal] = useState<boolean>(false);
+  const [showCalendarModal, setShowCalendarModal] = useState<boolean>(false);
   const [locatingUser, setLocatingUser] = useState<boolean>(false);
 
   // Sub locations for area modal
@@ -172,8 +183,16 @@ export const WeatherWidget = ({
   }
 
   const { current, daily } = weatherData;
-  const selectedDay: DailyForecast = daily[selectedIndex] || daily[0];
-  const isTodayActive = selectedIndex === 0;
+
+  // Ensure startDayIndex is bounded (0 to daily.length - 1)
+  const maxStart = Math.max(0, daily.length - 3);
+  const safeStart = Math.min(startDayIndex, maxStart);
+
+  // Displayed 3-day window
+  const windowDays: DailyForecast[] = daily.slice(safeStart, safeStart + 3);
+  const selectedDay: DailyForecast = windowDays[activeOffsetInWindow] || windowDays[0] || daily[0];
+  const selectedGlobalIndex = safeStart + activeOffsetInWindow;
+  const isTodayActive = selectedGlobalIndex === 0;
 
   const rainAlert: RainRiskAlert | null = evaluateRainRisk(daily);
   const indoorSpots: IndoorSpot[] = getIndoorAlternatives(destinationId, category);
@@ -188,46 +207,128 @@ export const WeatherWidget = ({
     return <Cloud className={`${className} text-blue-400`} />;
   };
 
+  // Select start date for trip
+  const handleSelectTripDateIndex = (idx: number) => {
+    const targetStart = Math.min(idx, maxStart);
+    setStartDayIndex(targetStart);
+    setActiveOffsetInWindow(idx - targetStart);
+    setShowCalendarModal(false);
+  };
+
+  // Find next weekend index
+  const getNextWeekendIndex = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sun, 6 = Sat
+    const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
+    return Math.min(daysUntilSaturday, daily.length - 1);
+  };
+
   return (
     <section className="px-3 sm:px-5 mt-5 space-y-4">
       {/* Outer Weather Card Container */}
       <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs transition-all relative">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-500 shrink-0">
               <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
               <h3 className="font-display font-extrabold text-slate-800 dark:text-white text-sm sm:text-base leading-tight truncate">
-                {activeLocationName} Live Weather
+                {activeLocationName} Weather
               </h3>
               <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium truncate">
-                Open-Meteo (ECMWF Model Feed)
+                Open-Meteo 16-Day Forecast (ECMWF Feed)
               </p>
             </div>
           </div>
 
-          {/* Clickable Location / Choose Area Pill Badge */}
-          <button
-            onClick={() => setShowAreaModal(true)}
-            className="px-2.5 sm:px-3 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/90 dark:bg-blue-950/80 dark:hover:bg-blue-900/90 text-blue-700 dark:text-blue-300 font-semibold text-xs border border-blue-200/60 dark:border-blue-800/60 flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
-            title="Choose area or precise location"
-          >
-            <MapPin className="w-3.5 h-3.5 text-blue-500" />
-            <span className="truncate max-w-[120px] sm:max-w-none">{activeLocationName}</span>
-            <span className="text-[10px] text-blue-500 font-normal">▼</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
+            {/* Trip Date Picker Button */}
+            <button
+              onClick={() => setShowCalendarModal(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/70 dark:hover:bg-amber-900/80 text-amber-800 dark:text-amber-200 font-semibold text-xs border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1.5 transition-colors shadow-2xs"
+              title="Pick trip start date (16-day forecast)"
+            >
+              <CalendarIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>
+                {safeStart === 0
+                  ? "Trip Date: Today"
+                  : `Trip Date: ${daily[safeStart]?.dateFormatted}`}
+              </span>
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">▼</span>
+            </button>
+
+            {/* Clickable Location / Choose Area Pill Badge */}
+            <button
+              onClick={() => setShowAreaModal(true)}
+              className="px-2.5 sm:px-3 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/90 dark:bg-blue-950/80 dark:hover:bg-blue-900/90 text-blue-700 dark:text-blue-300 font-semibold text-xs border border-blue-200/60 dark:border-blue-800/60 flex items-center gap-1.5 transition-colors shadow-2xs"
+              title="Choose area or precise location"
+            >
+              <MapPin className="w-3.5 h-3.5 text-blue-500" />
+              <span className="truncate max-w-[100px] sm:max-w-none">{activeLocationName}</span>
+              <span className="text-[10px] text-blue-500 font-normal">▼</span>
+            </button>
+          </div>
         </div>
 
-        {/* 3-Day Selector Grid */}
+        {/* 16-Day Horizontal Date Scrubber Strip (Scrollable) */}
+        <div className="mb-3.5">
+          <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5 px-0.5">
+            <span className="flex items-center gap-1">
+              <CalendarIcon className="w-3 h-3 text-primary" /> Select Trip Dates (Next 16 Days)
+            </span>
+            {safeStart > 0 && (
+              <button
+                onClick={() => handleSelectTripDateIndex(0)}
+                className="text-primary hover:underline font-semibold text-[10.5px] uppercase tracking-normal"
+              >
+                Reset to Today
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none pt-0.5">
+            {daily.map((day, idx) => {
+              const isSelected = idx === selectedGlobalIndex;
+              const isInWindow = idx >= safeStart && idx < safeStart + 3;
+
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleSelectTripDateIndex(idx)}
+                  className={`px-3 py-2 rounded-xl text-center transition-all shrink-0 flex flex-col items-center justify-center min-w-[70px] ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-2 border-primary shadow-xs scale-105 font-bold"
+                      : isInWindow
+                      ? "bg-orange-100/70 dark:bg-amber-950/40 border border-orange-300/60 dark:border-orange-800/60 text-foreground"
+                      : "bg-card border border-border/70 text-muted-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider block leading-tight">
+                    {idx === 0 ? "Today" : idx === 1 ? "Tomorrow" : day.weekdayShort}
+                  </span>
+                  <span className="text-[11px] font-extrabold block mt-0.5">
+                    {day.dateFormatted}
+                  </span>
+                  <div className="my-0.5">{getWeatherIcon(day.weatherCode, "w-4 h-4")}</div>
+                  <span className="text-[10px] font-bold">
+                    {day.tempMax}° / {day.tempMin}°
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3-Day Forecast Grid starting from selected date */}
         <div className="grid grid-cols-3 gap-2.5">
-          {daily.map((day, idx) => {
-            const isActive = idx === selectedIndex;
+          {windowDays.map((day, offsetIdx) => {
+            const isActive = offsetIdx === activeOffsetInWindow;
             return (
               <button
-                key={idx}
-                onClick={() => setSelectedIndex(idx)}
+                key={offsetIdx}
+                onClick={() => setActiveOffsetInWindow(offsetIdx)}
                 className={`p-3 rounded-xl text-center transition-all duration-200 flex flex-col items-center justify-center ${
                   isActive
                     ? "border-2 border-orange-400 bg-orange-50/50 dark:bg-amber-950/20 shadow-xs scale-[1.02]"
@@ -235,11 +336,15 @@ export const WeatherWidget = ({
                 }`}
               >
                 <span
-                  className={`text-[11px] font-bold tracking-wider uppercase mb-1 ${
+                  className={`text-[11px] font-bold tracking-wider uppercase mb-0.5 ${
                     isActive ? "text-orange-600 dark:text-orange-400" : "text-muted-foreground"
                   }`}
                 >
                   {day.dayLabel}
+                </span>
+
+                <span className="text-[10px] text-muted-foreground font-semibold mb-1">
+                  {day.dateFormatted}
                 </span>
 
                 <div className="my-0.5">{getWeatherIcon(day.weatherCode, "w-6 h-6")}</div>
@@ -281,9 +386,13 @@ export const WeatherWidget = ({
                   <span className="text-xs font-semibold text-foreground">
                     {isTodayActive ? current.weatherDesc : selectedDay.weatherDesc}
                   </span>
-                  {isTodayActive && (
+                  {isTodayActive ? (
                     <span className="text-[10px] font-extrabold bg-blue-100 dark:bg-blue-900/70 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
                       NOW
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/70 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                      {selectedDay.dateFormatted}
                     </span>
                   )}
                 </div>
@@ -294,7 +403,7 @@ export const WeatherWidget = ({
               <div className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center justify-end gap-1">
                 <CloudRain className="w-3.5 h-3.5" />
                 {selectedDay.peakRainProb >= 50
-                  ? "Rain expected later today"
+                  ? "Rain expected"
                   : selectedDay.peakRainProb > 0
                   ? "Slight Chance of Rain"
                   : "Dry Conditions"}
@@ -371,7 +480,7 @@ export const WeatherWidget = ({
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span className="text-xs font-bold text-amber-950 dark:text-amber-200 uppercase tracking-wide">
-                SIKKANAM TRAVEL ADVICE ({selectedDay.dayLabel})
+                SIKKANAM TRAVEL ADVICE ({selectedDay.dayLabel} • {selectedDay.dateFormatted})
               </span>
             </div>
 
@@ -417,7 +526,7 @@ export const WeatherWidget = ({
           >
             Open-Meteo
           </a>{" "}
-          (ECMWF Feed). Forecasts may change.
+          (16-Day Forecast Feed). Forecasts may change over longer dates.
         </p>
       </div>
 
@@ -440,7 +549,7 @@ export const WeatherWidget = ({
 
           <div className="space-y-1 text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed">
             <p className="font-bold text-amber-950 dark:text-amber-100">
-              ☔ Rain is likely later today. (Expected rainfall: {rainAlert.precipSum} mm in {activeLocationName}, {rainAlert.dayLabel})
+              ☔ Rain is likely later on {rainAlert.dayLabel}. (Expected rainfall: {rainAlert.precipSum} mm in {activeLocationName})
             </p>
             <p className="text-[11.5px] opacity-90">
               {rainAlert.rainyWindowText ? `${rainAlert.rainyWindowText}. ` : ""}
@@ -463,6 +572,106 @@ export const WeatherWidget = ({
                   <span className="ml-auto">{spot.emoji}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TRIP CALENDAR DATE SELECTOR MODAL */}
+      {showCalendarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-5 shadow-elevated space-y-4 relative overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <h3 className="font-display font-extrabold text-foreground text-lg flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-amber-500" /> Choose Trip Start Date
+              </h3>
+              <button
+                onClick={() => setShowCalendarModal(false)}
+                className="w-8 h-8 rounded-full bg-muted hover:bg-accent flex items-center justify-center text-muted-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-muted-foreground font-medium">
+              Select your travel date to view the 3-day weather forecast for {activeLocationName} starting on that date (up to 16 days in advance).
+            </p>
+
+            {/* Quick Preset Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => handleSelectTripDateIndex(0)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  selectedGlobalIndex === 0
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                Today (3 Days)
+              </button>
+
+              <button
+                onClick={() => handleSelectTripDateIndex(1)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  selectedGlobalIndex === 1
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                Tomorrow
+              </button>
+
+              <button
+                onClick={() => handleSelectTripDateIndex(getNextWeekendIndex())}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  selectedGlobalIndex === getNextWeekendIndex()
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                Next Weekend
+              </button>
+            </div>
+
+            {/* 16-Day Grid Picker */}
+            <div className="space-y-2 pt-1">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                16-Day Forecast Calendar
+              </p>
+              <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+                {daily.map((day, idx) => {
+                  const isSelected = idx === selectedGlobalIndex;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectTripDateIndex(idx)}
+                      className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs scale-102"
+                          : "bg-muted/30 hover:bg-accent border-border/60 text-foreground"
+                      }`}
+                    >
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground truncate w-full">
+                        {idx === 0 ? "Today" : idx === 1 ? "Tomorrow" : day.weekdayShort}
+                      </span>
+                      <span className="text-xs font-extrabold mt-0.5">
+                        {day.dateFormatted}
+                      </span>
+                      <div className="my-1">{getWeatherIcon(day.weatherCode, "w-4 h-4")}</div>
+                      <span className="text-[10px] font-bold">
+                        {day.tempMax}° / {day.tempMin}°
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-border/60 text-center">
+              <p className="text-[11px] text-muted-foreground">
+                Sikkanam Live Weather uses ECMWF IFS extended forecasts for up to 16 days.
+              </p>
             </div>
           </div>
         </div>

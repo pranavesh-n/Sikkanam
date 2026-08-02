@@ -2,7 +2,7 @@
  * Weather Service for Sikkanam Live Weather & AI Rain Risk System
  * Uses Open-Meteo API with Hybrid Architecture:
  * 1. Best-Match Live Observational Feed for "NOW" conditions (exact parity with Google/station readings)
- * 2. ECMWF IFS model (models=ecmwf_ifs025) for 3-Day Forecast & Rain Risk Intelligence
+ * 2. ECMWF IFS model (models=ecmwf_ifs025) for 16-Day Extended Forecast & Rain Risk Intelligence
  */
 
 export interface CurrentWeather {
@@ -27,8 +27,9 @@ export interface HourlyForecastItem {
 
 export interface DailyForecast {
   date: string; // ISO date string (YYYY-MM-DD)
-  dayLabel: string; // "TODAY", "TOMORROW", "DAY 3"
+  dayLabel: string; // "TODAY", "TOMORROW", "DAY 3", or "SAT, AUG 8"
   dateFormatted: string; // "Jul 29"
+  weekdayShort: string; // "Sat"
   weatherCode: number;
   weatherDesc: string;
   tempMax: number;
@@ -57,8 +58,8 @@ export interface WeatherData {
 
 export interface RainRiskAlert {
   triggered: boolean;
-  rainyDayIndex: number; // 0, 1, 2
-  dayLabel: string; // "Day 1", "Day 2", "Day 3"
+  rainyDayIndex: number; // 0, 1, 2...
+  dayLabel: string; // "Day 1", "Day 2", "Day 3", etc.
   peakRainProb: number;
   rainProb: number; // Alias for peakRainProb
   precipSum: number;
@@ -223,7 +224,7 @@ export function clearWeatherCache() {
 }
 
 /**
- * Fetches Live Current Weather + 3-Day Forecast from Open-Meteo API
+ * Fetches Live Current Weather + 16-Day Extended Forecast from Open-Meteo API
  * Uses 10-minute caching to stay safely within free-tier limits while keeping data fresh
  */
 export async function fetchLiveWeatherData(
@@ -269,8 +270,8 @@ export async function fetchLiveWeatherData(
     "sunset",
   ].join(",");
 
-  const ecmwfUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&models=ecmwf_ifs025&timezone=auto`;
-  const fallbackUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&timezone=auto`;
+  const ecmwfUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&models=ecmwf_ifs025&timezone=auto`;
+  const fallbackUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&timezone=auto`;
 
   let data: any = null;
   let isEcmwfModel = false;
@@ -331,18 +332,40 @@ export async function fetchLiveWeatherData(
     });
   }
 
-  // Parse 3-Day Forecast
+  // Parse 16-Day Forecast
   const daily = data.daily || {};
-  const daysCount = Math.min(3, daily.time?.length || 0);
+  const daysCount = daily.time?.length || 0;
   const dailyList: DailyForecast[] = [];
 
   for (let i = 0; i < daysCount; i++) {
-    const dateStr = daily.time[i];
-    const dateObj = new Date(dateStr);
+    const dateStr = daily.time[i]; // e.g. "2026-08-02"
+    const dateObj = new Date(dateStr + "T00:00:00");
 
     let dayLabel = "TODAY";
-    if (i === 1) dayLabel = "TOMORROW";
-    if (i === 2) dayLabel = "DAY 3";
+    let weekdayShort = "Today";
+
+    if (i === 0) {
+      dayLabel = "TODAY";
+      weekdayShort = "Today";
+    } else if (i === 1) {
+      dayLabel = "TOMORROW";
+      weekdayShort = "Tomorrow";
+    } else if (i === 2) {
+      dayLabel = "DAY 3";
+      weekdayShort = !isNaN(dateObj.getTime())
+        ? dateObj.toLocaleDateString("en-US", { weekday: "short" })
+        : "Day 3";
+    } else if (!isNaN(dateObj.getTime())) {
+      weekdayShort = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+      dayLabel = dateObj.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }).toUpperCase();
+    } else {
+      dayLabel = `DAY ${i + 1}`;
+      weekdayShort = `Day ${i + 1}`;
+    }
 
     const dateFormatted = isNaN(dateObj.getTime())
       ? dateStr
@@ -359,6 +382,7 @@ export async function fetchLiveWeatherData(
       date: dateStr,
       dayLabel,
       dateFormatted,
+      weekdayShort,
       weatherCode: daily.weather_code?.[i] ?? 0,
       weatherDesc: getWmoWeatherDesc(daily.weather_code?.[i] ?? 0),
       tempMax: Math.round(daily.temperature_2m_max?.[i] ?? 28),
@@ -391,7 +415,7 @@ export async function fetchLiveWeatherData(
 }
 
 /**
- * Legacy alias for 3-day forecast fetching
+ * Legacy alias for forecast fetching
  */
 export async function fetch3DayForecast(lat: number, lng: number): Promise<DailyForecast[]> {
   const res = await fetchLiveWeatherData(lat, lng);
@@ -412,7 +436,7 @@ export function evaluateRainRisk(dailyList: DailyForecast[]): RainRiskAlert | nu
     return {
       triggered: true,
       rainyDayIndex,
-      dayLabel: `Day ${rainyDayIndex + 1}`,
+      dayLabel: day.dayLabel,
       peakRainProb: day.peakRainProb,
       rainProb: day.peakRainProb,
       precipSum: day.precipSum,

@@ -93,6 +93,11 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 
 ## 🆕 Changelog
 
+### v2.6 — August 2026 (16-Day Extended Open-Meteo Trip Forecast & Interactive Calendar Picker)
+- 📅 **16-Day Extended Forecast Horizon**: Expanded Open-Meteo ECMWF integration to fetch up to 16 full days of weather data, giving travelers advance visibility for trips planned weeks ahead.
+- 🗓️ **Interactive Trip Date Picker & 16-Day Scrubber**: Added a 16-day horizontal date scrubber strip and an interactive Calendar Modal (`"📅 Choose Trip Start Date"`). Users can pick any travel start date in the next 16 days, and the weather widget instantly displays the 3-day forecast starting from that exact trip date.
+- ⚡ **Dynamic Travel Intelligence & Rain Alerts**: Weather metrics, hourly rain windows, sightseeing windows, and Sikkanam AI Rain Risk Alerts dynamically re-calculate for any chosen trip date window.
+
 ### v2.5 — July 2026 (Live Weather & Sikkanam AI Rain Risk System)
 - 🌤️ **Live Open-Meteo ECMWF Model Feed**: Real-time 3-day weather forecast powered by the Open-Meteo ECMWF model (`models=ecmwf_ifs025`) with automatic fallback to standard parameters.
 - 🎯 **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across all Tamil Nadu destinations (e.g. *Dhanushkodi* in Rameswaram, *Coonoor* in Ooty, *T. Nagar* in Chennai) plus a **"🎯 Use precise GPS location"** button (`navigator.geolocation`).
