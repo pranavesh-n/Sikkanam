@@ -1,8 +1,8 @@
 import { MouseEvent } from "react";
-import { Sparkles, Lock, Flame, UserCheck, Smartphone, X } from "lucide-react";
+import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.5";
+const VERSION = "2.6";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -46,30 +46,43 @@ export default function WhatsNewModal() {
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v2.5
+          What's New in Sikkanam v2.6
         </h2>
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          Live Open-Meteo Weather Forecast, Sikkanam AI Rain Risk System, Google-Style Area Selector, and Travel Advice!
+          User Choice Calendar Date Picker, 16-Day Weather Horizon, Open-Meteo ECMWF Live Feed & AI Rain Risk Alerts!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — Live Weather & AI Rain Risk System */}
-          <div className="flex gap-3.5 items-start text-left bg-blue-500/5 dark:bg-blue-500/10 p-3 rounded-2xl border border-blue-500/20">
-            <div className="p-2 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400 shrink-0">
-              <Sparkles className="w-5 h-5" />
+          {/* Feature 1 — User Choice Calendar Date Picker & 16-Day Horizon */}
+          <div className="flex gap-3.5 items-start text-left bg-amber-500/5 dark:bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+              <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Live Weather & AI Rain Risk Alert</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">User Choice Calendar Date Picker</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Open-Meteo ECMWF model feed, 3-day selector, travel advice windows (e.g. 3 PM–11 PM), area selector modal, & indoor alternatives.
+                Select ANY travel date across the year! Includes a 16-day interactive forecast scrubber and calendar picker with instant 3-day weather window rendering.
               </p>
             </div>
           </div>
 
-          {/* Feature 2 — Cloud Firestore Sync */}
+          {/* Feature 2 — Live Open-Meteo & Rain Risk */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Open-Meteo ECMWF Live Feed & AI Rain Risk</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Real-time station updates, hourly rain windows (e.g. 3 PM–11 PM), sightseeing advice, & indoor attraction alternatives during rain hours.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 3 — Cloud Firestore Sync */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
               <Flame className="w-5 h-5" />
@@ -77,12 +90,12 @@ export default function WhatsNewModal() {
             <div>
               <h4 className="font-bold text-sm md:text-base text-foreground">Cloud Firestore Real-Time Sync</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Passcode lock status and credentials sync instantly across PC and Mobile in real-time.
+                Passcode lock status, PIN credentials, and trip wishlists sync instantly across PC and Mobile in real-time.
               </p>
             </div>
           </div>
 
-          {/* Feature 3 — Already a Sikkanam User Gateway */}
+          {/* Feature 4 — Already a Sikkanam User Gateway */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
               <UserCheck className="w-5 h-5" />
@@ -90,33 +103,20 @@ export default function WhatsNewModal() {
             <div>
               <h4 className="font-bold text-sm md:text-base text-foreground">"Already a Sikkanam User?" Gateway</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Seamless web entry modal for browser visitors to sign in with Google or continue exploring as guest.
+                Seamless web onboarding for browser visitors to sign in with Google or continue exploring as guest.
               </p>
             </div>
           </div>
 
-          {/* Feature 4 — App Passcode Lock */}
+          {/* Feature 5 — App Passcode Lock & Smart PWA */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
               <Lock className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">4-Digit App Passcode Lock</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">4-Digit App PIN & Smart PWA</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Protect saved itineraries, wishlists, and travel plans with background auto-lock & PIN verification.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 4 — Smart PWA Adoption */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
-              <Smartphone className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Smart PWA & Profile Redesign</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                1-tap mobile installation, uninstallation detection, and interactive stat counter badges on Profile.
+                4-digit PIN lock security, 1-tap PWA adoption, and automatic uninstallation detection.
               </p>
             </div>
           </div>
