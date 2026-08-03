@@ -955,7 +955,8 @@ function calculateTravelCostIntelligenceDeprecated(
       parkingFee: detail.parkingFee,
       cameraFee: detail.cameraFee,
       lastVerified: detail.lastVerified,
-      verificationSource: detail.verificationSource
+      verificationSource: detail.verificationSource,
+      databaseVersion: detail.databaseVersion || "TN-Attractions-v1.0"
     };
   });
 

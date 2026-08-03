@@ -86,10 +86,10 @@ function getDestinationHeroDetails(dest: any) {
     heritage: "Historic Heritage Site",
     wildlife: "Nature & Wildlife Sanctuary"
   };
-  
+
   const typeLabel = typeMap[dest.category] || "Leisure Getaway";
   const budgetLabel = dest.costIndex <= 2 ? "Budget Friendly" : dest.costIndex === 3 ? "Moderate Spend" : "Premium Value";
-  
+
   const tagMap: Record<string, string[]> = {
     hill: ["Tea Valleys", "Mist & Peaks", "Cool Climate", "Scenic Trails"],
     beach: ["Sandy Shores", "Seaside Forts", "Ocean Sunsets", "Seafood Trail"],
@@ -98,7 +98,7 @@ function getDestinationHeroDetails(dest: any) {
     heritage: ["Historic Ruins", "Chettinad Homes", "Ancient Temples", "Cultural Roots"],
     wildlife: ["Elephant Camps", "Western Ghats", "Dense Forests", "Safaris"]
   };
-  
+
   const tagIconMap: Record<string, string[]> = {
     hill: ["🍵", "🏔️", "❄️", "🥾"],
     beach: ["🏖️", "🏰", "🌅", "🦐"],
@@ -115,19 +115,19 @@ function getDestinationHeroDetails(dest: any) {
 function getWhyRecommends(dest: any, input: any, route: any[], hotels: any[]) {
   const points: string[] = [];
   const distanceKm = route.reduce((sum, leg) => sum + leg.distanceKm, 0);
-  
+
   if (dest.hasRailAccess || distanceKm < 150) {
     points.push("Easy to Reach (direct connection/short travel)");
   } else {
     points.push("Well-Connected Regional Hub");
   }
-  
+
   if (dest.costIndex <= 3) {
     points.push("Budget-Friendly Food & Transport");
   } else {
     points.push("Premium Sights & Stays");
   }
-  
+
   if (dest.category === "temple" || dest.category === "heritage") {
     points.push("Rich Heritage & Architectural Marvels");
   } else if (dest.category === "hill" || dest.category === "wildlife") {
@@ -135,20 +135,20 @@ function getWhyRecommends(dest: any, input: any, route: any[], hotels: any[]) {
   } else {
     points.push("Relaxing Beaches & Coastal Sights");
   }
-  
+
   const recommended = dest.recommendedDays || 2;
   if (input.days >= recommended) {
     points.push(`Perfect Match for a ${input.days}-Day Duration`);
   } else {
     points.push(`Covers Top Spots in ${input.days} Days`);
   }
-  
+
   if (hotels && hotels.length > 0) {
     points.push("Good Hotel Availability in Selected Style");
   } else {
     points.push("Verified Alternate Stays Nearby");
   }
-  
+
   return points.slice(0, 5);
 }
 
@@ -160,8 +160,8 @@ function getSimilarDestinations(category: string, excludeId: string) {
 
 function getTimelineHoursForDay(activities: string[], isFirstDay: boolean, isLastDay: boolean, daysCount: number) {
   if (activities.length === 0) return [];
-  
-  const filteredActivities = activities.filter(act => 
+
+  const filteredActivities = activities.filter(act =>
     !act.toLowerCase().includes("travel via") &&
     !act.toLowerCase().includes("check into") &&
     !act.toLowerCase().includes("check out") &&
@@ -206,7 +206,7 @@ function getTimelineHoursForDay(activities: string[], isFirstDay: boolean, isLas
     }
     timeline.push({ time: "19:00", text: "Dinner & night market walk" });
   }
-  
+
   return timeline;
 }
 
@@ -215,7 +215,7 @@ function renderMathBreakdown(comp: any, plan: any) {
   const days = plan.input.days;
   const nights = Math.max(days - 1, 0);
   const rooms = nights > 0 ? Math.ceil(travellers / (plan.input.style === "budget" ? 3 : 2)) : 0;
-  
+
   if (comp.key === "transport") {
     return (
       <div className="col-span-1 md:col-span-2 bg-muted/40 p-3 rounded-lg border border-border/40 space-y-2 mt-2 font-mono text-[11px] text-left">
@@ -243,7 +243,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   if (comp.key === "hotel") {
     if (nights === 0) return null;
     const minRate = comp.hotelMarketIntel?.minEstimatedPrice || 800;
@@ -264,7 +264,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   if (comp.key === "food" && comp.foodBreakdown) {
     const f = comp.foodBreakdown;
     return (
@@ -291,7 +291,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   if (comp.key === "mobility") {
     const minDaily = comp.min / days;
     const maxDaily = comp.max / days;
@@ -305,7 +305,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   if (comp.key === "activities" && comp.attractionBreakdown) {
     const list = comp.attractionBreakdown.attractionsList;
     const entrySum = list.reduce((s: number, item: any) => s + item.entryFeeAdult, 0);
@@ -333,7 +333,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   if (comp.key === "buffer") {
     return (
       <div className="col-span-1 md:col-span-2 bg-muted/40 p-3 rounded-lg border border-border/40 space-y-2 mt-2 font-mono text-[11px] text-left">
@@ -345,7 +345,7 @@ function renderMathBreakdown(comp: any, plan: any) {
       </div>
     );
   }
-  
+
   return null;
 }
 
@@ -365,10 +365,10 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
 
     setSaveLoading(true);
     try {
-      const budgetStr = plan.intelligence 
+      const budgetStr = plan.intelligence
         ? `₹${plan.intelligence.recommendedCarry.toLocaleString("en-IN")}`
         : `₹${plan.budget.total.toLocaleString("en-IN")}`;
-      
+
       const res = await fetch("/api/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -478,10 +478,10 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
               We evaluated all destinations for your {plan.input.days}-day {plan.input.style} style trip.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             {plan.recommendations.map((rec) => (
-              <div 
+              <div
                 key={rec.destId}
                 onClick={() => onSelectDestination && onSelectDestination(rec.destId)}
                 className="p-5 rounded-2xl border border-border bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-card flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center active:scale-[0.99]"
@@ -497,14 +497,14 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {rec.whyVisit}
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[11px] text-muted-foreground font-medium">
                     <span>💰 Budget Fit: {rec.budgetMatch}%</span>
                     <span>🚗 Accessibility: {rec.accessibility}%</span>
                     <span>☀️ Season Match: {rec.seasonMatch}%</span>
                   </div>
                 </div>
-                
+
                 <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 border-border/40">
                   <div className="text-2xl font-display font-extrabold text-primary">
                     {rec.matchScore}%
@@ -536,21 +536,21 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
         {(() => {
           const { typeLabel, budgetLabel, styleTags } = getDestinationHeroDetails(plan.destination);
           const recommends = getWhyRecommends(plan.destination, plan.input, plan.route, plan.hotels);
-          
-          const categoryGradient = 
+
+          const categoryGradient =
             plan.destination.category === "hill" ? "from-emerald-500/80 via-emerald-600/90 to-teal-800" :
-            plan.destination.category === "beach" ? "from-blue-500/80 via-indigo-600/90 to-sky-800" :
-            plan.destination.category === "temple" ? "from-amber-500/80 via-amber-600/90 to-orange-800" :
-            plan.destination.category === "city" ? "from-blue-600/80 via-indigo-700/90 to-slate-900" :
-            plan.destination.category === "heritage" ? "from-rose-600/80 via-rose-700/90 to-amber-900" :
-            "from-green-600/80 via-emerald-700/90 to-emerald-950";
-            
+              plan.destination.category === "beach" ? "from-blue-500/80 via-indigo-600/90 to-sky-800" :
+                plan.destination.category === "temple" ? "from-amber-500/80 via-amber-600/90 to-orange-800" :
+                  plan.destination.category === "city" ? "from-blue-600/80 via-indigo-700/90 to-slate-900" :
+                    plan.destination.category === "heritage" ? "from-rose-600/80 via-rose-700/90 to-amber-900" :
+                      "from-green-600/80 via-emerald-700/90 to-emerald-950";
+
           return (
             <div className="space-y-6">
               {/* Postcard Hero */}
               <div className={`w-full bg-gradient-to-br ${categoryGradient} p-6 md:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden space-y-4`}>
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full filter blur-2xl -z-10" />
-                
+
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider text-white">
@@ -563,17 +563,17 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       💰 Budget: {budgetLabel}
                     </span>
                   </div>
-                  
+
                   <h1 className="font-display text-4xl md:text-5xl font-black tracking-tight text-white flex items-center gap-3 pt-2">
                     <span>{plan.destination.emoji}</span>
                     <span>{plan.destination.name.toUpperCase()}</span>
                   </h1>
-                  
+
                   <p className="text-sm md:text-base text-white/90 leading-relaxed font-medium max-w-xl">
                     {plan.destination.description}
                   </p>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2 pt-2">
                   {styleTags.map((tag, i) => (
                     <span key={i} className="bg-white/10 hover:bg-white/20 transition-colors px-3 py-1 rounded-lg text-xs font-semibold text-white/95">
@@ -610,7 +610,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
               <div className="w-full max-w-xl mx-auto space-y-4 pt-2">
                 <div className="bg-card border-2 border-primary/20 p-6 rounded-3xl shadow-elevated space-y-6 relative overflow-hidden backdrop-blur-md bg-opacity-80 text-center">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full filter blur-3xl -z-10" />
-                  
+
                   <div className="space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground block">Recommended Carry Range</span>
                     <h2 className="text-3xl md:text-4xl font-display font-black text-primary">
@@ -639,10 +639,10 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   <div className="flex flex-col gap-2 items-center border-t border-border/40 pt-4 w-full">
                     {(() => {
                       const { reliability, reason } = getBudgetReliability(plan.intelligence.evidenceChecklist);
-                      const badgeColor = 
+                      const badgeColor =
                         reliability === "Very High" ? "bg-emerald-500 text-white" :
-                        reliability === "High" ? "bg-emerald-600/90 text-white" :
-                        reliability === "Moderate" ? "bg-amber-500 text-black" : "bg-destructive text-white";
+                          reliability === "High" ? "bg-emerald-600/90 text-white" :
+                            reliability === "Moderate" ? "bg-amber-500 text-black" : "bg-destructive text-white";
                       return (
                         <div className="w-full space-y-2.5">
                           <div className="flex items-center justify-between px-2">
@@ -678,7 +678,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                     <h4 className="font-bold text-foreground flex items-center gap-1.5 text-xs">
                       🛡️ Why Carry ₹{recommendedCarryMin.toLocaleString("en-IN")} - ₹{recommendedCarryMax.toLocaleString("en-IN")}?
                     </h4>
-                    
+
                     <div className="space-y-3">
                       <div className="p-3 bg-card border border-border/60 rounded-xl space-y-1">
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Expected Spend</span>
@@ -687,7 +687,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                         </p>
                         <span className="block text-[9px] text-muted-foreground/80">Includes transport, hotel, food, mobility, and activities.</span>
                       </div>
-                      
+
                       <div className="p-3 bg-card border border-border/60 rounded-xl space-y-1">
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Emergency Buffer</span>
                         <p className="text-sm font-extrabold text-foreground">
@@ -702,72 +702,72 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                     </div>
                   </div>
 
-                {/* Card 2: Budget Assumptions Panel */}
-                <div className="bg-muted/40 border border-border/60 rounded-2xl p-4 text-left space-y-3">
-                  <h4 className="font-bold text-foreground flex items-center gap-1.5 text-xs">
-                    📋 Budget Assumptions
-                  </h4>
-                  
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs pt-1">
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Travellers</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.travellerCount}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Duration</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.tripDurationDays} Days</span>
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Hotel Style</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.hotelStyle}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Food Style</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.foodStyle}</span>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Transport Style</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.transportStyle}</span>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="block text-[10px] uppercase font-bold text-muted-foreground">Activity Coverage</span>
-                      <span className="font-bold text-foreground">{plan.intelligence.assumptions.activityCoverage}</span>
+                  {/* Card 2: Budget Assumptions Panel */}
+                  <div className="bg-muted/40 border border-border/60 rounded-2xl p-4 text-left space-y-3">
+                    <h4 className="font-bold text-foreground flex items-center gap-1.5 text-xs">
+                      📋 Budget Calculations
+                    </h4>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs pt-1">
+                      <div>
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Travellers</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.travellerCount}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Duration</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.tripDurationDays} Days</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Hotel Style</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.hotelStyle}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Food Style</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.foodStyle}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Transport Style</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.transportStyle}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[10px] uppercase font-bold text-muted-foreground">Activity Coverage</span>
+                        <span className="font-bold text-foreground">{plan.intelligence.assumptions.activityCoverage}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Card 3: Evidence Used Checklist */}
-                <div className="bg-muted/40 border border-border/60 rounded-2xl p-4 text-left space-y-3">
-                  <h4 className="font-bold text-foreground flex items-center gap-1.5 text-xs">
-                    📂 Evidence Used
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 gap-2.5 pt-1">
-                    {[
-                      { key: "roadRouteVerified", label: "Route Verified" },
-                      { key: "hotelInventoryAvailable", label: "Hotel Inventory Available" },
-                      { key: "attractionDatabaseAvailable", label: `${plan.intelligence.components.activities.attractionBreakdown?.mappedAttractionsCount || 0} Attractions Mapped` },
-                      { key: "foodProfileAvailable", label: "Food Profile Available" },
-                      { key: "destinationMetadataAvailable", label: "Destination Cost Profile Available" }
-                    ].map((item) => {
-                      const isOk = plan.intelligence.evidenceChecklist[item.key as keyof typeof plan.intelligence.evidenceChecklist];
-                      return (
-                        <div key={item.key} className="flex items-center gap-2.5 text-xs font-semibold">
-                          <span className={isOk ? "text-emerald-500 font-bold text-sm" : "text-muted-foreground/40 font-bold text-sm"}>
-                            {isOk ? "✓" : "✗"}
-                          </span>
-                          <span className={isOk ? "text-foreground" : "text-muted-foreground line-through decoration-dotted"}>
-                            {item.label}
-                          </span>
-                        </div>
-                      );
-                    })}
+                  {/* Card 3: Evidence Used Checklist */}
+                  <div className="bg-muted/40 border border-border/60 rounded-2xl p-4 text-left space-y-3">
+                    <h4 className="font-bold text-foreground flex items-center gap-1.5 text-xs">
+                      📂 Evidence Used
+                    </h4>
+
+                    <div className="grid grid-cols-1 gap-2.5 pt-1">
+                      {[
+                        { key: "roadRouteVerified", label: "Route Verified" },
+                        { key: "hotelInventoryAvailable", label: "Hotel Inventory Available" },
+                        { key: "attractionDatabaseAvailable", label: `${plan.intelligence.components.activities.attractionBreakdown?.mappedAttractionsCount || 0} Attractions Mapped` },
+                        { key: "foodProfileAvailable", label: "Food Profile Available" },
+                        { key: "destinationMetadataAvailable", label: "Destination Cost Profile Available" }
+                      ].map((item) => {
+                        const isOk = plan.intelligence.evidenceChecklist[item.key as keyof typeof plan.intelligence.evidenceChecklist];
+                        return (
+                          <div key={item.key} className="flex items-center gap-2.5 text-xs font-semibold">
+                            <span className={isOk ? "text-emerald-500 font-bold text-sm" : "text-muted-foreground/40 font-bold text-sm"}>
+                              {isOk ? "✓" : "✗"}
+                            </span>
+                            <span className={isOk ? "text-foreground" : "text-muted-foreground line-through decoration-dotted"}>
+                              {item.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
         </div>
 
         {/* Share & Actions */}
@@ -806,23 +806,23 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
         const isTransportAvailable = plan.route && plan.route.length > 0;
         const isHotelsAvailable = Math.max(plan.input.days - 1, 0) === 0 || (plan.hotels && plan.hotels.length > 0);
         const isAttractionsAvailable = plan.attractions && plan.attractions.length > 0;
-        const isBudgetFit = plan.intelligence 
+        const isBudgetFit = plan.intelligence
           ? (plan.input.budget * plan.input.travellers >= plan.intelligence.expectedSpend)
           : plan.budget.status === "within";
         const isWeekendSuitable = plan.input.days <= 3;
-        
+
         const checks = [isTransportAvailable, isHotelsAvailable, isAttractionsAvailable, isBudgetFit, isWeekendSuitable];
         const passedCount = checks.filter(Boolean).length;
-        
-        const statusColor = 
+
+        const statusColor =
           passedCount >= 5 ? "bg-emerald-500 text-white" :
-          passedCount >= 4 ? "bg-emerald-600/90 text-white" :
-          passedCount >= 3 ? "bg-amber-500 text-black" : "bg-destructive text-white";
-          
-        const statusLabel = 
+            passedCount >= 4 ? "bg-emerald-600/90 text-white" :
+              passedCount >= 3 ? "bg-amber-500 text-black" : "bg-destructive text-white";
+
+        const statusLabel =
           passedCount >= 5 ? "Highly Recommended" :
-          passedCount >= 4 ? "Recommended" :
-          passedCount >= 3 ? "Possible With Planning" : "Not Recommended";
+            passedCount >= 4 ? "Recommended" :
+              passedCount >= 3 ? "Possible With Planning" : "Not Recommended";
 
         return (
           <div className="container max-w-2xl px-4 mt-6">
@@ -830,7 +830,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
               <h3 className="font-display font-bold text-lg text-foreground flex items-center gap-2 text-left">
                 📋 Trip Assessment
               </h3>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-left">
                 <div className="flex items-center gap-2.5 text-sm font-semibold">
                   <span className={isTransportAvailable ? "text-emerald-500" : "text-muted-foreground/30"}>
@@ -873,7 +873,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-center justify-between border-t border-border/40 pt-4 mt-2 gap-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -902,7 +902,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   </ul>
                 </div>
               )}
-              
+
               {passedCount < 3 && alternatives.length > 0 && (
                 <div className="pt-2 border-t border-border/40 space-y-3 text-left">
                   <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">
@@ -910,7 +910,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   </h4>
                   <div className="grid gap-2">
                     {alternatives.map((alt) => (
-                      <div 
+                      <div
                         key={alt.destId}
                         onClick={() => onSelectDestination && onSelectDestination(alt.destId)}
                         className="p-3 rounded-xl border border-border/60 bg-muted/30 hover:border-primary/40 cursor-pointer transition-colors flex justify-between items-center text-xs active:scale-[0.99]"
@@ -938,638 +938,684 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
         <div className="space-y-12">
 
 
-            {/* 2. Top Highlights */}
-            <div className="space-y-6 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                ⭐ Top Highlights
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {plan.attractions.slice(0, 4).map((rawAttr, i) => {
-                  const { name, emoji, desc, category } = getAttractionDetails(rawAttr, plan.destination?.name || "");
-                  return (
-                    <div key={i} className="p-5 rounded-2xl border border-border bg-card hover:border-foreground/20 transition-all flex flex-col justify-between space-y-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-2xl">{emoji}</span>
-                          <span className="text-[10px] font-semibold uppercase tracking-wider bg-muted px-2 py-0.5 rounded text-muted-foreground">
-                            {category}
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-base text-foreground pt-1">{name}</h3>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 3. Suggested Itinerary */}
-            <div className="space-y-8 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                🗓️ Suggested Itinerary
-              </h2>
-              
-              <div className="space-y-10">
-                {plan.itinerary.map((day) => {
-                  const timeline = getTimelineHoursForDay(
-                    day.activities,
-                    day.day === 1,
-                    day.day === plan.itinerary.length,
-                    plan.itinerary.length
-                  );
-                  
-                  return (
-                    <div key={day.day} className="space-y-4">
-                      <div className="flex items-center justify-between border-b border-border/40 pb-2 text-left">
-                        <h3 className="font-display font-bold text-lg text-foreground">Day {day.day}</h3>
-                        <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                          Schedule Verified
+          {/* 2. Top Highlights */}
+          <div className="space-y-6 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              ⭐ Top Highlights
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {plan.attractions.slice(0, 4).map((rawAttr, i) => {
+                const { name, emoji, desc, category } = getAttractionDetails(rawAttr, plan.destination?.name || "");
+                return (
+                  <div key={i} className="p-5 rounded-2xl border border-border bg-card hover:border-foreground/20 transition-all flex flex-col justify-between space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl">{emoji}</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider bg-muted px-2 py-0.5 rounded text-muted-foreground">
+                          {category}
                         </span>
                       </div>
-                      
-                      <div className="relative pl-8 border-l-2 border-border/60 space-y-6 ml-4 py-1 text-left">
-                        {timeline.map((item, idx) => (
-                          <div key={idx} className="relative flex items-start gap-4">
-                            <div className="absolute -left-[40px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background bg-primary" />
-                            <div className="w-12 flex-shrink-0 text-xs font-extrabold text-primary pt-0.5">
-                              {item.time}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-foreground leading-snug">
-                                {item.text}
-                              </p>
-                            </div>
+                      <h3 className="font-bold text-base text-foreground pt-1">{name}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Suggested Itinerary */}
+          <div className="space-y-8 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              🗓️ Suggested Itinerary
+            </h2>
+
+            <div className="space-y-10">
+              {plan.itinerary.map((day) => {
+                const timeline = getTimelineHoursForDay(
+                  day.activities,
+                  day.day === 1,
+                  day.day === plan.itinerary.length,
+                  plan.itinerary.length
+                );
+
+                return (
+                  <div key={day.day} className="space-y-4">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2 text-left">
+                      <h3 className="font-display font-bold text-lg text-foreground">Day {day.day}</h3>
+                      <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                        Schedule Verified
+                      </span>
+                    </div>
+
+                    <div className="relative pl-8 border-l-2 border-border/60 space-y-6 ml-4 py-1 text-left">
+                      {timeline.map((item, idx) => (
+                        <div key={idx} className="relative flex items-start gap-4">
+                          <div className="absolute -left-[40px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background bg-primary" />
+                          <div className="w-12 flex-shrink-0 text-xs font-extrabold text-primary pt-0.5">
+                            {item.time}
                           </div>
-                        ))}
-                      </div>
-                      
-                      {day.meals && (
-                        <p className="text-xs text-muted-foreground/85 italic pl-4 text-left">
-                          🍽️ {day.meals}
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-foreground leading-snug">
+                              {item.text}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {day.meals && (
+                      <p className="text-xs text-muted-foreground/85 italic pl-4 text-left">
+                        🍽️ {day.meals}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 4. How You'll Travel */}
+          <div className="space-y-6 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
+              How You'll Travel
+            </h2>
+
+            {(() => {
+              if (!plan.route || plan.route.length === 0) return null;
+
+              const distanceKm = plan.route.reduce((sum, leg) => sum + leg.distanceKm, 0);
+              const primaryLeg = plan.route[0];
+              const bestMode = primaryLeg?.mode === "train" ? "Train" : primaryLeg?.mode === "auto" ? "Auto" : "Bus";
+              const frequency = primaryLeg?.frequency || "Regular service";
+              const isVerified = plan.route.some(leg => leg.routeIntel?.routeStatus === "verified");
+
+              let durationStr = "";
+              const totalMinutes = plan.route.reduce((sum, leg) => {
+                if (leg.routeIntel?.estimatedDurationMinutes) {
+                  return sum + leg.routeIntel.estimatedDurationMinutes;
+                }
+                let mins = 0;
+                const hrsMatch = leg.duration.match(/(\d+)h/);
+                const minsMatch = leg.duration.match(/(\d+)m/);
+                if (hrsMatch) mins += parseInt(hrsMatch[1]) * 60;
+                if (minsMatch) mins += parseInt(minsMatch[1]);
+                return sum + (mins || 120);
+              }, 0);
+
+              const hrs = Math.floor(totalMinutes / 60);
+              const mins = totalMinutes % 60;
+              durationStr = hrs > 0 ? `${hrs}h ${mins > 0 ? `${mins}m` : ""}` : `${mins}m`;
+
+              return (
+                <div className="bg-muted/30 border border-border/60 p-4 rounded-xl text-xs space-y-3 text-left">
+                  <h3 className="font-bold text-foreground text-xs uppercase tracking-wider">
+                    🚗 Getting There (Travel Reality)
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Total Distance</span>
+                      <span className="text-sm font-bold text-foreground">{distanceKm} km</span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Travel Duration</span>
+                      <span className="text-sm font-bold text-foreground">{durationStr}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Best Choice</span>
+                      <span className="text-sm font-bold text-foreground flex items-center gap-1">
+                        {primaryLeg?.mode === "train" ? "🚆" : "🚌"} {bestMode}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Availability</span>
+                      <span className="text-sm font-bold text-foreground">{frequency}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-2 border-t border-border/40 text-[10px] text-muted-foreground font-semibold">
+                    <span>Route Integrity:</span>
+                    <span className={`px-2 py-0.5 rounded-full font-extrabold text-[9px] uppercase ${isVerified
+                        ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                      }`}>
+                      {isVerified ? "Verified (OSRM)" : "Fallback Estimate"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {plan.route && plan.route.length > 0 ? (
+              <div className="relative pl-8 border-l border-l-border space-y-6 ml-3 py-1 text-left">
+                {plan.route.map((leg, i) => (
+                  <div key={i} className="relative">
+                    <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-full border-2 border-background bg-foreground flex items-center justify-center text-xs">
+                      {leg.mode === "train" ? "🚆" : leg.mode === "auto" ? "🛺" : "🚌"}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium text-base text-foreground text-left">
+                        {leg.mode === "train" && leg.fromStation && leg.toStation
+                          ? `${leg.fromStation} (${leg.from}) → ${leg.toStation} (${leg.to})`
+                          : `${leg.from} → ${leg.to}`}
+                      </p>
+                      <p className="text-xs text-muted-foreground text-left">
+                        {leg.mode.toUpperCase()} · {leg.distanceKm} km · {leg.duration}{leg.frequency ? ` · ${leg.frequency}` : ""}
+                      </p>
+                      {leg.note && <p className="text-xs text-muted-foreground/80 mt-1 italic text-left">{leg.note}</p>}
+                      <p className="text-xs font-semibold text-primary text-left">Fare Estimated in Cost Breakdown</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic text-left">No transport route computed</p>
+            )}
+
+            {/* Integrated Railway Assistant */}
+            <div className="pt-4 mt-2 border-t border-border/40 space-y-3 text-left">
+              <h3 className="font-semibold text-sm text-foreground uppercase tracking-wider text-left">Railway Journey Assistant</h3>
+              {plan.destination?.hasRailAccess ? (
+                <p className="text-sm text-muted-foreground text-left">
+                  🚆 Direct train connectivity is available to <span className="font-semibold text-foreground">{plan.destination?.nearestStation}</span>.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground text-left">
+                  🚆 No direct rail access. Take a train to <span className="font-semibold text-foreground">{plan.destination?.nearestStation}</span>, and continue the rest of the journey by bus or local transport.
+                </p>
+              )}
+              <button
+                onClick={() => window.open(getTrainSearchUrl(), "_blank")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-colors shadow-sm"
+              >
+                <Train className="w-4 h-4" />
+                <span>Check Available Trains</span>
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* 5. Recommended Hotels */}
+          <div className="space-y-6 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
+              Recommended Hotels
+            </h2>
+
+            {(() => {
+              const nights = Math.max(plan.input.days - 1, 0);
+              if (nights === 0) return null;
+
+              const totalHotels = plan.hotels ? plan.hotels.length : 0;
+              const status = totalHotels >= 3 ? "Good" : totalHotels > 0 ? "Limited" : "Vetted Fallbacks";
+              const statusColor = totalHotels >= 3 ? "text-emerald-500 font-bold" : "text-amber-500 font-bold";
+
+              return (
+                <div className="bg-muted/30 border border-border/60 p-4 rounded-xl text-xs space-y-3 text-left">
+                  <h3 className="font-bold text-foreground text-xs uppercase tracking-wider">
+                    🏨 Stay Availability Summary
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div className="bg-card p-2.5 rounded-lg border border-border/40">
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Nearby Stays</span>
+                      <span className="text-base font-extrabold text-foreground">{totalHotels} Vetted</span>
+                      <span className={`block text-[9px] ${statusColor}`}>{status}</span>
+                    </div>
+                    <div className="bg-card p-2.5 rounded-lg border border-border/40">
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Budget Tier</span>
+                      <span className="text-sm font-extrabold text-foreground">₹800 – ₹1,500</span>
+                      <span className="block text-[9px] text-muted-foreground/80">Homestays / Lodges</span>
+                    </div>
+                    <div className="bg-card p-2.5 rounded-lg border border-border/40">
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Standard Tier</span>
+                      <span className="text-sm font-extrabold text-foreground">₹1,500 – ₹3,000</span>
+                      <span className="block text-[9px] text-muted-foreground/80">3-Star / Residencies</span>
+                    </div>
+                    <div className="bg-card p-2.5 rounded-lg border border-border/40">
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Comfort Tier</span>
+                      <span className="text-sm font-extrabold text-foreground">₹3,000 – ₹5,500</span>
+                      <span className="block text-[9px] text-muted-foreground/80">Hotels & Resorts</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {(() => {
+              const nights = Math.max(plan.input.days - 1, 0);
+              if (nights === 0) {
+                return (
+                  <p className="text-sm text-muted-foreground italic text-left">
+                    Day trip detected. No accommodation required.
+                  </p>
+                );
+              }
+              if (!plan.hotels || plan.hotels.length === 0) {
+                return (
+                  <p className="text-sm text-muted-foreground italic text-left">
+                    Accommodation budget estimates are included below. Secure stays matching your style tier.
+                  </p>
+                );
+              }
+              const bestHotels = plan.hotels.slice(0, 3);
+              return (
+                <div className="divide-y divide-border/40 text-left">
+                  {bestHotels.map((hotel, i) => (
+                    <div key={i} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-semibold text-base text-foreground">{hotel.name}</h4>
+                          <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground">
+                            ⭐ {hotel.rating}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {typeof hotel.distanceKm === 'number' ? `${hotel.distanceKm} km from centre` : 'Centre location'} · {hotel.tier} Tier
                         </p>
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          Style Category: <span className="text-primary font-bold">{hotel.tier}</span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const query = `${hotel.name}, ${plan.destination?.name}`;
+                          window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(query)}`, "_blank");
+                        }}
+                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors self-start sm:self-center"
+                      >
+                        <span>Check Live Price</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* 6. How We Calculated This Trip */}
+          {plan.intelligence && (
+            <div id="transparency-engine" className="space-y-6 pt-6 border-t border-border/40 scroll-mt-8">
+              <div className="space-y-2">
+                <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                  📊 How We Calculated This Trip
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Sikkanam operates on traceability and openness. Click on any cost component to see the exact formulas, sources, and assumptions used.
+                </p>
+              </div>
+
+              {/* Accordion Component */}
+              <div className="space-y-3">
+                {[
+                  { key: "transport", icon: "🚌", ...plan.intelligence.components.transport },
+                  { key: "hotel", icon: "🏨", ...plan.intelligence.components.hotel },
+                  { key: "food", icon: "🍽️", ...plan.intelligence.components.food },
+                  { key: "mobility", icon: "🛺", ...plan.intelligence.components.mobility },
+                  { key: "activities", icon: "🎟️", ...plan.intelligence.components.activities },
+                  { key: "buffer", icon: "🛡️", ...plan.intelligence.components.buffer }
+                ].map((comp) => {
+                  const isExpanded = expandedComponent === comp.key;
+                  return (
+                    <div
+                      key={comp.key}
+                      className="border border-border rounded-xl overflow-hidden bg-card shadow-sm hover:border-primary/35 transition-all"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setExpandedComponent(isExpanded ? null : comp.key)}
+                        className="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-muted/30 transition-colors focus:outline-none"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{comp.icon}</span>
+                          <span className="font-bold text-foreground">{comp.name}</span>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          <span className="font-extrabold text-foreground text-sm">
+                            ₹{comp.min.toLocaleString("en-IN")} – ₹{comp.max.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-muted-foreground/60 text-xs transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }}>
+                            ▼
+                          </span>
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="p-4 bg-muted/20 border-t border-border/40 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                          <div className="space-y-1">
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Formula</span>
+                            <p className="font-mono bg-muted/60 p-2 rounded text-foreground border border-border/40 select-all leading-relaxed">
+                              {comp.formula}
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Reason</span>
+                            <p className="font-medium text-foreground p-1 leading-relaxed">
+                              {comp.reason}
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Data Source</span>
+                            <p className="font-semibold text-primary p-1 leading-relaxed">
+                              {comp.source}
+                            </p>
+                          </div>
+
+                          {renderMathBreakdown(comp, plan)}
+
+                          {/* Custom breakdowns based on component key */}
+                          {comp.key === "transport" && (
+                            <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-2">
+                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Route Intelligence</span>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Road Distance</span>
+                                  <span className="text-sm font-bold text-foreground">{plan.route.reduce((sum, leg) => sum + leg.distanceKm, 0)} km</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Travel Time</span>
+                                  <span className="text-sm font-bold text-foreground">
+                                    {plan.route[0]?.routeIntel
+                                      ? `${Math.floor(plan.route.reduce((sum, leg) => sum + (leg.routeIntel?.estimatedDurationMinutes || 0), 0) / 60)}h ${plan.route.reduce((sum, leg) => sum + (leg.routeIntel?.estimatedDurationMinutes || 0), 0) % 60}m`
+                                      : "Estimated"}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Source</span>
+                                  <span className="text-sm font-bold text-foreground">OpenStreetMap Routing</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Status</span>
+                                  <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full inline-block mt-0.5 ${plan.route.some(leg => leg.routeIntel?.routeStatus === "verified")
+                                      ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                                      : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                                    }`}>
+                                    {plan.route.some(leg => leg.routeIntel?.routeStatus === "verified") ? "Verified" : "Fallback"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {comp.key === "hotel" && comp.hotelMarketIntel && (
+                            <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Estimated Market Range</span>
+                                  <span className="text-sm font-extrabold text-foreground">
+                                    ₹{comp.hotelMarketIntel.minEstimatedPrice.toLocaleString("en-IN")} – ₹{comp.hotelMarketIntel.maxEstimatedPrice.toLocaleString("en-IN")}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Based On</span>
+                                  <span className="text-sm font-bold text-foreground">{comp.hotelMarketIntel.pricingEvidence.nearbyHotelsFound} nearby hotels</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Pricing Method</span>
+                                  <span className="text-sm font-bold text-foreground">Category-based market estimation</span>
+                                </div>
+                              </div>
+
+                              {comp.hotelMarketIntel.observedHotelsList.length > 0 && (
+                                <div className="space-y-1.5">
+                                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Observed Hotel Inventory</span>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {comp.hotelMarketIntel.observedHotelsList.map((hotel, i) => (
+                                      <div key={i} className="p-2.5 rounded-lg border border-border/40 bg-card flex justify-between items-center text-xs">
+                                        <div>
+                                          <p className="font-bold text-foreground">{hotel.name}</p>
+                                          <p className="text-[9px] text-muted-foreground uppercase">{hotel.priceCategory} Tier · {hotel.distanceKm} km from centre</p>
+                                        </div>
+                                        <span className="inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-muted text-foreground">
+                                          ⭐ {hotel.rating}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {comp.key === "food" && comp.foodBreakdown && (
+                            <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
+                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Meal Cost Profile Breakdown (per person/day)</span>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Breakfast</span>
+                                  <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.breakfast.min} – ₹{comp.foodBreakdown.breakfast.max}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Lunch</span>
+                                  <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.lunch.min} – ₹{comp.foodBreakdown.lunch.max}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Dinner</span>
+                                  <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.dinner.min} – ₹{comp.foodBreakdown.dinner.max}</span>
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] uppercase font-bold text-muted-foreground">Snacks</span>
+                                  <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.snacks.min} – ₹{comp.foodBreakdown.snacks.max}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {comp.key === "activities" && comp.attractionBreakdown && (
+                            <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
+                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Attraction Entry Fee Database Records</span>
+                              <div className="overflow-x-auto border border-border/40 rounded-lg">
+                                <table className="w-full text-left border-collapse text-xs">
+                                  <thead>
+                                    <tr className="bg-muted/40 border-b border-border/40 text-[9px] uppercase font-bold text-muted-foreground">
+                                      <th className="p-2.5">Attraction</th>
+                                      <th className="p-2.5 text-right">Entry Fee</th>
+                                      <th className="p-2.5">Verification Source</th>
+                                      <th className="p-2.5">Last Verified</th>
+                                      <th className="p-2.5">DB Version</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-border/30">
+                                    {comp.attractionBreakdown.attractionsList.map((att, i) => (
+                                      <tr key={i} className="hover:bg-muted/10">
+                                        <td className="p-2.5 font-bold text-foreground">{att.name}</td>
+                                        <td className="p-2.5 text-right font-semibold text-foreground">₹{att.entryFeeAdult}</td>
+                                        <td className="p-2.5 text-muted-foreground font-medium">{att.verificationSource}</td>
+                                        <td className="p-2.5 text-muted-foreground font-mono">{att.lastVerified}</td>
+                                        <td className="p-2.5 text-muted-foreground font-mono">{att.databaseVersion}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
                 })}
               </div>
             </div>
+          )}
 
-            {/* 4. How You'll Travel */}
-            <div className="space-y-6 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
-                How You'll Travel
-              </h2>
-              
-              {(() => {
-                if (!plan.route || plan.route.length === 0) return null;
-                
-                const distanceKm = plan.route.reduce((sum, leg) => sum + leg.distanceKm, 0);
-                const primaryLeg = plan.route[0];
-                const bestMode = primaryLeg?.mode === "train" ? "Train" : primaryLeg?.mode === "auto" ? "Auto" : "Bus";
-                const frequency = primaryLeg?.frequency || "Regular service";
-                const isVerified = plan.route.some(leg => leg.routeIntel?.routeStatus === "verified");
-                
-                let durationStr = "";
-                const totalMinutes = plan.route.reduce((sum, leg) => {
-                  if (leg.routeIntel?.estimatedDurationMinutes) {
-                    return sum + leg.routeIntel.estimatedDurationMinutes;
-                  }
-                  let mins = 0;
-                  const hrsMatch = leg.duration.match(/(\d+)h/);
-                  const minsMatch = leg.duration.match(/(\d+)m/);
-                  if (hrsMatch) mins += parseInt(hrsMatch[1]) * 60;
-                  if (minsMatch) mins += parseInt(minsMatch[1]);
-                  return sum + (mins || 120);
-                }, 0);
-                
-                const hrs = Math.floor(totalMinutes / 60);
-                const mins = totalMinutes % 60;
-                durationStr = hrs > 0 ? `${hrs}h ${mins > 0 ? `${mins}m` : ""}` : `${mins}m`;
+          {/* Nearby Places & Circuits */}
+          <div className="space-y-6 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+              Nearby Places & Circuits
+            </h2>
 
-                return (
-                  <div className="bg-muted/30 border border-border/60 p-4 rounded-xl text-xs space-y-3 text-left">
-                    <h3 className="font-bold text-foreground text-xs uppercase tracking-wider">
-                      🚗 Getting There (Travel Reality)
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Total Distance</span>
-                        <span className="text-sm font-bold text-foreground">{distanceKm} km</span>
-                      </div>
-                      <div>
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Travel Duration</span>
-                        <span className="text-sm font-bold text-foreground">{durationStr}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Best Choice</span>
-                        <span className="text-sm font-bold text-foreground flex items-center gap-1">
-                          {primaryLeg?.mode === "train" ? "🚆" : "🚌"} {bestMode}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Availability</span>
-                        <span className="text-sm font-bold text-foreground">{frequency}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-border/40 text-[10px] text-muted-foreground font-semibold">
-                      <span>Route Integrity:</span>
-                      <span className={`px-2 py-0.5 rounded-full font-extrabold text-[9px] uppercase ${
-                        isVerified 
-                          ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" 
-                          : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-                      }`}>
-                        {isVerified ? "Verified (OSRM)" : "Fallback Estimate"}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {plan.route && plan.route.length > 0 ? (
-                <div className="relative pl-8 border-l border-l-border space-y-6 ml-3 py-1 text-left">
-                  {plan.route.map((leg, i) => (
-                    <div key={i} className="relative">
-                      <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-full border-2 border-background bg-foreground flex items-center justify-center text-xs">
-                        {leg.mode === "train" ? "🚆" : leg.mode === "auto" ? "🛺" : "🚌"}
-                      </div>
-                      <div className="space-y-1">
-                        <p className="font-medium text-base text-foreground text-left">
-                          {leg.mode === "train" && leg.fromStation && leg.toStation
-                            ? `${leg.fromStation} (${leg.from}) → ${leg.toStation} (${leg.to})`
-                            : `${leg.from} → ${leg.to}`}
-                        </p>
-                        <p className="text-xs text-muted-foreground text-left">
-                          {leg.mode.toUpperCase()} · {leg.distanceKm} km · {leg.duration}{leg.frequency ? ` · ${leg.frequency}` : ""}
-                        </p>
-                        {leg.note && <p className="text-xs text-muted-foreground/80 mt-1 italic text-left">{leg.note}</p>}
-                        <p className="text-xs font-semibold text-primary text-left">Fare Estimated in Cost Breakdown</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground italic text-left">No transport route computed</p>
-              )}
-
-              {/* Integrated Railway Assistant */}
-              <div className="pt-4 mt-2 border-t border-border/40 space-y-3 text-left">
-                <h3 className="font-semibold text-sm text-foreground uppercase tracking-wider text-left">Railway Journey Assistant</h3>
-                {plan.destination?.hasRailAccess ? (
-                  <p className="text-sm text-muted-foreground text-left">
-                    🚆 Direct train connectivity is available to <span className="font-semibold text-foreground">{plan.destination?.nearestStation}</span>.
-                  </p>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-left">
-                    🚆 No direct rail access. Take a train to <span className="font-semibold text-foreground">{plan.destination?.nearestStation}</span>, and continue the rest of the journey by bus or local transport.
-                  </p>
-                )}
-                <button
-                  onClick={() => window.open(getTrainSearchUrl(), "_blank")}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-colors shadow-sm"
-                >
-                  <Train className="w-4 h-4" />
-                  <span>Check Available Trains</span>
-                  <ExternalLink className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* 5. Recommended Hotels */}
-            <div className="space-y-6 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
-                Recommended Hotels
-              </h2>
-              
-              {(() => {
-                const nights = Math.max(plan.input.days - 1, 0);
-                if (nights === 0) return null;
-                
-                const totalHotels = plan.hotels ? plan.hotels.length : 0;
-                const status = totalHotels >= 3 ? "Good" : totalHotels > 0 ? "Limited" : "Vetted Fallbacks";
-                const statusColor = totalHotels >= 3 ? "text-emerald-500 font-bold" : "text-amber-500 font-bold";
-                
-                return (
-                  <div className="bg-muted/30 border border-border/60 p-4 rounded-xl text-xs space-y-3 text-left">
-                    <h3 className="font-bold text-foreground text-xs uppercase tracking-wider">
-                      🏨 Stay Availability Summary
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                      <div className="bg-card p-2.5 rounded-lg border border-border/40">
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Nearby Stays</span>
-                        <span className="text-base font-extrabold text-foreground">{totalHotels} Vetted</span>
-                        <span className={`block text-[9px] ${statusColor}`}>{status}</span>
-                      </div>
-                      <div className="bg-card p-2.5 rounded-lg border border-border/40">
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Budget Tier</span>
-                        <span className="text-sm font-extrabold text-foreground">₹800 – ₹1,500</span>
-                        <span className="block text-[9px] text-muted-foreground/80">Homestays / Lodges</span>
-                      </div>
-                      <div className="bg-card p-2.5 rounded-lg border border-border/40">
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Standard Tier</span>
-                        <span className="text-sm font-extrabold text-foreground">₹1,500 – ₹3,000</span>
-                        <span className="block text-[9px] text-muted-foreground/80">3-Star / Residencies</span>
-                      </div>
-                      <div className="bg-card p-2.5 rounded-lg border border-border/40">
-                        <span className="block text-[9px] uppercase font-bold text-muted-foreground">Comfort Tier</span>
-                        <span className="text-sm font-extrabold text-foreground">₹3,000 – ₹5,500</span>
-                        <span className="block text-[9px] text-muted-foreground/80">Hotels & Resorts</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {(() => {
-                const nights = Math.max(plan.input.days - 1, 0);
-                if (nights === 0) {
-                  return (
-                    <p className="text-sm text-muted-foreground italic text-left">
-                      Day trip detected. No accommodation required.
-                    </p>
-                  );
-                }
-                if (!plan.hotels || plan.hotels.length === 0) {
-                  return (
-                    <p className="text-sm text-muted-foreground italic text-left">
-                      Accommodation budget estimates are included below. Secure stays matching your style tier.
-                    </p>
-                  );
-                }
-                const bestHotels = plan.hotels.slice(0, 3);
-                return (
-                  <div className="divide-y divide-border/40 text-left">
-                    {bestHotels.map((hotel, i) => (
-                      <div key={i} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-semibold text-base text-foreground">{hotel.name}</h4>
-                            <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground">
-                              ⭐ {hotel.rating}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {typeof hotel.distanceKm === 'number' ? `${hotel.distanceKm} km from centre` : 'Centre location'} · {hotel.tier} Tier
-                          </p>
-                          <p className="text-xs font-semibold text-muted-foreground">
-                            Style Category: <span className="text-primary font-bold">{hotel.tier}</span>
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            const query = `${hotel.name}, ${plan.destination?.name}`;
-                            window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(query)}`, "_blank");
-                          }}
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors self-start sm:self-center"
-                        >
-                          <span>Check Live Price</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-
-            {/* 6. How We Calculated This Trip */}
-            {plan.intelligence && (
-              <div id="transparency-engine" className="space-y-6 pt-6 border-t border-border/40 scroll-mt-8">
-                <div className="space-y-2">
-                  <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                    📊 How We Calculated This Trip
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Sikkanam operates on traceability and openness. Click on any cost component to see the exact formulas, sources, and assumptions used.
-                  </p>
-                </div>
-
-                {/* Accordion Component */}
-                <div className="space-y-3">
-                  {[
-                    { key: "transport", icon: "🚌", ...plan.intelligence.components.transport },
-                    { key: "hotel", icon: "🏨", ...plan.intelligence.components.hotel },
-                    { key: "food", icon: "🍽️", ...plan.intelligence.components.food },
-                    { key: "mobility", icon: "🛺", ...plan.intelligence.components.mobility },
-                    { key: "activities", icon: "🎟️", ...plan.intelligence.components.activities },
-                    { key: "buffer", icon: "🛡️", ...plan.intelligence.components.buffer }
-                  ].map((comp) => {
-                    const isExpanded = expandedComponent === comp.key;
+            {nearbyExperiences.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nearby Experiences</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {nearbyExperiences.map((exp, i) => {
+                    const matched = tnDestinations.find(d => d.name.toLowerCase() === exp.name.toLowerCase() || d.fullName.toLowerCase().includes(exp.name.toLowerCase()));
                     return (
-                      <div 
-                        key={comp.key}
-                        className="border border-border rounded-xl overflow-hidden bg-card shadow-sm hover:border-primary/35 transition-all"
+                      <button
+                        type="button"
+                        key={i}
+                        onClick={() => {
+                          if (matched) {
+                            if (onSelectDestination) onSelectDestination(matched.id);
+                            else window.location.href = `/destination/${matched.id}`;
+                          }
+                        }}
+                        className="p-3 rounded-xl border border-border bg-card hover:border-primary/50 text-xs flex justify-between items-center transition-all cursor-pointer shadow-xs active:scale-[0.98] text-left group"
                       >
-                        <button
-                          type="button"
-                          onClick={() => setExpandedComponent(isExpanded ? null : comp.key)}
-                          className="w-full flex items-center justify-between p-4 text-left font-medium hover:bg-muted/30 transition-colors focus:outline-none"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl">{comp.icon}</span>
-                            <span className="font-bold text-foreground">{comp.name}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-4">
-                            <span className="font-extrabold text-foreground text-sm">
-                              ₹{comp.min.toLocaleString("en-IN")} – ₹{comp.max.toLocaleString("en-IN")}
-                            </span>
-                            <span className="text-muted-foreground/60 text-xs transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }}>
-                              ▼
-                            </span>
-                          </div>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="p-4 bg-muted/20 border-t border-border/40 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            <div className="space-y-1">
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Formula</span>
-                              <p className="font-mono bg-muted/60 p-2 rounded text-foreground border border-border/40 select-all leading-relaxed">
-                                {comp.formula}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Reason</span>
-                              <p className="font-medium text-foreground p-1 leading-relaxed">
-                                {comp.reason}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Data Source</span>
-                              <p className="font-semibold text-primary p-1 leading-relaxed">
-                                {comp.source}
-                              </p>
-                            </div>
-
-                            {renderMathBreakdown(comp, plan)}
-
-                            {/* Custom breakdowns based on component key */}
-                            {comp.key === "transport" && (
-                              <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-2">
-                                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Route Intelligence</span>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Road Distance</span>
-                                    <span className="text-sm font-bold text-foreground">{plan.route.reduce((sum, leg) => sum + leg.distanceKm, 0)} km</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Travel Time</span>
-                                    <span className="text-sm font-bold text-foreground">
-                                      {plan.route[0]?.routeIntel 
-                                        ? `${Math.floor(plan.route.reduce((sum, leg) => sum + (leg.routeIntel?.estimatedDurationMinutes || 0), 0) / 60)}h ${plan.route.reduce((sum, leg) => sum + (leg.routeIntel?.estimatedDurationMinutes || 0), 0) % 60}m` 
-                                        : "Estimated"}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Source</span>
-                                    <span className="text-sm font-bold text-foreground">OpenStreetMap Routing</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Status</span>
-                                    <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full inline-block mt-0.5 ${
-                                      plan.route.some(leg => leg.routeIntel?.routeStatus === "verified") 
-                                        ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" 
-                                        : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-                                    }`}>
-                                      {plan.route.some(leg => leg.routeIntel?.routeStatus === "verified") ? "Verified" : "Fallback"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {comp.key === "hotel" && comp.hotelMarketIntel && (
-                              <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Estimated Market Range</span>
-                                    <span className="text-sm font-extrabold text-foreground">
-                                      ₹{comp.hotelMarketIntel.minEstimatedPrice.toLocaleString("en-IN")} – ₹{comp.hotelMarketIntel.maxEstimatedPrice.toLocaleString("en-IN")}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Based On</span>
-                                    <span className="text-sm font-bold text-foreground">{comp.hotelMarketIntel.pricingEvidence.nearbyHotelsFound} nearby hotels</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Pricing Method</span>
-                                    <span className="text-sm font-bold text-foreground">Category-based market estimation</span>
-                                  </div>
-                                </div>
-                                
-                                {comp.hotelMarketIntel.observedHotelsList.length > 0 && (
-                                  <div className="space-y-1.5">
-                                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Observed Hotel Inventory</span>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                      {comp.hotelMarketIntel.observedHotelsList.map((hotel, i) => (
-                                        <div key={i} className="p-2.5 rounded-lg border border-border/40 bg-card flex justify-between items-center text-xs">
-                                          <div>
-                                            <p className="font-bold text-foreground">{hotel.name}</p>
-                                            <p className="text-[9px] text-muted-foreground uppercase">{hotel.priceCategory} Tier · {hotel.distanceKm} km from centre</p>
-                                          </div>
-                                          <span className="inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-muted text-foreground">
-                                            ⭐ {hotel.rating}
-                                          </span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            {comp.key === "food" && comp.foodBreakdown && (
-                              <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
-                                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Meal Cost Profile Breakdown (per person/day)</span>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/30 p-3 rounded-lg border border-border/30">
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Breakfast</span>
-                                    <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.breakfast.min} – ₹{comp.foodBreakdown.breakfast.max}</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Lunch</span>
-                                    <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.lunch.min} – ₹{comp.foodBreakdown.lunch.max}</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Dinner</span>
-                                    <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.dinner.min} – ₹{comp.foodBreakdown.dinner.max}</span>
-                                  </div>
-                                  <div>
-                                    <span className="block text-[9px] uppercase font-bold text-muted-foreground">Snacks</span>
-                                    <span className="text-sm font-bold text-foreground">₹{comp.foodBreakdown.snacks.min} – ₹{comp.foodBreakdown.snacks.max}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {comp.key === "activities" && comp.attractionBreakdown && (
-                              <div className="col-span-1 md:col-span-2 border-t border-border/40 pt-3 mt-1 space-y-3">
-                                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Attraction Entry Fee Database Records</span>
-                                <div className="overflow-x-auto border border-border/40 rounded-lg">
-                                  <table className="w-full text-left border-collapse text-xs">
-                                    <thead>
-                                      <tr className="bg-muted/40 border-b border-border/40 text-[9px] uppercase font-bold text-muted-foreground">
-                                        <th className="p-2.5">Attraction</th>
-                                        <th className="p-2.5 text-right">Entry Fee</th>
-                                        <th className="p-2.5">Verification Source</th>
-                                        <th className="p-2.5">Last Verified</th>
-                                        <th className="p-2.5">DB Version</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-border/30">
-                                      {comp.attractionBreakdown.attractionsList.map((att, i) => (
-                                        <tr key={i} className="hover:bg-muted/10">
-                                          <td className="p-2.5 font-bold text-foreground">{att.name}</td>
-                                          <td className="p-2.5 text-right font-semibold text-foreground">₹{att.entryFeeAdult}</td>
-                                          <td className="p-2.5 text-muted-foreground font-medium">{att.verificationSource}</td>
-                                          <td className="p-2.5 text-muted-foreground font-mono">{att.lastVerified}</td>
-                                          <td className="p-2.5 text-muted-foreground font-mono">{att.databaseVersion}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                        <div>
+                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{exp.name}</p>
+                          <p className="text-[10px] text-muted-foreground capitalize">{exp.type}</p>
+                        </div>
+                        <span className="font-bold text-primary whitespace-nowrap ml-2">{exp.distanceKm} km →</span>
+                      </button>
                     );
                   })}
                 </div>
               </div>
             )}
 
-            {/* Nearby Places & Circuits */}
-            <div className="space-y-6 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-                Nearby Places & Circuits
-              </h2>
-              
-              {nearbyExperiences.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nearby Experiences</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {nearbyExperiences.map((exp, i) => (
-                      <div key={i} className="p-3 rounded-xl border border-border bg-card text-xs flex justify-between items-center">
-                        <div>
-                          <p className="font-semibold text-foreground">{exp.name}</p>
-                          <p className="text-[10px] text-muted-foreground capitalize">{exp.type}</p>
-                        </div>
-                        <span className="font-bold text-primary whitespace-nowrap">{exp.distanceKm} km</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {suggestedCircuits.length > 0 && (
-                <div className="space-y-3 pt-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Suggested Circuits</h3>
-                  <div className="space-y-2.5">
-                    {suggestedCircuits.map((cir, i) => (
-                      <div key={i} className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-xs space-y-1.5">
+            {suggestedCircuits.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Suggested Circuits</h3>
+                <div className="space-y-2.5">
+                  {suggestedCircuits.map((cir, i) => (
+                    <div key={i} className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-xs space-y-2.5 text-left">
+                      <div className="flex items-center justify-between">
                         <p className="font-bold text-foreground text-sm">{cir.name}</p>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">{cir.description}</p>
-                        <div className="flex items-center gap-1.5 font-semibold text-primary pt-0.5 flex-wrap">
-                          {cir.route.map((node, idx) => (
-                            <span key={idx} className="flex items-center gap-1">
-                              {idx > 0 && <span>↓</span>}
-                              <span>{node}</span>
-                            </span>
-                          ))}
-                        </div>
+                        <span className="text-[10px] text-muted-foreground font-semibold">Click any stop below</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 7. Travel Tips */}
-            <div className="space-y-6 pt-6 border-t border-border/40">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
-                Travel Tips
-              </h2>
-              <ul className="space-y-3 text-left">
-                {plan.tips.map((tip, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-3">
-                    <span className="text-primary font-bold">→</span>
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 8. Similar Trips (Phase 8) */}
-            {plan.destination && (
-              <div className="space-y-4 pt-6 border-t border-border/40 text-left">
-                <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                  🗺️ Similar Trips You Might Like
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  People who visited {plan.destination.name} also explored these matching destinations in Tamil Nadu:
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                  {getSimilarDestinations(plan.destination.category, plan.destination.id).map((dest) => (
-                    <div 
-                      key={dest.id}
-                      onClick={() => onSelectDestination && onSelectDestination(dest.id)}
-                      className="p-3 rounded-xl border border-border bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-card flex items-center gap-2.5 active:scale-[0.99]"
-                    >
-                      <span className="text-2xl">{dest.emoji}</span>
-                      <div className="space-y-0.5">
-                        <span className="font-bold text-xs text-foreground block hover:underline">
-                          {dest.name}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground capitalize">
-                          {plan.destination.category} Trip
-                        </span>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">{cir.description}</p>
+                      <div className="flex items-center gap-2 font-semibold text-primary pt-1 flex-wrap">
+                        {cir.route.map((nodeName, idx) => {
+                          const matched = tnDestinations.find(d => d.name.toLowerCase() === nodeName.toLowerCase() || d.fullName.toLowerCase().includes(nodeName.toLowerCase()));
+                          const destId = matched?.id;
+                          const isCurrent = plan.destination && (
+                            nodeName.toLowerCase() === plan.destination.name.toLowerCase() ||
+                            destId === plan.destination.id
+                          );
+                          return (
+                            <span key={idx} className="flex items-center gap-1.5">
+                              {idx > 0 && <span className="text-muted-foreground/60 text-xs font-bold">→</span>}
+                              {isCurrent ? (
+                                <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground font-black text-xs px-3 py-1.5 rounded-lg border border-primary shadow-xs">
+                                  <span>📍 {nodeName}</span>
+                                  <span className="text-[9px] opacity-90 uppercase tracking-wider font-extrabold">(Current)</span>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (destId) {
+                                      if (onSelectDestination) {
+                                        onSelectDestination(destId);
+                                      } else {
+                                        window.location.href = `/destination/${destId}`;
+                                      }
+                                    } else {
+                                      window.location.href = "/explore";
+                                    }
+                                  }}
+                                  className="inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary/25 text-primary font-extrabold text-xs px-3 py-1.5 rounded-lg border border-primary/30 hover:border-primary/60 transition-all active:scale-95 cursor-pointer shadow-xs"
+                                >
+                                  <span>{nodeName}</span>
+                                  <span className="text-[10px] opacity-70">➔</span>
+                                </button>
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+          </div>
 
-            {/* 9. Bottom Transparency Panel (Trust Footer - Phase 10) */}
-            <div className="space-y-6 pt-6 border-t border-border/40 text-left bg-muted/20 p-6 rounded-2xl border border-border/60">
-              <h3 className="font-display text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-                🛡️ Why Trust Sikkanam?
-              </h3>
-              <p className="text-xs text-muted-foreground -mt-3">
-                Sikkanam operates on factual provenance. Every cost, route, and hotel detail listed above is cross-verified against public APIs and curated regional datasets.
+          {/* 7. Travel Tips */}
+          <div className="space-y-6 pt-6 border-t border-border/40">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
+              Travel Tips
+            </h2>
+            <ul className="space-y-3 text-left">
+              {plan.tips.map((tip, i) => (
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-3">
+                  <span className="text-primary font-bold">→</span>
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 8. Similar Trips (Phase 8) */}
+          {plan.destination && (
+            <div className="space-y-4 pt-6 border-t border-border/40 text-left">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                🗺️ Similar Trips You Might Like
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                People who visited {plan.destination.name} also explored these matching destinations in Tamil Nadu:
               </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs pt-1">
-                <div className="flex items-center gap-2.5 font-semibold text-foreground">
-                  <span className="text-emerald-500 font-bold text-sm">✓</span>
-                  <span>OpenStreetMap Route Data</span>
-                </div>
-                <div className="flex items-center gap-2.5 font-semibold text-foreground">
-                  <span className="text-emerald-500 font-bold text-sm">✓</span>
-                  <span>Curated Attraction Database</span>
-                </div>
-                <div className="flex items-center gap-2.5 font-semibold text-foreground">
-                  <span className="text-emerald-500 font-bold text-sm">✓</span>
-                  <span>Hotel Inventory Dataset</span>
-                </div>
-                <div className="flex items-center gap-2.5 font-semibold text-foreground">
-                  <span className="text-emerald-500 font-bold text-sm">✓</span>
-                  <span>Food Cost Profiles</span>
-                </div>
-                <div className="flex items-center gap-2.5 font-semibold text-foreground">
-                  <span className="text-emerald-500 font-bold text-sm">✓</span>
-                  <span>Tamil Nadu Destination Intelligence</span>
-                </div>
-              </div>
-              
-              <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
-                <span>Intelligence Version: v4.3</span>
-                <span>Last Updated: June 2026</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                {getSimilarDestinations(plan.destination.category, plan.destination.id).map((dest) => (
+                  <div
+                    key={dest.id}
+                    onClick={() => onSelectDestination && onSelectDestination(dest.id)}
+                    className="p-3 rounded-xl border border-border bg-card hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-card flex items-center gap-2.5 active:scale-[0.99]"
+                  >
+                    <span className="text-2xl">{dest.emoji}</span>
+                    <div className="space-y-0.5">
+                      <span className="font-bold text-xs text-foreground block hover:underline">
+                        {dest.name}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground capitalize">
+                        {plan.destination.category} Trip
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+          )}
+
+          {/* 9. Bottom Transparency Panel (Trust Footer - Phase 10) */}
+          <div className="space-y-6 pt-6 border-t border-border/40 text-left bg-muted/20 p-6 rounded-2xl border border-border/60">
+            <h3 className="font-display text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+              🛡️ Why Trust Sikkanam?
+            </h3>
+            <p className="text-xs text-muted-foreground -mt-3">
+              Sikkanam operates on factual provenance. Every cost, route, and hotel detail listed above is cross-verified against public APIs and curated regional datasets.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs pt-1">
+              <div className="flex items-center gap-2.5 font-semibold text-foreground">
+                <span className="text-emerald-500 font-bold text-sm">✓</span>
+                <span>OpenStreetMap Route Data</span>
+              </div>
+              <div className="flex items-center gap-2.5 font-semibold text-foreground">
+                <span className="text-emerald-500 font-bold text-sm">✓</span>
+                <span>Curated Attraction Database</span>
+              </div>
+              <div className="flex items-center gap-2.5 font-semibold text-foreground">
+                <span className="text-emerald-500 font-bold text-sm">✓</span>
+                <span>Hotel Inventory Dataset</span>
+              </div>
+              <div className="flex items-center gap-2.5 font-semibold text-foreground">
+                <span className="text-emerald-500 font-bold text-sm">✓</span>
+                <span>Food Cost Profiles</span>
+              </div>
+              <div className="flex items-center gap-2.5 font-semibold text-foreground">
+                <span className="text-emerald-500 font-bold text-sm">✓</span>
+                <span>Tamil Nadu Destination Intelligence</span>
+              </div>
+            </div>
+
+            <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Intelligence Version: v4.3</span>
+              <span>Last Updated: June 2026</span>
+            </div>
           </div>
+        </div>
 
       </div>
     </section>

@@ -40,15 +40,18 @@ export interface RouteLeg {
 }
 
 export interface HotelPricingEvidence {
-  source: "estimated";
+  source: "estimated" | "observed";
   reason: string;
-  nearbyHotelsFound: number;
+  nearbyHotelsFound?: number;
+  observedHotels?: number;
 }
 
 export interface HotelMarketIntelligence {
   observedHotelsList: { name: string; priceCategory: string; rating: number; distanceKm: number }[];
-  minEstimatedPrice: number;
-  maxEstimatedPrice: number;
+  minEstimatedPrice?: number;
+  maxEstimatedPrice?: number;
+  minObservedPrice?: number;
+  maxObservedPrice?: number;
   minRecommendedPrice: number;
   maxRecommendedPrice: number;
   pricingEvidence: HotelPricingEvidence;
@@ -104,6 +107,8 @@ export interface CostComponentDetail {
   formula: string;
   reason: string;
   source: string;
+  confidence?: number;
+  confidenceReason?: string;
   foodBreakdown?: FoodMealBreakdown;
   attractionBreakdown?: AttractionBreakdown;
   hotelMarketIntel?: HotelMarketIntelligence;

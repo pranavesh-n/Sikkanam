@@ -13,7 +13,7 @@ interface AuthPromptModalProps {
 export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
   isOpen,
   onClose,
-  title = "Already a Sikkanam User?",
+  title = "Already a Sikkanam User? Or What to be a New User",
   subtitle = "Sign in with Google to sync your saved trips, wishlists, and passcode lock across your devices.",
 }) => {
   const { loginWithGoogle } = useAuth();

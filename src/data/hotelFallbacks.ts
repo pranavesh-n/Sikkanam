@@ -35,4 +35,24 @@ export const HOTEL_FALLBACKS: Record<string, CuratedHotel[]> = {
   mahabalipuram: [
     { name: "Shoreline Retreat", priceCategory: "standard", rating: 4.0 },
   ],
+  pudukkottai: [
+    { name: "Chidambara Vilas", priceCategory: "comfort", rating: 4.5 },
+    { name: "Hotel Pudukkottai Residency", priceCategory: "standard", rating: 4.1 },
+  ],
+  "gingee-fort": [
+    { name: "Gingee Royal Residency", priceCategory: "budget", rating: 4.0 },
+  ],
+  padmanabhapuram: [
+    { name: "Palace View Residency", priceCategory: "standard", rating: 4.2 },
+  ],
+  kanadukathan: [
+    { name: "Visalam - CGH Earth Chettinad", priceCategory: "comfort", rating: 4.6 },
+    { name: "Chettinad Heritage Home", priceCategory: "standard", rating: 4.2 },
+  ],
+  keezhadi: [
+    { name: "Vaigai Heritage Lodge", priceCategory: "standard", rating: 4.0 },
+  ],
+  "thirumalai-nayakar-mahal": [
+    { name: "Heritage Hotel Madurai", priceCategory: "comfort", rating: 4.4 },
+  ],
 };

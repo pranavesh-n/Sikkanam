@@ -394,6 +394,171 @@ export const ACTIVITY_DATABASE: Record<string, AttractionDetail> = {
     lastVerified: "2025-06",
     verificationSource: "Tenkasi District Administration",
     databaseVersion: "TN-Attractions-v1.0"
+  },
+  "gingee-fort": {
+    name: "Gingee Fort Complex",
+    category: "Fort & Citadel",
+    entryFeeAdult: 25,
+    entryFeeChild: 0,
+    parkingFee: 30,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "rajagiri-citadel": {
+    name: "Rajagiri Citadel Hill",
+    category: "Fort & Citadel",
+    entryFeeAdult: 25,
+    entryFeeChild: 0,
+    parkingFee: 30,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "pudukkottai-royal-palace": {
+    name: "Pudukkottai Royal Palace",
+    category: "Royal Heritage",
+    entryFeeAdult: 20,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 20,
+    lastVerified: "2026-01",
+    verificationSource: "Pudukkottai Heritage Board",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "government-museum-pudukkottai": {
+    name: "Government Museum Pudukkottai",
+    category: "Museum",
+    entryFeeAdult: 10,
+    entryFeeChild: 5,
+    parkingFee: 15,
+    cameraFee: 20,
+    lastVerified: "2026-01",
+    verificationSource: "TN Department of Museums",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "sittannavasal-cave": {
+    name: "Sittannavasal Cave & Murals",
+    category: "Archaeological Site",
+    entryFeeAdult: 25,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "lotus-pond-fresco": {
+    name: "Lotus Pond Fresco Paintings",
+    category: "Archaeological Site",
+    entryFeeAdult: 25,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "thirumayam-fort": {
+    name: "Thirumayam Rock Fort",
+    category: "Fort & Citadel",
+    entryFeeAdult: 25,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "kattabomman-memorial-fort": {
+    name: "Kattabomman Memorial Fort",
+    category: "Memorial Fort",
+    entryFeeAdult: 15,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 15,
+    lastVerified: "2026-01",
+    verificationSource: "Thoothukudi District Tourism",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "udayagiri-fort": {
+    name: "Udayagiri Fort & Bio Park",
+    category: "Fort & Park",
+    entryFeeAdult: 20,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 25,
+    lastVerified: "2026-01",
+    verificationSource: "TN Forest Department",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "padmanabhapuram-palace": {
+    name: "Padmanabhapuram Wooden Palace",
+    category: "Palace & Museum",
+    entryFeeAdult: 50,
+    entryFeeChild: 20,
+    parkingFee: 30,
+    cameraFee: 50,
+    lastVerified: "2026-01",
+    verificationSource: "Department of Archaeology",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "keezhadi-museum": {
+    name: "Keezhadi Heritage Site Museum",
+    category: "Museum & Excavation",
+    entryFeeAdult: 20,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 30,
+    lastVerified: "2026-01",
+    verificationSource: "State Archaeology Department",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "vettuvan-koil": {
+    name: "Vettuvan Koil Monolithic Temple",
+    category: "Rock-Cut Monument",
+    entryFeeAdult: 0,
+    entryFeeChild: 0,
+    parkingFee: 15,
+    cameraFee: 0,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "sadras-dutch-fort": {
+    name: "Sadras Dutch Fort",
+    category: "Coastal Fort",
+    entryFeeAdult: 20,
+    entryFeeChild: 10,
+    parkingFee: 20,
+    cameraFee: 20,
+    lastVerified: "2026-01",
+    verificationSource: "Archaeological Survey of India (ASI)",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "alamparai-fort": {
+    name: "Alamparai Fort Ruins",
+    category: "Seaside Fort",
+    entryFeeAdult: 0,
+    entryFeeChild: 0,
+    parkingFee: 20,
+    cameraFee: 0,
+    lastVerified: "2026-01",
+    verificationSource: "Chengalpattu Tourism",
+    databaseVersion: "TN-Attractions-v1.0"
+  },
+  "chettinad-palace": {
+    name: "Chettinad Palace Kanadukathan",
+    category: "Heritage Palace",
+    entryFeeAdult: 100,
+    entryFeeChild: 50,
+    parkingFee: 30,
+    cameraFee: 50,
+    lastVerified: "2026-01",
+    verificationSource: "Chettinad Heritage Trust",
+    databaseVersion: "TN-Attractions-v1.0"
   }
 };
 
