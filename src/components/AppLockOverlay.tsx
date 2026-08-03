@@ -91,6 +91,27 @@ export const AppLockOverlay: React.FC = () => {
     };
   }, [isLocked, showResetModal, handleKeyPress, handleDelete]);
 
+  // Check if App Lock is enabled in local storage
+  const isAppLockSaved = typeof window !== "undefined" && localStorage.getItem("sikkanam_applock_enabled") === "true";
+
+  // While Firebase Auth is loading (authReady is false), if lock is saved, render a solid dark Security Shield screen
+  // so that NOT A SINGLE PIXEL of the home screen or private data is ever visible!
+  if (!authReady && isAppLockSaved) {
+    return (
+      <div className="fixed inset-0 z-[99999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center text-white select-none">
+        <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 grid place-items-center mb-4 shadow-xl shadow-orange-500/10">
+          <Lock className="w-8 h-8 text-primary animate-pulse" />
+        </div>
+        <h2 className="font-display font-extrabold text-xl tracking-tight text-white mb-1">
+          Securing Session...
+        </h2>
+        <p className="text-xs text-zinc-400 font-medium">
+          Verifying security lock & credentials
+        </p>
+      </div>
+    );
+  }
+
   if (!authReady || !isLocked || !user || !explicitLogin || isOnboardingActive) return null;
 
   const handleGoogleAuthReset = async () => {
@@ -134,20 +155,18 @@ export const AppLockOverlay: React.FC = () => {
 
         {/* PIN Indicators */}
         <div
-          className={`flex items-center gap-4 mb-10 transition-transform ${
-            shake ? "animate-shake" : ""
-          }`}
+          className={`flex items-center gap-4 mb-10 transition-transform ${shake ? "animate-shake" : ""
+            }`}
         >
           {[0, 1, 2, 3].map((index) => {
             const isFilled = pin.length > index;
             return (
               <div
                 key={index}
-                className={`w-4 h-4 rounded-full transition-all duration-150 ${
-                  isFilled
+                className={`w-4 h-4 rounded-full transition-all duration-150 ${isFilled
                     ? "bg-primary scale-110 shadow-md shadow-orange-500/50"
                     : "border-2 border-zinc-600 bg-transparent"
-                }`}
+                  }`}
               />
             );
           })}
