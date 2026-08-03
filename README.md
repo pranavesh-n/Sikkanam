@@ -30,8 +30,8 @@ Sikkanam estimates hotel price ranges based on the actual number of nearby lodgi
 ### 5. Real-Time Sync & Multi-Database Backend
 Sikkanam is a fully connected full-stack application. Your travel profile, saved itineraries, and wishlists are securely stored and synced across all your devices using a highly optimized, modern cloud architecture.
 
-### 6. 87 Curated Destinations 🗺️
-Covers the full breadth of Tamil Nadu — from the Nilgiri hills to Kanyakumari, from temple towns to remote waterfalls. Every destination has curated metadata: best travel months, difficulty level, recommended days, and local food spots.
+### 6. 100 Curated Destinations 🗺️
+Covers the full breadth of Tamil Nadu — from the Nilgiri hills to Kanyakumari, from temple towns to remote waterfalls and 21 heritage monuments. Every destination has curated metadata: best travel months, difficulty level, recommended days, and local food spots.
 
 ### 7. Live Weather Forecast & Sikkanam AI Rain Risk System 🌤️
 Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model** (`models=ecmwf_ifs025`).
@@ -92,6 +92,12 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 ---
 
 ## 🆕 Changelog
+
+### v2.6.1 — August 2026 (100 Destinations Milestone & Interactive Circuit Navigation)
+- 🏛️ **100 Destinations Milestone**: Reached the 100 destinations milestone with 13 brand new heritage additions (*Gingee Fort*, *Pudukkottai*, *Sittannavasal*, *Thirumayam*, *Panchalankurichi*, *Udayagiri Fort*, *Padmanabhapuram Palace*, *Keezhadi Museum*, *Kazhugumalai*, *Tirumalai Nayakar Mahal*, *Sadras Dutch Fort*, *Alamparai Fort*, *Kanadukathan Chettinad Palace*).
+- 🗺️ **21 Heritage Destinations**: Expanded the Heritage category filter to 21 curated historical sites with verified attraction fee records, local hotel fallbacks, and transport connectivity settings.
+- 📍 **Interactive Circuit Navigation**: Circuit stops (e.g. *Ooty ➔ Coonoor*) are now clickable pill buttons with active location badges (`📍 Coonoor (Current)`) and 1-tap route switching.
+- 🎨 **Universal Cross-Platform Emojis**: Updated icon system across all destinations to eliminate raw country ISO flag codes on Windows OS and ensure crisp visual rendering across all browsers.
 
 ### v2.6 — August 2026 (User Choice Calendar Date Picker & Extended Weather Horizon)
 - 📅 **User Choice Calendar Date Picker (`<input type="date">`)**: Travelers can now select **ANY custom travel date** across the entire year using an interactive calendar picker (`"📅 Pick Any Custom Travel Date"`).
