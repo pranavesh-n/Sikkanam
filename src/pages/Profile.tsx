@@ -309,7 +309,7 @@ const Profile = () => {
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-3">
-        சிக்கனம் · Sikkanam v2.5
+        சிக்கனம் · Sikkanam v2.6
       </p>
 
       {/* About Modal */}
