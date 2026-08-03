@@ -12,8 +12,8 @@ export default function WelcomeAuthModal() {
     <AuthPromptModal
       isOpen={true}
       onClose={dismissWelcomeAuth}
-      title="Already a Sikkanam User?"
-      subtitle="Sign in with Google to sync your saved itineraries, wishlists, and 4-digit passcode security across all your devices."
+      title="Already a Sikkanam User or New User?"
+      subtitle="Sign in or sign up with Google to sync your saved itineraries, wishlists, and 4-digit passcode security across all your devices."
     />
   );
 }
