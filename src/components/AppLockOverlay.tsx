@@ -147,10 +147,10 @@ export const AppLockOverlay: React.FC = () => {
 
         {/* Header */}
         <h1 className="font-display font-bold text-2xl tracking-tight text-white mb-1">
-          Sikkanam is Locked
+          Welcome Back, Traveler 👋
         </h1>
         <p className="text-xs sm:text-sm text-zinc-400 mb-8 font-medium">
-          Enter your 4-digit PIN
+          Enter your 4-digit PIN to unlock Sikkanam
         </p>
 
         {/* PIN Indicators */}
