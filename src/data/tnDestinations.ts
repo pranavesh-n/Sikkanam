@@ -1228,8 +1228,8 @@ const rawDestinations: TNDestination[] = [
       "Tea estates",
       "Nilgiri Mountain Railway"
     ],
-    "nearestStation": "Coonoor",
-    "hasRailAccess": true,
+    "nearestStation": "Coimbatore Junction/Mettupalayam",
+    "hasRailAccess": false,
     "lat": 11.35,
     "lng": 76.79
   },
