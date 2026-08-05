@@ -1075,8 +1075,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   <div className="flex items-center gap-2 pt-2 border-t border-border/40 text-[10px] text-muted-foreground font-semibold">
                     <span>Route Integrity:</span>
                     <span className={`px-2 py-0.5 rounded-full font-extrabold text-[9px] uppercase ${isVerified
-                        ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                      ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                      : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
                       }`}>
                       {isVerified ? "Verified (OSRM)" : "Fallback Estimate"}
                     </span>
@@ -1326,8 +1326,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                                 <div>
                                   <span className="block text-[9px] uppercase font-bold text-muted-foreground">Status</span>
                                   <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full inline-block mt-0.5 ${plan.route.some(leg => leg.routeIntel?.routeStatus === "verified")
-                                      ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-                                      : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                                    ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                                    : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
                                     }`}>
                                     {plan.route.some(leg => leg.routeIntel?.routeStatus === "verified") ? "Verified" : "Fallback"}
                                   </span>
@@ -1612,7 +1612,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
 
             <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
               <span>Intelligence Version: v4.3</span>
-              <span>Last Updated: June 2026</span>
+              <span>Last Updated: August 2026</span>
             </div>
           </div>
         </div>
