@@ -14,7 +14,7 @@ interface OnboardingContextType {
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-const VERSION = "2.6.0";
+const VERSION = "2.6.2";
 const VERSION_KEY = "sikkanam-version";
 const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 const PWA_DISMISSED_SESSION_KEY = "sikkanam_pwa_dismissed_session";

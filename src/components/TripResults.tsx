@@ -6,6 +6,7 @@ import { HOTEL_RANGES } from "@/lib/hotelPrices";
 import { generateTrainSearchUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import ShareTripModal from "@/components/ShareTripModal";
 
 interface TripResultsProps {
   plan: TripPlan;
@@ -354,6 +355,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   const { user } = useAuth();
   const [saveLoading, setSaveLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleSaveTrip = async () => {
     if (!user) {
@@ -781,10 +783,10 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
             {saveLoading ? "Saving..." : isSaved ? "Saved" : "Save Trip"}
           </button>
           <button
-            onClick={handleWhatsAppShare}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-foreground hover:bg-muted text-sm font-medium transition-colors"
+            onClick={() => setShowShareModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-foreground hover:bg-muted text-sm font-medium transition-colors shadow-2xs active:scale-95"
           >
-            <Share2 className="w-4 h-4" /> Share
+            <Share2 className="w-4 h-4 text-primary" /> Share Trip
           </button>
           <button
             onClick={handlePrint}
@@ -1618,7 +1620,14 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
         </div>
 
       </div>
-    </section>
+
+        {/* Share Trip Modal */}
+        <ShareTripModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          plan={plan}
+        />
+      </section>
   );
 });
 

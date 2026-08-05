@@ -1,8 +1,8 @@
 import { MouseEvent } from "react";
-import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X } from "lucide-react";
+import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X, Share2 } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.6.1";
+const VERSION = "2.6.2";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -46,64 +46,77 @@ export default function WhatsNewModal() {
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v2.6.1
+          What's New in Sikkanam v2.6.2
         </h2>
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          100 Destinations Milestone, 21 Heritage Destinations, Interactive Circuit Route Buttons & Universal Emojis!
+          Direct Trip Link Sharing, User Choice Calendar Date Picker, 16-Day Weather Horizon & AI Rain Risk Alerts!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — 100 Destinations Milestone & 21 Heritage Destinations */}
+          {/* Feature 1 — Direct Interactive Trip Plan Link Sharing */}
+          <div className="flex gap-3.5 items-start text-left bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20">
+            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <Share2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Direct Trip Link Sharing</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Share your exact calculated trip plan with travel buddies! Opening the shared link auto-loads your custom itinerary, budget, and route.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 2 — User Choice Calendar Date Picker & 16-Day Horizon */}
           <div className="flex gap-3.5 items-start text-left bg-amber-500/5 dark:bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">100 Destinations Milestone & 21 Heritage Sites</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Added 13 brand new heritage destinations (Gingee Fort, Pudukkottai, Sittannavasal, Thirumayam, Padmanabhapuram, Keezhadi) to reach 100 total destinations with 21 rich heritage spots!
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 2 — Interactive Circuit Buttons */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
-              <Smartphone className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Interactive Circuit & Route Badges</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Circuit stops are now clickable pill buttons with active location badges (<span className="font-bold text-foreground">📍 Coonoor (Current)</span>) and 1-tap route navigation.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 3 — Live Weather Forecast & Open-Meteo */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">User Choice Calendar & Live Open-Meteo Feed</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">User Choice Calendar Date Picker</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Select any custom date across the year! Includes Open-Meteo ECMWF live forecasts, rain risk warnings, and indoor attraction alternatives.
+                Select ANY travel date across the year! Includes a 16-day interactive forecast scrubber and calendar picker with instant 3-day weather window rendering.
               </p>
             </div>
           </div>
 
-          {/* Feature 4 — Universal Cross-Platform Emojis */}
+          {/* Feature 3 — Live Open-Meteo & Rain Risk */}
           <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
-              <UserCheck className="w-5 h-5" />
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Universal Cross-Platform Icon System</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Open-Meteo ECMWF Live Feed & AI Rain Risk</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Clean visual emojis across all destinations, eliminating raw country codes and ensuring crisp rendering on Windows, Android, Mac, and iOS.
+                Real-time station updates, hourly rain windows (e.g. 3 PM–11 PM), sightseeing advice, & indoor attraction alternatives during rain hours.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 4 — Cloud Firestore Sync */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
+              <Flame className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Cloud Firestore Real-Time Sync</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Passcode lock status, PIN credentials, and trip wishlists sync instantly across PC and Mobile in real-time.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 5 — App Passcode Lock & Smart PWA */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">4-Digit App PIN & Smart PWA</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                4-digit PIN lock security, 1-tap PWA adoption, and automatic uninstallation detection.
               </p>
             </div>
           </div>

@@ -88,18 +88,31 @@ const calculateBudgetRange = (
 
 interface TripPlannerFormProps {
   onGenerate: (input: TripInput) => void;
+  initialInput?: TripInput | null;
 }
 
-const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate }, ref) => {
-  const [source, setSource] = useState("");
-  const [destination, setDestination] = useState("");
-  const [days, setDays] = useState(2);
-  const [travellers, setTravellers] = useState(2);
-  const [style, setStyle] = useState<TravelStyle>("standard");
+const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate, initialInput }, ref) => {
+  const [source, setSource] = useState(initialInput?.source || "");
+  const [destination, setDestination] = useState(initialInput?.destination || "");
+  const [days, setDays] = useState(initialInput?.days || 2);
+  const [travellers, setTravellers] = useState(initialInput?.travellers || 2);
+  const [style, setStyle] = useState<TravelStyle>(initialInput?.style || "standard");
   const [budgetRange, setBudgetRange] = useState({ min: 1000, max: 25000 });
-  const [budget, setBudget] = useState(5000);
-  const [travellerType, setTravellerType] = useState<TravellerType>("family");
+  const [budget, setBudget] = useState(initialInput?.budget || 5000);
+  const [travellerType, setTravellerType] = useState<TravellerType>(initialInput?.travellerType || "family");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialInput) {
+      if (initialInput.source) setSource(initialInput.source);
+      if (initialInput.destination) setDestination(initialInput.destination);
+      if (initialInput.days) setDays(initialInput.days);
+      if (initialInput.travellers) setTravellers(initialInput.travellers);
+      if (initialInput.style) setStyle(initialInput.style);
+      if (initialInput.budget) setBudget(initialInput.budget);
+      if (initialInput.travellerType) setTravellerType(initialInput.travellerType);
+    }
+  }, [initialInput]);
 
   const prevMajorParams = useRef({ days, travellers, style });
 

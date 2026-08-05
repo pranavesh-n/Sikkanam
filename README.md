@@ -99,8 +99,9 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 - 📍 **Interactive Circuit Navigation**: Circuit stops (e.g. *Ooty ➔ Coonoor*) are now clickable pill buttons with active location badges (`📍 Coonoor (Current)`) and 1-tap route switching.
 - 🎨 **Universal Cross-Platform Emojis**: Updated icon system across all destinations to eliminate raw country ISO flag codes on Windows OS and ensure crisp visual rendering across all browsers.
 
-### v2.6 — August 2026 (User Choice Calendar Date Picker & Extended Weather Horizon)
-- 📅 **User Choice Calendar Date Picker (`<input type="date">`)**: Travelers can now select **ANY custom travel date** across the entire year using an interactive calendar picker (`"📅 Pick Any Custom Travel Date"`).
+### v2.6.2 — August 2026 (Direct Trip Link Sharing & User Choice Calendar Date Picker)
+- 🔗 **Direct Trip Link Sharing (`/plan?from=...&to=...`)**: Travelers can share their exact calculated trip plan via WhatsApp, Telegram, or social media. Opening the link automatically loads and displays the full interactive trip plan.
+- 📅 **User Choice Calendar Date Picker (`<input type="date">`)**: Travelers can select **ANY custom travel date** across the entire year using an interactive calendar picker (`"📅 Pick Any Custom Travel Date"`).
 - 🗓️ **16-Day Forecast Horizon & Extended Seasonal Modeling**: Automatically retrieves Open-Meteo ECMWF live forecasts for dates within 16 days, and applies seasonal climate modeling for user-chosen dates further out.
 - ⚡ **Dynamic 3-Day Window & Travel Intelligence**: The 3-day weather cards, metrics, hourly rain windows, sightseeing windows, and Sikkanam AI Rain Risk Alerts dynamically re-calculate starting from whatever trip date the user chooses.
 
