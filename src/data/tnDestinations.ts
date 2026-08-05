@@ -1248,7 +1248,7 @@ const rawDestinations: TNDestination[] = [
       "Tea estates",
       "Kotagiri walks"
     ],
-    "nearestStation": "Coonoor",
+    "nearestStation": "Mettupalayam",
     "hasRailAccess": false,
     "lat": 11.42,
     "lng": 76.86
@@ -1268,7 +1268,7 @@ const rawDestinations: TNDestination[] = [
       "Highwavys",
       "Forest drives"
     ],
-    "nearestStation": "Theni",
+    "nearestStation": "Madurai junction",
     "hasRailAccess": false,
     "lat": 9.74,
     "lng": 77.41
@@ -1288,7 +1288,7 @@ const rawDestinations: TNDestination[] = [
       "Forest trekking",
       "Elephant camp"
     ],
-    "nearestStation": "Kottayam",
+    "nearestStation": "Kottayam junction",
     "hasRailAccess": false,
     "lat": 9.5949,
     "lng": 77.1741
