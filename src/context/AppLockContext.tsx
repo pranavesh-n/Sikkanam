@@ -28,10 +28,9 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
 const getUserKey = (u: any) => {
-  const activeUser = u || auth.currentUser;
-  if (!activeUser) return null;
-  const rawKey = activeUser.uid || activeUser.id || activeUser.email || "";
-  return String(rawKey).replace(/[.#$/[\]]/g, "_");
+  const uid = auth.currentUser?.uid || u?._id || u?.uid || u?.id;
+  if (!uid) return null;
+  return String(uid).replace(/[.#$/[\]]/g, "_");
 };
 
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -59,8 +58,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   });
 
   const activeUser = user || (auth.currentUser ? {
-    id: auth.currentUser.uid,
     _id: auth.currentUser.uid,
+    id: auth.currentUser.uid,
     email: auth.currentUser.email || "",
     name: auth.currentUser.displayName || ""
   } : null);
@@ -122,8 +121,24 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
             }
           }
         } else {
-          setIsLockEnabled(false);
-          localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
+          // If document does not exist in production Firestore yet, check if lock is enabled locally
+          const localEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+          const localPin = localStorage.getItem(LOCAL_STORAGE_PIN);
+          if (localEnabled && localPin) {
+            // Auto-sync local passcode state to Cloud Firestore under key (request.auth.uid)
+            setDoc(
+              userSettingsRef,
+              {
+                appLockEnabled: true,
+                appLockPinHash: localPin,
+                updatedAt: new Date().toISOString(),
+              },
+              { merge: true }
+            ).catch((err) => console.warn("Cloud Firestore initial sync back error:", err));
+          } else {
+            setIsLockEnabled(false);
+            localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
+          }
         }
       },
       (error) => {
