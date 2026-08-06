@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useAppLock } from "@/context/AppLockContext";
 import { useAuth } from "@/hooks/useAuth";
-import { useOnboarding } from "@/context/OnboardingContext";
 import { Delete, Lock, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const AppLockOverlay: React.FC = () => {
   const { isLocked, verifyPasscode, failedAttempts, resetAppLock } = useAppLock();
   const { user, authReady, explicitLogin, loginWithGoogle, logout } = useAuth();
-  const { isOnboardingActive } = useOnboarding();
   const [pin, setPin] = useState<string>("");
   const [shake, setShake] = useState<boolean>(false);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -94,11 +93,20 @@ export const AppLockOverlay: React.FC = () => {
   // Check if App Lock is enabled in local storage
   const isAppLockSaved = typeof window !== "undefined" && localStorage.getItem("sikkanam_applock_enabled") === "true";
 
+  if (typeof window === "undefined") return null;
+
   // While Firebase Auth is loading (authReady is false), if lock is saved, render a solid dark Security Shield screen
   // so that NOT A SINGLE PIXEL of the home screen or private data is ever visible!
   if (!authReady && isAppLockSaved) {
-    return (
-      <div className="fixed inset-0 z-[99999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center text-white select-none">
+    return createPortal(
+      <div
+        onPointerDownCapture={(e) => e.stopPropagation()}
+        onTouchStartCapture={(e) => e.stopPropagation()}
+        onMouseDownCapture={(e) => e.stopPropagation()}
+        onClickCapture={(e) => e.stopPropagation()}
+        style={{ pointerEvents: "auto" }}
+        className="fixed inset-0 z-[9999999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center text-white select-none"
+      >
         <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 grid place-items-center mb-4 shadow-xl shadow-orange-500/10">
           <Lock className="w-8 h-8 text-primary animate-pulse" />
         </div>
@@ -108,11 +116,12 @@ export const AppLockOverlay: React.FC = () => {
         <p className="text-xs text-zinc-400 font-medium">
           Verifying security lock & credentials
         </p>
-      </div>
+      </div>,
+      document.body
     );
   }
 
-  if (!authReady || !isLocked || !user || !explicitLogin || isOnboardingActive) return null;
+  if (!authReady || !isLocked || !user || !explicitLogin) return null;
 
   const handleGoogleAuthReset = async () => {
     setIsAuthenticating(true);
@@ -135,8 +144,15 @@ export const AppLockOverlay: React.FC = () => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[99999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 select-none animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      onPointerDownCapture={(e) => e.stopPropagation()}
+      onTouchStartCapture={(e) => e.stopPropagation()}
+      onMouseDownCapture={(e) => e.stopPropagation()}
+      onClickCapture={(e) => e.stopPropagation()}
+      style={{ pointerEvents: "auto" }}
+      className="fixed inset-0 z-[9999999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 select-none animate-in fade-in duration-200"
+    >
       <div className="flex flex-col items-center max-w-sm w-full">
         {/* Sikkanam Logo Image */}
         <img
@@ -177,8 +193,9 @@ export const AppLockOverlay: React.FC = () => {
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
             <button
               key={num}
+              type="button"
               onClick={() => handleKeyPress(num)}
-              className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 transition-all duration-150 flex items-center justify-center text-2xl font-bold text-white shadow-sm border border-zinc-700/40"
+              className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 transition-all duration-150 flex items-center justify-center text-2xl font-bold text-white shadow-sm border border-zinc-700/40 touch-manipulation select-none cursor-pointer"
             >
               {num}
             </button>
@@ -191,17 +208,21 @@ export const AppLockOverlay: React.FC = () => {
 
           {/* Zero Button */}
           <button
+            key="0"
+            type="button"
             onClick={() => handleKeyPress("0")}
-            className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 transition-all duration-150 flex items-center justify-center text-2xl font-bold text-white shadow-sm border border-zinc-700/40"
+            className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 transition-all duration-150 flex items-center justify-center text-2xl font-bold text-white shadow-sm border border-zinc-700/40 touch-manipulation select-none cursor-pointer"
           >
             0
           </button>
 
           {/* Backspace Button */}
           <button
+            key="delete"
+            type="button"
             onClick={handleDelete}
             disabled={pin.length === 0}
-            className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 disabled:opacity-30 disabled:active:scale-100 transition-all duration-150 flex items-center justify-center text-white shadow-sm border border-zinc-700/40"
+            className="w-full aspect-square rounded-2xl bg-zinc-800/90 hover:bg-zinc-700/80 active:scale-95 disabled:opacity-30 disabled:active:scale-100 transition-all duration-150 flex items-center justify-center text-white shadow-sm border border-zinc-700/40 touch-manipulation select-none cursor-pointer"
           >
             <Delete className="w-6 h-6" />
           </button>
@@ -215,8 +236,9 @@ export const AppLockOverlay: React.FC = () => {
                 Entered incorrectly 3 times
               </p>
               <button
+                type="button"
                 onClick={() => setShowResetModal(true)}
-                className="w-full py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs border border-zinc-700 flex items-center justify-center gap-2 transition-all shadow-md active:scale-98"
+                className="w-full py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs border border-zinc-700 flex items-center justify-center gap-2 transition-all shadow-md active:scale-98 cursor-pointer"
               >
                 <LogOut className="w-4 h-4 text-orange-400" />
                 <span>Forgot PIN? Sign out & Login with Google to reset</span>
@@ -249,9 +271,10 @@ export const AppLockOverlay: React.FC = () => {
             </p>
 
             <button
+              type="button"
               onClick={handleGoogleAuthReset}
               disabled={isAuthenticating}
-              className="w-full py-3 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-sm flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-md mb-3 disabled:opacity-50"
+              className="w-full py-3 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-sm flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-md mb-3 disabled:opacity-50 cursor-pointer"
             >
               {isAuthenticating ? (
                 <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -281,14 +304,16 @@ export const AppLockOverlay: React.FC = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => setShowResetModal(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-300 font-medium py-1 transition-colors"
+              className="text-xs text-zinc-500 hover:text-zinc-300 font-medium py-1 transition-colors cursor-pointer"
             >
               Cancel & Return to Lock Screen
             </button>
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
