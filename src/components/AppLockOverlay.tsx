@@ -108,10 +108,6 @@ export const AppLockOverlay: React.FC = () => {
   if (!authReady && isAppLockSaved) {
     return createPortal(
       <div
-        onPointerDownCapture={(e) => e.stopPropagation()}
-        onTouchStartCapture={(e) => e.stopPropagation()}
-        onMouseDownCapture={(e) => e.stopPropagation()}
-        onClickCapture={(e) => e.stopPropagation()}
         style={{ pointerEvents: "auto" }}
         className="fixed inset-0 z-[9999999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center text-white select-none"
       >
@@ -154,10 +150,6 @@ export const AppLockOverlay: React.FC = () => {
 
   return createPortal(
     <div
-      onPointerDownCapture={(e) => e.stopPropagation()}
-      onTouchStartCapture={(e) => e.stopPropagation()}
-      onMouseDownCapture={(e) => e.stopPropagation()}
-      onClickCapture={(e) => e.stopPropagation()}
       style={{ pointerEvents: "auto" }}
       className="fixed inset-0 z-[9999999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 select-none animate-in fade-in duration-200"
     >
