@@ -63,12 +63,20 @@ export const AppLockOverlay: React.FC = () => {
     setPin((prev) => prev.slice(0, -1));
   }, []);
 
-  // Reset local state when overlay opens/closes
+  // Reset local state and restore body pointer events when overlay opens/closes
   useEffect(() => {
     if (!isLocked) {
       setPin("");
       isSubmittingRef.current = false;
+      if (typeof document !== "undefined" && document.body) {
+        document.body.style.pointerEvents = "";
+      }
     }
+    return () => {
+      if (typeof document !== "undefined" && document.body) {
+        document.body.style.pointerEvents = "";
+      }
+    };
   }, [isLocked]);
 
   // Support PC physical keyboard typing & mobile touch
