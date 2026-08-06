@@ -74,7 +74,7 @@ const Booking = () => {
       </Section>
 
       <div className="bg-card border border-border rounded-2xl p-4 text-xs text-muted-foreground">
-        💡 <strong className="text-foreground">Tip:</strong> Book trains 2–3 weeks ahead for sleeper berths. TNSTC buses rarely sell out — pay on board.
+        💡 <strong className="text-foreground">Tip:</strong> Book trains 1-2 months ahead for sleeper berths. TNSTC buses book 1-2 weeks ahead for confirmed seats on travel.
       </div>
     </div>
   );
