@@ -33,13 +33,13 @@ const Profile = () => {
       fetch("/api/trips")
         .then((res) => res.ok && res.json())
         .then((data) => data && setSavedCount((data.trips || []).length))
-        .catch(() => {});
+        .catch(() => { });
 
       // Fetch Wishlist Count
       fetch("/api/wishlist")
         .then((res) => res.ok && res.json())
         .then((data) => data && setWishlistCount((data.wishlist || []).length))
-        .catch(() => {});
+        .catch(() => { });
     } else {
       setSavedCount(0);
       setWishlistCount(0);
@@ -208,8 +208,8 @@ const Profile = () => {
               !user
                 ? "Sign in with Google to enable 4-digit PIN passcode"
                 : isLockEnabled
-                ? "4-digit PIN lock enabled (Tap to disable)"
-                : "Protect app with 4-digit PIN passcode"
+                  ? "4-digit PIN lock enabled (Tap to disable)"
+                  : "Protect app with 4-digit PIN passcode"
             }
             badge={user ? (isLockEnabled ? "ON" : "OFF") : undefined}
             disabled={!user}
@@ -266,11 +266,6 @@ const Profile = () => {
             icon={Sparkles}
             label="What's New in Sikkanam"
             desc="Monthly feature release notes & updates"
-            customBadge={
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30">
-                NEW
-              </span>
-            }
           />
         </Link>
 
@@ -487,11 +482,10 @@ const Row = ({ icon: Icon, label, desc, disabled, badge, customBadge }: any) => 
       customBadge
     ) : badge ? (
       <span
-        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-          badge === "ON"
-            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-            : "bg-muted text-muted-foreground border border-border"
-        }`}
+        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${badge === "ON"
+          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+          : "bg-muted text-muted-foreground border border-border"
+          }`}
       >
         {badge}
       </span>
