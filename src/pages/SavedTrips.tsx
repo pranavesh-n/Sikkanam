@@ -5,6 +5,7 @@ import TripResults from "@/components/TripResults";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { Bookmark, Trash2, Edit2, ChevronLeft, Calendar, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { GoogleIcon } from "@/components/ui/GoogleIcon";
 
 interface SavedTripType {
   _id: string;
@@ -110,12 +111,12 @@ const SavedTrips = () => {
         </p>
         <button
           onClick={() => setShowAuthModal(true)}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full gradient-saffron text-white font-bold text-sm shadow-card active:scale-[0.98] transition-transform"
+          className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full gradient-saffron text-white font-bold text-sm shadow-card active:scale-[0.98] transition-transform"
         >
-          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-            <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.51 0-6.386-2.876-6.386-6.386s2.876-6.386 6.386-6.386c1.697 0 3.2.664 4.343 1.74l3.124-3.124C19.346 2.23 16.03 1 12.24 1 5.766 1 .5 6.266.5 12.74S5.766 24.48 12.24 24.48c6.549 0 11.59-4.603 11.59-11.59 0-.765-.082-1.5-.23-2.22H12.24z" />
-          </svg>
-          Sign in with Google
+          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center flex-shrink-0 p-0.5 shadow-sm">
+            <GoogleIcon className="w-3.5 h-3.5" />
+          </div>
+          <span>Sign in with Google</span>
         </button>
 
         <AuthPromptModal
