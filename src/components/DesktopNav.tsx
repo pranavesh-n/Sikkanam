@@ -15,7 +15,9 @@ const DesktopNav = () => {
     <header className="hidden md:block sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/60">
       <div className="max-w-6xl mx-auto h-16 px-6 flex items-center gap-8">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Sikkanam" className="w-9 h-9 rounded-xl shadow-card object-cover" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-card shrink-0">
+            <img src={logo} alt="Sikkanam" className="w-full h-full object-cover scale-[1.08]" />
+          </div>
           <span className="font-display font-extrabold text-lg tracking-tight">
             Sikkanam
           </span>

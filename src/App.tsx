@@ -26,6 +26,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const TripPlanner = lazy(() => import("./pages/TripPlanner"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const SavedTrips = lazy(() => import("./pages/SavedTrips"));
+const WhatsNew = lazy(() => import("./pages/WhatsNew"));
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
                     <Route path="/plan" element={<TripPlanner />} />
                     <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/saved-trips" element={<SavedTrips />} />
+                    <Route path="/whats-new" element={<WhatsNew />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { X, Lock, ShieldCheck, Bookmark, Heart, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
+import logo from "@/assets/logo.png";
 
 interface AuthPromptModalProps {
   isOpen: boolean;
@@ -44,14 +45,11 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
         </button>
 
         {/* Sikkanam Logo Image */}
-        <div className="w-14 h-14 rounded-2xl gradient-saffron grid place-items-center shadow-lg shadow-orange-500/20 mb-4 overflow-hidden">
+        <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-orange-500/20 mb-4">
           <img
-            src="/logo.png"
+            src={logo}
             alt="Sikkanam Logo"
-            className="w-10 h-10 object-contain"
-            onError={(e) => {
-              (e.target as HTMLElement).style.display = "none";
-            }}
+            className="w-full h-full object-cover scale-[1.08]"
           />
         </div>
 

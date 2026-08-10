@@ -31,7 +31,9 @@ const TopBar = () => {
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <img src={logo} alt="" className="w-7 h-7 rounded-lg" />
+        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0">
+          <img src={logo} alt="Sikkanam" className="w-full h-full object-cover scale-[1.08]" />
+        </div>
         <h1 className="font-display font-bold text-base">{title}</h1>
       </div>
     </header>

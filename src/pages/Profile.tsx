@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2 } from "lucide-react";
+import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppLock } from "@/context/AppLockContext";
 import { PasscodeSetupModal } from "@/components/PasscodeSetupModal";
@@ -9,6 +9,7 @@ import InstallPWAModal from "@/components/InstallPWAModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
+import logo from "@/assets/logo.png";
 
 import { usePwaInstall } from "@/hooks/usePwaInstall";
 
@@ -159,8 +160,8 @@ const Profile = () => {
         ) : (
           /* Guest Hero Banner */
           <>
-            <div className="w-16 h-16 mx-auto rounded-3xl gradient-saffron grid place-items-center text-white shadow-lg shadow-orange-500/20 mb-3 overflow-hidden">
-              <img src="/logo.png" alt="Sikkanam" className="w-11 h-11 object-contain" />
+            <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden shadow-lg shadow-orange-500/20 mb-3">
+              <img src={logo} alt="Sikkanam" className="w-full h-full object-cover scale-[1.08]" />
             </div>
 
             <h2 className="font-display font-extrabold text-xl text-foreground">
@@ -260,6 +261,19 @@ const Profile = () => {
 
       {/* Support & About Section */}
       <Section title="Support & About">
+        <Link to="/whats-new" className="block">
+          <Row
+            icon={Sparkles}
+            label="What's New in Sikkanam"
+            desc="Monthly feature release notes & updates"
+            customBadge={
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/15 text-primary border border-primary/30">
+                NEW
+              </span>
+            }
+          />
+        </Link>
+
         <button onClick={() => setShowAbout(true)} className="block w-full text-left focus:outline-none">
           <Row
             icon={Info}
@@ -315,27 +329,100 @@ const Profile = () => {
 
       {/* About Modal */}
       {showAbout && (
-        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-[2rem] max-w-sm w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative text-left">
-            <h3 className="font-display font-extrabold text-xl md:text-2xl text-foreground mb-3 flex items-center gap-2">
-              <span className="text-primary font-bold">சிக்கனம்</span> · About
-            </h3>
-            <div className="space-y-3.5 text-xs md:text-sm text-muted-foreground leading-relaxed">
-              <p>
-                <strong>Sikkanam (சிக்கனம்)</strong> is Tamil for <em>economy, frugality, or budgeting</em>.
-              </p>
-              <p>
-                This application is your intelligent, AI-powered travel assistant built to help you explore the absolute best of Tamil Nadu—from misty hills and sun-drenched beaches to historic temples—while keeping your expenditures low.
-              </p>
-              <p>
-                We fetch budget-friendly transport details, calculate optimal stay rates, estimate dining expenses, and build optimized itineraries with full cost transparency.
-              </p>
-            </div>
+        <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border border-border/80 rounded-[2.5rem] max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative text-left overflow-hidden">
+            {/* Background ambient light */}
+            <div className="absolute -top-12 -left-12 w-36 h-36 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Close Button */}
             <button
               onClick={() => setShowAbout(false)}
-              className="w-full mt-6 py-3 rounded-xl gradient-saffron text-white font-bold text-xs md:text-sm shadow-card active:scale-[0.98] transition-transform text-center hover:opacity-95"
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors"
+              aria-label="Close modal"
             >
-              Close
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header with Pristine Logo & Brand */}
+            <div className="flex items-center gap-3.5 mb-5">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-md shadow-orange-500/20 shrink-0">
+                <img
+                  src={logo}
+                  alt="Sikkanam Logo"
+                  className="w-full h-full object-cover scale-[1.08]"
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display font-extrabold text-2xl text-foreground tracking-tight">
+                    Sikkanam
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold text-xs">
+                    சிக்கனம்
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                  Tamil Nadu's #1 AI Budget Travel Companion
+                </p>
+              </div>
+            </div>
+
+            {/* Word Origin Definition Banner */}
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 mb-5">
+              <div className="text-xs text-amber-700 dark:text-amber-300 font-medium leading-relaxed">
+                <span className="font-bold text-amber-800 dark:text-amber-200">Word Origin: </span>
+                <strong className="font-bold">"Sikkanam" (சிக்கனம்)</strong> is Tamil for <em className="not-italic font-semibold underline decoration-amber-400 decoration-2">economy, frugality, and smart budgeting</em>.
+              </div>
+            </div>
+
+            {/* Narrative & Mission */}
+            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-5">
+              Sikkanam empowers travelers to explore the rich heritage of Tamil Nadu—from foggy Ooty peaks and pristine Kanyakumari shores to ancient Madurai temples—with complete financial transparency and smart AI route planning.
+            </p>
+
+            {/* Core Features / Highlights Grid */}
+            <div className="grid grid-cols-2 gap-2.5 mb-6 text-xs font-semibold text-foreground">
+              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center gap-2.5">
+                <span className="p-1.5 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 shrink-0">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </span>
+                <span>AI Itineraries</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center gap-2.5">
+                <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </span>
+                <span>Exact Fares</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center gap-2.5">
+                <span className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0">
+                  <Lock className="w-3.5 h-3.5" />
+                </span>
+                <span>PIN Protection</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center gap-2.5">
+                <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
+                  <Smartphone className="w-3.5 h-3.5" />
+                </span>
+                <span>Smart PWA</span>
+              </div>
+            </div>
+
+            {/* Footer Info & Action */}
+            <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[11px] text-muted-foreground font-medium">
+              <span>Sikkanam v2.6.2 • Stable</span>
+              <span>Made in Tamil Nadu ❤️</span>
+            </div>
+
+            <button
+              onClick={() => setShowAbout(false)}
+              className="w-full mt-4 py-3 rounded-xl gradient-saffron text-white font-bold text-xs md:text-sm shadow-card active:scale-[0.98] transition-transform text-center hover:opacity-95"
+            >
+              Explore Sikkanam
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { MouseEvent } from "react";
+import { Link } from "react-router-dom";
 import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X, Share2 } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
@@ -123,12 +124,13 @@ export default function WhatsNewModal() {
         </div>
 
         {/* Action Button */}
-        <button
+        <Link
+          to="/whats-new"
           onClick={handleClose}
           className="w-full mt-7 py-3.5 rounded-[1.25rem] gradient-saffron text-white font-bold text-sm md:text-base shadow-card active:scale-[0.98] transition-transform hover:opacity-95 text-center flex items-center justify-center gap-2"
         >
-          Explore New Features <ArrowRight className="w-4 h-4" />
-        </button>
+          Explore All Monthly Updates <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </div>
   );
