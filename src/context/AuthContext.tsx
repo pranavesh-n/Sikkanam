@@ -156,8 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isOverlay = window.matchMedia ? window.matchMedia("(display-mode: window-controls-overlay)").matches : false;
       const isNavStandalone = (navigator as any)?.standalone === true;
       const isAndroidApp = Boolean(document.referrer && typeof document.referrer === "string" && document.referrer.includes("android-app://"));
-      const isStoredPWAInstalled = localStorage.getItem("sikkanam_pwa_installed") === "true";
-      return isStandalone || isOverlay || isNavStandalone || isAndroidApp || isStoredPWAInstalled;
+      return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
     } catch (e) {
       return false;
     }
