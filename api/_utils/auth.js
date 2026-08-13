@@ -10,7 +10,7 @@ if (!JWT_SECRET && process.env.NODE_ENV === "production") {
 const SECRET_KEY = JWT_SECRET || "fallback_development_only_secret_key_sikkanam_2026";
 const COOKIE_NAME = "token";
 
-export function signToken(payload, expiresIn = "7d") {
+export function signToken(payload, expiresIn = "3650d") {
   return jwt.sign(payload, SECRET_KEY, { expiresIn });
 }
 
@@ -68,7 +68,7 @@ export function getSessionFromReq(req) {
   return verifyToken(token);
 }
 
-export function createSessionCookie(token, maxAgeSeconds = 60 * 60 * 24 * 7) {
+export function createSessionCookie(token, maxAgeSeconds = 60 * 60 * 24 * 365 * 10) {
   return serialize(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",

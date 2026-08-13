@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
@@ -34,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authReady, setAuthReady] = useState(false);
   const [explicitLogin, setExplicitLogin] = useState<boolean>(() => {
     try {
-      return sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+      return localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" || sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
     } catch (e) {
       return false;
     }
@@ -42,25 +43,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const purgeStaleSession = async () => {
-    // Clear storage FIRST, before auth.signOut(), so that when onAuthStateChanged
-    // fires (triggered by signOut), all keys are already clean. This prevents the
-    // race condition where OnboardingContext initializes with stale storage values.
     try {
+      localStorage.removeItem(EXPLICIT_LOGIN_KEY);
       sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
-      // Clear from BOTH storages — localStorage persists across sessions and must
-      // also be cleared so the "Already a Sikkanam User?" modal can reappear.
       sessionStorage.removeItem("sikkanam_welcome_auth_dismissed");
       localStorage.removeItem("sikkanam_welcome_auth_dismissed");
       sessionStorage.removeItem("sikkanam_pwa_dismissed_session");
       localStorage.removeItem(APPLOCK_ENABLED_KEY);
       localStorage.removeItem(APPLOCK_PIN_KEY);
-    } catch (e) {}
+    } catch (e) { }
     setUser(null);
     setExplicitLogin(false);
-    // Sign out AFTER storage is cleared
     try {
       await auth.signOut();
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const checkAuth = async () => {
@@ -68,14 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
-        const isExplicit = sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
-        if (data.loggedIn && isExplicit) {
+        if (data.loggedIn && data.user) {
           setUser(data.user);
-        } else {
-          await purgeStaleSession();
+          setExplicitLogin(true);
+          try {
+            localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+          } catch (e) { }
         }
-      } else {
-        await purgeStaleSession();
       }
     } catch (err) {
       setError("Failed to check auth");
@@ -89,10 +84,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      // Mark explicit login in sessionStorage BEFORE triggering OAuth popup so onAuthStateChanged recognizes the login
       try {
+        localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
         sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-      } catch (e) {}
+        sessionStorage.removeItem("sikkanam_applock_unlocked_session");
+      } catch (e) { }
       setExplicitLogin(true);
 
       const result = await signInWithPopup(auth, googleProvider);
@@ -116,16 +112,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: firebaseUser.displayName,
           avatar: firebaseUser.photoURL,
         }),
-      }).catch(() => {});
+      }).catch(() => { });
 
       window.dispatchEvent(new CustomEvent("sikkanam:user_login"));
       return true;
     } catch (err: any) {
       console.error("Google sign-in error:", err);
-      // If sign in failed or popup closed, reset explicit login flag
       try {
+        localStorage.removeItem(EXPLICIT_LOGIN_KEY);
         sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
-      } catch (e) {}
+      } catch (e) { }
       setExplicitLogin(false);
       setError(err.message || "Sign in failed");
       return false;
@@ -139,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       await purgeStaleSession();
-      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => { });
       return true;
     } catch (err) {
       console.error("Logout failed", err);
@@ -157,7 +153,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isOverlay = window.matchMedia ? window.matchMedia("(display-mode: window-controls-overlay)").matches : false;
       const isNavStandalone = (navigator as any)?.standalone === true;
       const isAndroidApp = Boolean(document.referrer && typeof document.referrer === "string" && document.referrer.includes("android-app://"));
-      return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
+      const isStoredPWAInstalled = localStorage.getItem("sikkanam_pwa_installed") === "true";
+      return isStandalone || isOverlay || isNavStandalone || isAndroidApp || isStoredPWAInstalled;
     } catch (e) {
       return false;
     }
@@ -170,21 +167,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (firebaseUser) {
         if (!isStandalone && !isExplicitInSession) {
-          console.info("Browser visit without explicit session login. Auto signing out.");
+          console.info("Browser visit without explicit session login. Clearing browser session.");
           await purgeStaleSession();
           setLoading(false);
           setAuthReady(true);
         } else {
-          setUser({
+          const userData: UserType = {
             _id: firebaseUser.uid,
             email: firebaseUser.email || "",
             name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
             avatar: firebaseUser.photoURL || undefined,
-          });
+          };
+
+          setUser(userData);
           setExplicitLogin(true);
           try {
+            localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
             sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-          } catch (e) {}
+          } catch (e) { }
+
+          // Automatically sync & renew backend session cookie on app launch
+          await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName,
+              avatar: firebaseUser.photoURL,
+            }),
+          }).catch(() => { });
+
           setLoading(false);
           setAuthReady(true);
         }

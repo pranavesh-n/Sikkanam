@@ -89,11 +89,15 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!user || !explicitLogin) {
       setIsLocked(false);
       setIsLockEnabled(false);
+      sessionStorage.removeItem("sikkanam_applock_unlocked_session");
     } else {
       const savedEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
       if (savedEnabled) {
         setIsLockEnabled(true);
-        setIsLocked(true);
+        const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
+        if (!isUnlockedSession) {
+          setIsLocked(true);
+        }
       }
     }
   }, [authReady, user, explicitLogin]);
@@ -117,7 +121,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
               localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
             }
             if (data.appLockEnabled) {
-              setIsLocked(true);
+              const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
+              if (!isUnlockedSession) {
+                setIsLocked(true);
+              }
+            } else {
+              setIsLocked(false);
+              sessionStorage.removeItem("sikkanam_applock_unlocked_session");
             }
           }
         } else {
@@ -135,9 +145,16 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
               },
               { merge: true }
             ).catch((err) => console.warn("Cloud Firestore initial sync back error:", err));
+            setIsLockEnabled(true);
+            const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
+            if (!isUnlockedSession) {
+              setIsLocked(true);
+            }
           } else {
             setIsLockEnabled(false);
             localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
+            setIsLocked(false);
+            sessionStorage.removeItem("sikkanam_applock_unlocked_session");
           }
         }
       },
@@ -168,6 +185,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const elapsed = Date.now() - leaveTime;
         if (elapsed >= BACKGROUND_LOCK_TIMEOUT_MS) {
           setIsLocked(true);
+          sessionStorage.removeItem("sikkanam_applock_unlocked_session");
         }
         localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
       }
@@ -245,6 +263,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLocked(false);
       setFailedAttempts(0);
       localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
+      sessionStorage.setItem("sikkanam_applock_unlocked_session", "true");
       return true;
     } else {
       const newAttempts = failedAttempts + 1;
@@ -257,6 +276,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
     localStorage.removeItem(LOCAL_STORAGE_PIN);
     localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
+    sessionStorage.removeItem("sikkanam_applock_unlocked_session");
     setIsLockEnabled(false);
     setIsLocked(false);
     setFailedAttempts(0);
@@ -282,6 +302,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const lockApp = () => {
     if (effectiveLockEnabled) {
+      sessionStorage.removeItem("sikkanam_applock_unlocked_session");
       setIsLocked(true);
     }
   };
@@ -290,6 +311,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLocked(false);
     setFailedAttempts(0);
     localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
+    sessionStorage.setItem("sikkanam_applock_unlocked_session", "true");
   };
 
   const resetAppLock = () => {

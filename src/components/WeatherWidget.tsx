@@ -247,7 +247,7 @@ export const WeatherWidget = ({
   };
 
   return (
-    <section className="px-3 sm:px-5 mt-5 space-y-4">
+    <div className="space-y-4">
       {/* Outer Weather Card Container */}
       <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xs transition-all relative">
         {/* Header */}
@@ -569,7 +569,7 @@ export const WeatherWidget = ({
             </div>
           </div>
 
-          <div className="space-y-1 text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed">
+          <div className="space-y-1 text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed pl-1">
             <p className="font-bold text-amber-950 dark:text-amber-100">
               ☔ Rain is likely later on {rainAlert.dayLabel}. (Expected rainfall: {rainAlert.precipSum} mm in {activeLocationName})
             </p>
@@ -579,7 +579,7 @@ export const WeatherWidget = ({
             </p>
           </div>
 
-          <div>
+          <div className="pl-1">
             <p className="text-[10px] font-extrabold text-amber-800/80 dark:text-amber-300/70 uppercase tracking-wider mb-2">
               INDOOR ALTERNATIVES:
             </p>
@@ -809,6 +809,6 @@ export const WeatherWidget = ({
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 };

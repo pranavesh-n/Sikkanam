@@ -785,7 +785,7 @@ ${ragContext}
 
     // 2. Fallback to Gemini API if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+      const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
       for (const geminiModel of geminiModels) {
         try {
           console.log(`[AI] Attempting Gemini API call with model: ${geminiModel}...`);

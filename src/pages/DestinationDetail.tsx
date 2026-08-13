@@ -230,23 +230,25 @@ const DestinationDetail = () => {
       </section>
 
       {/* Live Weather Forecast & Sikkanam AI Rain Risk System */}
-      <WeatherWidget
-        lat={dest.lat}
-        lng={dest.lng}
-        destinationId={dest.id}
-        destinationName={dest.name}
-        category={dest.category}
-      />
+      <section className="px-5 mt-5">
+        <WeatherWidget
+          lat={dest.lat}
+          lng={dest.lng}
+          destinationId={dest.id}
+          destinationName={dest.name}
+          category={dest.category}
+        />
+      </section>
 
       {/* AI CTA */}
       <section className="px-5 mt-4">
         <button
           onClick={askAI}
-          className="w-full flex items-center gap-3 gradient-saffron text-primary-foreground rounded-2xl px-4 py-3.5 shadow-elevated active:scale-[0.98] transition-transform"
+          className="w-full flex items-center gap-3.5 gradient-saffron text-primary-foreground rounded-2xl px-5 py-3.5 shadow-elevated active:scale-[0.98] transition-transform cursor-pointer"
         >
-          <Sparkles className="w-5 h-5" />
-          <span className="text-sm font-semibold flex-1 text-left">Ask AI to plan a trip here</span>
-          <ArrowRight className="w-4 h-4" />
+          <Sparkles className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-bold flex-1 text-left ml-1">Ask AI to plan a trip here</span>
+          <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </button>
       </section>
 
