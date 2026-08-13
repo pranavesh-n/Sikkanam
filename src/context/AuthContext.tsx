@@ -135,6 +135,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       await purgeStaleSession();
+      try {
+        sessionStorage.setItem("sikkanam_welcome_auth_dismissed", "true");
+      } catch (e) {}
       await fetch("/api/auth/logout", { method: "POST" }).catch(() => { });
       return true;
     } catch (err) {
