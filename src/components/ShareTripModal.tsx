@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { type TripPlan } from "@/lib/tripPlanner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Share2, Copy, Check, MessageSquare, Send, Sparkles } from "lucide-react";
+import { Share2, Copy, Check, Send, Sparkles } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { toast } from "sonner";
 
 interface ShareTripModalProps {
@@ -16,7 +17,7 @@ function getTripShareUrl(plan: TripPlan): string {
   return `${origin}/plan?from=${encodeURIComponent(source)}&to=${encodeURIComponent(destination)}&days=${days}&pax=${travellers}&budget=${budget}&style=${style}`;
 }
 
-export function generateRichWhatsAppText(plan: TripPlan): string {
+function generateRichWhatsAppText(plan: TripPlan): string {
   if (!plan || !plan.destination) return "";
 
   const dest = plan.destination;
@@ -33,7 +34,7 @@ export function generateRichWhatsAppText(plan: TripPlan): string {
   const shareUrl = getTripShareUrl(plan);
 
   const lines = [
-    `🍊 *SIKKANAM TRIP PLAN* 🍊`,
+    `*SIKKANAM TRIP PLAN*`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━`,
     `📍 *Destination:* ${dest.emoji} ${dest.name} (${dest.district || "Tamil Nadu"})`,
     `👥 *Travellers:* ${travellers} Pax | 📅 *Duration:* ${days} Days`,
@@ -118,7 +119,7 @@ export default function ShareTripModal({ isOpen, onClose, plan }: ShareTripModal
               <Share2 className="w-5 h-5 text-primary" /> Share Trip Plan
             </DialogTitle>
             <span className="text-[10px] font-extrabold uppercase tracking-wider bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
-              Sikkanam 🍊
+              Sikkanam
             </span>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
@@ -187,9 +188,9 @@ export default function ShareTripModal({ isOpen, onClose, plan }: ShareTripModal
           {/* Primary 1-Click WhatsApp Share */}
           <button
             onClick={handleWhatsAppShare}
-            className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99]"
+            className="w-full py-3 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99]"
           >
-            <MessageSquare className="w-4 h-4 fill-white" /> Share to WhatsApp
+            <WhatsAppIcon className="w-4 h-4" fill="currentColor" /> Share to WhatsApp
           </button>
 
           {/* Secondary Actions Row */}

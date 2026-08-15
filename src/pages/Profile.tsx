@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppLock } from "@/context/AppLockContext";
@@ -9,6 +9,7 @@ import InstallPWAModal from "@/components/InstallPWAModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import logo from "@/assets/logo.png";
 
 import { usePwaInstall } from "@/hooks/usePwaInstall";
@@ -17,12 +18,14 @@ const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
   const { isLockEnabled } = useAppLock();
   const { isInstalled: isPwaInstalled, markInstalled } = usePwaInstall();
+  const navigate = useNavigate();
 
   const [showAbout, setShowAbout] = useState(false);
   const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
   const [showDisablePasscode, setShowDisablePasscode] = useState(false);
   const [showPwaModal, setShowPwaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const [savedCount, setSavedCount] = useState<number>(0);
   const [wishlistCount, setWishlistCount] = useState<number>(0);
@@ -59,6 +62,7 @@ const Profile = () => {
     const success = await logout();
     if (success) {
       toast.success("Successfully logged out");
+      navigate("/", { replace: true });
     } else {
       toast.error("Logout failed");
     }
@@ -99,12 +103,13 @@ const Profile = () => {
       <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 text-center shadow-sm relative overflow-hidden">
         {user ? (
           <>
-            {user.avatar ? (
+            {user.avatar && !avatarError ? (
               <img
                 src={user.avatar}
                 alt={user.name}
                 className="w-16 h-16 mx-auto rounded-full object-cover shadow-md border-2 border-primary/20"
                 referrerPolicy="no-referrer"
+                onError={() => setAvatarError(true)}
               />
             ) : (
               <div className="w-16 h-16 mx-auto rounded-full gradient-saffron grid place-items-center text-primary-foreground font-display font-extrabold text-2xl shadow-md">
@@ -295,7 +300,7 @@ const Profile = () => {
           className="block"
         >
           <Row
-            icon={MessageCircle}
+            icon={WhatsAppIcon}
             label="WhatsApp Community"
             desc="+91 6374161918"
           />

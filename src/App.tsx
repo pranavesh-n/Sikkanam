@@ -44,13 +44,12 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <WhatsNewModal />
-            <WelcomeAuthModal />
-            <InstallPWAModal />
-            <MobileInstallBanner />
-            <AppLockOverlay />
-
             <BrowserRouter>
+              <WhatsNewModal />
+              <WelcomeAuthModal />
+              <InstallPWAModal />
+              <MobileInstallBanner />
+              <AppLockOverlay />
               <AppShell>
                 <Suspense fallback={<Loading />}>
                   <Routes>

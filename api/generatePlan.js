@@ -1011,11 +1011,26 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
 `;
 
     let reply = "";
+    const localFallbackNarrative = `### 🗺️ ${dest.name} Travel Summary (${input.days} Days • ${input.travellers} Pax)
+
+**Travel Style:** ${(input.style || "STANDARD").toUpperCase()} | **Group:** ${(input.travellerType || "SOLO").toUpperCase()} | **Route:** ${route.map(r => `${r.from} to ${r.to} (${r.mode})`).join(" ➔ ")}
+
+#### 📍 Key Sightseeing & Attractions
+Explore top spots in ${dest.name} including **${dest.attractions.slice(0, 5).join(", ")}**. Recommended length of stay: **${dest.recommendedDays || 2} days**.
+
+#### 🍛 Dining & Food Guide
+Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.budget.estimatedMin.toLocaleString("en-IN")}–₹${plan.budget.estimatedMax.toLocaleString("en-IN")}** for the trip.
+
+#### 💡 Sikkanam Local Travel Advice
+- **Transit:** TNSTC buses and regional trains offer the most economical intercity connections.
+- **Payments:** Keep cash handy for auto-rickshaws, tea stalls, and rural entry tickets.
+- **Live Weather:** Check the Sikkanam weather forecast widget for hourly rain alerts and indoor alternatives.`;
+
     if (GEMINI_API_KEY) {
       try {
         console.log("[AI] Attempting Gemini API call for trip planning...");
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
         
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -1043,7 +1058,6 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
 
         clearTimeout(timeoutId);
         const data = await response.json().catch(() => ({}));
-        console.log("[AI] Gemini plan response status:", response.status);
         
         if (
           response.ok &&
@@ -1056,16 +1070,15 @@ Suggested Circuits: ${JSON.stringify(suggestedCircuits)}
           reply = data.candidates[0].content.parts[0].text;
           console.log("[AI] ✅ Gemini plan generation success");
         } else {
-          console.warn("[AI] ❌ Gemini returned error, Status:", response.status);
-          reply = "Your detailed budget and route are generated above. AI companion is temporarily offline.";
+          console.warn("[AI] ⚠️ Gemini returned status:", response.status, "Using instant local database narrative fallback.");
+          reply = localFallbackNarrative;
         }
       } catch (err) {
-        console.warn("[AI] ❌ Gemini API request failed:", err.message);
-        reply = "Your detailed budget and route are generated above. AI companion is temporarily offline.";
+        console.warn("[AI] ⚠️ Gemini API request timed out/failed:", err.message, "Using instant local database narrative fallback.");
+        reply = localFallbackNarrative;
       }
     } else {
-      console.warn("[AI] ⚠️ Gemini API key not configured");
-      reply = "AI Travel Companion is offline (API key not configured). Your budget and route calculations are fully detailed above.";
+      reply = localFallbackNarrative;
     }
 
     plan.aiItinerary = reply;

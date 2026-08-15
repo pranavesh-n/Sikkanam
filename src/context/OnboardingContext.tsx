@@ -14,7 +14,7 @@ interface OnboardingContextType {
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-const VERSION = "2.6.2";
+const VERSION = "2.6.3";
 const VERSION_KEY = "sikkanam-version";
 const WELCOME_AUTH_SESSION_KEY = "sikkanam_welcome_auth_dismissed";
 const PWA_DISMISSED_SESSION_KEY = "sikkanam_pwa_dismissed_session";
@@ -77,12 +77,10 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
   }, []);
 
-  // When Chrome fires beforeinstallprompt after an uninstall, clear the session auth-dismissed
-  // flag so WELCOME_AUTH and INSTALL_PWA can show again in this session.
+  // When Chrome fires beforeinstallprompt after an uninstall, allow PWA install prompt to show
   useEffect(() => {
     if (pwaInstallAvailable) {
       try {
-        sessionStorage.removeItem(WELCOME_AUTH_SESSION_KEY);
         sessionStorage.removeItem(PWA_DISMISSED_SESSION_KEY);
       } catch (e) {}
     }
@@ -94,6 +92,20 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       dismissWelcomeAuth();
     }
   }, [step, user, explicitLogin]);
+
+  // Listen for explicit user logout event to prevent modal from flashing
+  useEffect(() => {
+    const handleUserLogout = () => {
+      try {
+        sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+        localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+      } catch (e) {}
+      setStep("NONE");
+    };
+
+    window.addEventListener("sikkanam:user_logout", handleUserLogout);
+    return () => window.removeEventListener("sikkanam:user_logout", handleUserLogout);
+  }, []);
 
   useEffect(() => {
     // 1. Wait until Auth has fully bootstrapped.
@@ -119,7 +131,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // A user who HAS the app installed but visits via browser → still sees this modal
     // because the browser session must be treated as a fresh/untrusted visit for security.
     if (!isRunningStandalone) {
-      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" || localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
       const isAuthenticatedUser = Boolean(user && explicitLogin);
       if (!isAuthenticatedUser && !authDismissed) {
         setStep("WELCOME_AUTH");
@@ -147,7 +159,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (e) {}
 
     if (!isRunningStandalone) {
-      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
+      const authDismissed = sessionStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true" || localStorage.getItem(WELCOME_AUTH_SESSION_KEY) === "true";
       const isAuthenticatedUser = Boolean(user && explicitLogin);
       if (!isAuthenticatedUser && !authDismissed) {
         setStep("WELCOME_AUTH");
@@ -167,6 +179,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const dismissWelcomeAuth = () => {
     try {
       sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+      localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
     } catch (e) {}
 
     const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";

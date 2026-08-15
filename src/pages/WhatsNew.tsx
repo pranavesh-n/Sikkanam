@@ -40,6 +40,46 @@ interface MonthlyRelease {
 
 const MONTHLY_RELEASES: MonthlyRelease[] = [
   {
+    id: "august-2026-v263",
+    monthYear: "August 2026 (Latest)",
+    version: "v2.6.3",
+    tagline: "Direct 1-Click Wishlisting on Trip Plans, AI 2.0 Security Guardrails & Multi-Device Cloud Logout Sync",
+    updates: [
+      {
+        title: "1-Click Direct Wishlist on Trip Plans",
+        category: "Wishlist & MongoDB",
+        description:
+          "Bookmark any destination directly from generated trip plans into your personal MongoDB wishlist with real-time sync across Explore, Wishlist, and Profile pages.",
+        icon: Heart,
+        badgeColor: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+      },
+      {
+        title: "Sikkanam AI 2.0 Enterprise Security Guardrails",
+        category: "AI & Security",
+        description:
+          "Multi-layered anti-jailbreak detection, role-spoofing defense, payload bombing caps, and hardened system prompt protecting all AI chat and itinerary interactions.",
+        icon: ShieldCheck,
+        badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      },
+      {
+        title: "Multi-Device Real-Time Cloud Logout Sync",
+        category: "Cloud Firestore",
+        description:
+          "Signing out on your PC or mobile automatically broadcasts a real-time cloud signal via Firestore to sign out all active sessions across all your devices.",
+        icon: Cloud,
+        badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      },
+      {
+        title: "Official WhatsApp Share Branding",
+        category: "Sharing & UI",
+        description:
+          "Upgraded WhatsApp sharing button with official WhatsApp brand logo and rich formatted trip itinerary templates for easy group sharing.",
+        icon: Share2,
+        badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
+      },
+    ],
+  },
+  {
     id: "august-2026",
     monthYear: "August 2026",
     version: "v2.6.2",
@@ -210,7 +250,7 @@ const MONTHLY_RELEASES: MonthlyRelease[] = [
 ];
 
 const WhatsNew: React.FC = () => {
-  const [openMonth, setOpenMonth] = useState<string>("august-2026");
+  const [openMonth, setOpenMonth] = useState<string>("august-2026-v263");
 
   const toggleMonth = (id: string) => {
     setOpenMonth((prev) => (prev === id ? "" : id));

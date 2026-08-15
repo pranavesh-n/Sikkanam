@@ -56,7 +56,7 @@ const budgetByCat = {
 const DestinationDetail = () => {
   const { id } = useParams();
   const nav = useNavigate();
-  const dest = id ? getDestinationById(id) : undefined;
+  const dest = id ? (getDestinationById(id) || getDestinationById(id.toLowerCase())) : undefined;
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
 
@@ -99,6 +99,7 @@ const DestinationDetail = () => {
         if (res.ok) {
           setIsWishlisted(false);
           toast.success("Removed from wishlist");
+          window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
         } else {
           toast.error("Failed to remove from wishlist");
         }
@@ -111,6 +112,7 @@ const DestinationDetail = () => {
         if (res.ok) {
           setIsWishlisted(true);
           toast.success("Added to wishlist");
+          window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
         } else {
           toast.error("Failed to add to wishlist");
         }
@@ -124,23 +126,36 @@ const DestinationDetail = () => {
     if (!dest || !mapRef.current || mapInstance.current) return;
     let cancelled = false;
     (async () => {
-      const L = await import("leaflet");
-      if (cancelled || !mapRef.current) return;
-      // Fix default icon paths (Leaflet quirk)
-      // @ts-ignore
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      });
-      const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([dest.lat, dest.lng], 11);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
-      L.marker([dest.lat, dest.lng]).addTo(map).bindPopup(`<b>${dest.name}</b><br/>${dest.district}`);
-      mapInstance.current = map;
-      setTimeout(() => map.invalidateSize(), 200);
+      try {
+        const L = await import("leaflet");
+        if (cancelled || !mapRef.current) return;
+        if ((mapRef.current as any)._leaflet_id) {
+          (mapRef.current as any)._leaflet_id = null;
+        }
+        // Fix default icon paths (Leaflet quirk)
+        // @ts-ignore
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        });
+        const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([dest.lat, dest.lng], 11);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
+        L.marker([dest.lat, dest.lng]).addTo(map).bindPopup(`<b>${dest.name}</b><br/>${dest.district}`);
+        mapInstance.current = map;
+        setTimeout(() => map && map.invalidateSize && map.invalidateSize(), 200);
+      } catch (e) {
+        console.warn("Leaflet map load warning:", e);
+      }
     })();
-    return () => { cancelled = true; mapInstance.current?.remove(); mapInstance.current = null; };
+    return () => {
+      cancelled = true;
+      if (mapInstance.current) {
+        try { mapInstance.current.remove(); } catch (e) {}
+        mapInstance.current = null;
+      }
+    };
   }, [dest]);
 
   if (!dest) {

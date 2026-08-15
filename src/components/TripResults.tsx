@@ -1,7 +1,7 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import { type TripPlan, generateShareText, type TravellerType, getBudgetReliability } from "@/lib/tripPlanner";
 import { categoryLabels, getDestinationById, tnDestinations } from "@/data/tnDestinations";
-import { Share2, Printer, Train, Star, AlertCircle, CheckCircle2, ExternalLink, Clock, Compass, MapPin, Bookmark } from "lucide-react";
+import { Share2, Printer, Train, Star, AlertCircle, CheckCircle2, ExternalLink, Clock, Compass, MapPin, Bookmark, Heart } from "lucide-react";
 import { HOTEL_RANGES } from "@/lib/hotelPrices";
 import { generateTrainSearchUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -356,6 +356,78 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   const [saveLoading, setSaveLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  // Sync Wishlist status from MongoDB & listen to real-time events across Sikkanam
+  useEffect(() => {
+    if (!plan.destination) return;
+    const destId = plan.destination.id;
+
+    const checkWishlistStatus = async () => {
+      if (!user) {
+        setIsWishlisted(false);
+        return;
+      }
+      try {
+        const res = await fetch("/api/wishlist");
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.wishlist || [];
+          setIsWishlisted(list.includes(destId));
+        }
+      } catch (e) {
+        // Ignore fetch errors
+      }
+    };
+
+    checkWishlistStatus();
+    window.addEventListener("sikkanam:wishlist_updated", checkWishlistStatus);
+    return () => window.removeEventListener("sikkanam:wishlist_updated", checkWishlistStatus);
+  }, [user, plan.destination?.id]);
+
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      toast.error("Please sign in with Google to add destinations to your wishlist");
+      return;
+    }
+    if (!plan.destination || wishlistLoading) return;
+    const destId = plan.destination.id;
+    const destName = plan.destination.name;
+
+    setWishlistLoading(true);
+    try {
+      if (isWishlisted) {
+        const res = await fetch(`/api/wishlist?destinationId=${destId}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          setIsWishlisted(false);
+          toast.success("Removed from wishlist");
+          window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
+        } else {
+          toast.error("Failed to remove from wishlist");
+        }
+      } else {
+        const res = await fetch("/api/wishlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinationId: destId }),
+        });
+        if (res.ok) {
+          setIsWishlisted(true);
+          toast.success("Added to wishlist");
+          window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
+        } else {
+          toast.error("Failed to add to wishlist");
+        }
+      }
+    } catch (err) {
+      toast.error("Network error toggling wishlist");
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   const handleSaveTrip = async () => {
     if (!user) {
@@ -554,16 +626,37 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full filter blur-2xl -z-10" />
 
                 <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider text-white">
-                      {typeLabel}
-                    </span>
-                    <span className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-white/90">
-                      ⭐ Recommended Stay: {plan.destination.recommendedDays || 2} Days
-                    </span>
-                    <span className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-white/90">
-                      💰 Budget: {budgetLabel}
-                    </span>
+                  {/* Top Bar: Tags on left, sleek floating glass Heart button on right */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2 flex-1">
+                      <span className="bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider text-white">
+                        {typeLabel}
+                      </span>
+                      <span className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-white/90">
+                        ⭐ Recommended Stay: {plan.destination.recommendedDays || 2} Days
+                      </span>
+                      <span className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-white/90">
+                        💰 Budget: {budgetLabel}
+                      </span>
+                    </div>
+
+                    {/* Sleek Textless Glassmorphism Wishlist Heart Button */}
+                    <button
+                      onClick={handleToggleWishlist}
+                      disabled={wishlistLoading}
+                      title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 backdrop-blur-xl border transition-all duration-300 active:scale-90 cursor-pointer shadow-lg ${
+                        isWishlisted
+                          ? "bg-white text-rose-500 border-rose-200 shadow-rose-500/20"
+                          : "bg-white/20 hover:bg-white/30 text-white border-white/35 hover:border-white/60 shadow-xs"
+                      }`}
+                    >
+                      <Heart
+                        className={`w-5 h-5 transition-all duration-300 ${
+                          isWishlisted ? "fill-rose-500 text-rose-500 scale-110" : "text-white"
+                        }`}
+                      />
+                    </button>
                   </div>
 
                   <h1 className="font-display text-4xl md:text-5xl font-black tracking-tight text-white flex items-center gap-3 pt-2">

@@ -18,6 +18,7 @@ const DesktopNav = () => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -34,6 +35,7 @@ const DesktopNav = () => {
   const handleLogout = async () => {
     setDropdownOpen(false);
     await logout();
+    navigate("/", { replace: true });
   };
 
   const getInitial = (name?: string) => {
@@ -96,11 +98,13 @@ const DesktopNav = () => {
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-muted/80 border border-border/60 transition-all focus:outline-none cursor-pointer"
               >
-                {user.avatar ? (
+                {user.avatar && !avatarError ? (
                   <img
                     src={user.avatar}
                     alt={user.name}
                     className="w-7 h-7 rounded-full object-cover border border-orange-500/30"
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarError(true)}
                   />
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 text-white font-bold text-xs grid place-items-center shadow-xs">

@@ -1,9 +1,9 @@
 import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Calendar, Lock, Flame, UserCheck, Smartphone, X, Share2 } from "lucide-react";
+import { Sparkles, Heart, ShieldCheck, Cloud, Share2, Flame, Smartphone, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.6.2";
+const VERSION = "2.6.3";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -47,77 +47,64 @@ export default function WhatsNewModal() {
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v2.6.2
+          What's New in Sikkanam v2.6.3
         </h2>
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          Direct Trip Link Sharing, User Choice Calendar Date Picker, 16-Day Weather Horizon & AI Rain Risk Alerts!
+          1-Click Wishlist on Trip Plans, AI 2.0 Security Guardrails, Cloud Logout Sync & Official WhatsApp Sharing!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — Direct Interactive Trip Plan Link Sharing */}
+          {/* Feature 1 — 1-Click Direct Wishlist on Trip Plans */}
+          <div className="flex gap-3.5 items-start text-left bg-rose-500/5 dark:bg-rose-500/10 p-3 rounded-2xl border border-rose-500/20">
+            <div className="p-2 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 shrink-0">
+              <Heart className="w-5 h-5 fill-rose-500" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">1-Click Wishlist on Trip Plans</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Bookmark any destination directly from generated AI trip plans into your wishlist with instant real-time sync across all pages.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 2 — Sikkanam AI 2.0 Enterprise Security Guardrails */}
           <div className="flex gap-3.5 items-start text-left bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20">
             <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Sikkanam AI 2.0 Security Guardrails</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Hardened anti-jailbreak detection, role spoofing defense, payload caps, and unbreakable prompt security.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 3 — Multi-Device Cloud Logout Sync */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Multi-Device Cloud Logout Sync</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Signing out on your PC automatically signals and signs out all active sessions across all your devices in real time.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 4 — Official WhatsApp Sharing */}
+          <div className="flex gap-3.5 items-start text-left">
+            <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 shrink-0">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Direct Trip Link Sharing</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Official WhatsApp Sharing</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Share your exact calculated trip plan with travel buddies! Opening the shared link auto-loads your custom itinerary, budget, and route.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 2 — User Choice Calendar Date Picker & 16-Day Horizon */}
-          <div className="flex gap-3.5 items-start text-left bg-amber-500/5 dark:bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">User Choice Calendar Date Picker</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Select ANY travel date across the year! Includes a 16-day interactive forecast scrubber and calendar picker with instant 3-day weather window rendering.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 3 — Live Open-Meteo & Rain Risk */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Open-Meteo ECMWF Live Feed & AI Rain Risk</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Real-time station updates, hourly rain windows (e.g. 3 PM–11 PM), sightseeing advice, & indoor attraction alternatives during rain hours.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 4 — Cloud Firestore Sync */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 shrink-0">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Cloud Firestore Real-Time Sync</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Passcode lock status, PIN credentials, and trip wishlists sync instantly across PC and Mobile in real-time.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 5 — App Passcode Lock & Smart PWA */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 shrink-0">
-              <Smartphone className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">4-Digit App PIN & Smart PWA</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                4-digit PIN lock security, 1-tap PWA adoption, and automatic uninstallation detection.
+                Share complete trip itineraries to WhatsApp groups with authentic branding and rich formatted summaries.
               </p>
             </div>
           </div>

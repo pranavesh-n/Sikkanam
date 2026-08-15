@@ -93,6 +93,17 @@ Every estimate provided in Sikkanam is traceable to one of our verified database
 
 ## 🆕 Changelog
 
+### v2.6.3 — August 2026 (1-Click Wishlist on Trip Plans, AI 2.0 Security & Multi-Device Cloud Logout Sync)
+- ❤️ **1-Click Direct Wishlist on Trip Plans**: Integrated an interactive 1:1 circular glassmorphism Heart bookmark button directly on AI trip plan hero cards, persisting destination IDs to MongoDB wishlist with real-time cross-page event broadcasting (`sikkanam:wishlist_updated`).
+- 🛡️ **Sikkanam AI 2.0 Enterprise Security Guardrails**: Implemented full anti-attack hardening in `api/chat.js` & `supabase/functions/sikkanam-ai/index.ts`:
+  - **Attack Pattern Interception**: Rejects DAN mode, system prompt extraction, terminal simulation, base64 payloads, and jailbreak injections.
+  - **Role-Spoofing Defense**: Strips client-injected `system` messages and enforces strict structural boundaries.
+  - **Rate Limiting & Payload Caps**: Caps payloads to 1,000 chars/msg, max 10 messages/conversation, and 30 requests/minute/IP rate limiting.
+  - **Output Sanitization**: Validates and sanitizes AI response outputs before sending to client.
+- ☁️ **Multi-Device Cloud Logout Sync**: Added Firestore `onSnapshot` real-time session listener on `doc(db, "usersettings", userKey)`. Signing out on PC or mobile writes `lastLogoutAt` to Firestore and immediately purges active sessions across all logged-in devices in real time.
+- 💬 **Official WhatsApp Brand Integration**: Upgraded WhatsApp sharing buttons with official brand SVG assets and rich formatted trip itinerary templates for 1-click sharing to travel groups.
+- 🖼️ **Institutional Email Avatar Fallback**: Fixed broken image display for institutional Google accounts (`@ds.study.iitm.ac.in`, `@vitstudent.ac.in`) with `referrerPolicy="no-referrer"` and initial-letter fallback badges.
+
 ### v2.6.1 — August 2026 (100 Destinations Milestone & Interactive Circuit Navigation)
 - 🏛️ **100 Destinations Milestone**: Reached the 100 destinations milestone with 13 brand new heritage additions (*Gingee Fort*, *Pudukkottai*, *Sittannavasal*, *Thirumayam*, *Panchalankurichi*, *Udayagiri Fort*, *Padmanabhapuram Palace*, *Keezhadi Museum*, *Kazhugumalai*, *Tirumalai Nayakar Mahal*, *Sadras Dutch Fort*, *Alamparai Fort*, *Kanadukathan Chettinad Palace*).
 - 🗺️ **21 Heritage Destinations**: Expanded the Heritage category filter to 21 curated historical sites with verified attraction fee records, local hotel fallbacks, and transport connectivity settings.

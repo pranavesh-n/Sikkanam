@@ -17,6 +17,11 @@ const Wishlist = () => {
     if (user) {
       fetchWishlist();
     }
+    const handleWishlistUpdate = () => {
+      if (user) fetchWishlist();
+    };
+    window.addEventListener("sikkanam:wishlist_updated", handleWishlistUpdate);
+    return () => window.removeEventListener("sikkanam:wishlist_updated", handleWishlistUpdate);
   }, [user]);
 
   const fetchWishlist = async () => {
