@@ -7,6 +7,7 @@ import { generateTrainSearchUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import ShareTripModal from "@/components/ShareTripModal";
+import { WeatherWidget } from "@/components/WeatherWidget";
 
 interface TripResultsProps {
   plan: TripPlan;
@@ -678,7 +679,24 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                 </div>
               </div>
 
+              {/* Live Weather Forecast & Sikkanam AI Rain Risk System */}
+              {(() => {
+                const fullDest = getDestinationById(plan.destination.id) || plan.destination;
+                const destLat = fullDest?.lat ?? plan.destination?.lat ?? 11.4102;
+                const destLng = fullDest?.lng ?? plan.destination?.lng ?? 76.6950;
 
+                return (
+                  <div className="w-full">
+                    <WeatherWidget
+                      lat={destLat}
+                      lng={destLng}
+                      destinationId={plan.destination.id}
+                      destinationName={plan.destination.name}
+                      category={plan.destination.category}
+                    />
+                  </div>
+                );
+              })()}
             </div>
           );
         })()}

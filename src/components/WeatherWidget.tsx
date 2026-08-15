@@ -146,42 +146,42 @@ export const WeatherWidget = ({
 
   if (loading) {
     return (
-      <section className="px-5 mt-5">
-        <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-3xl p-5 shadow-xs animate-pulse space-y-4">
+      <div className="w-full">
+        <div className="bg-blue-50/40 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs animate-pulse space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-blue-200/60 dark:bg-slate-800" />
               <div className="space-y-1.5">
-                <div className="h-4 w-36 bg-blue-200/60 dark:bg-slate-800 rounded-md" />
-                <div className="h-3 w-44 bg-blue-200/40 dark:bg-slate-800/60 rounded-md" />
+                <div className="h-4 w-32 sm:w-36 bg-blue-200/60 dark:bg-slate-800 rounded-md" />
+                <div className="h-3 w-40 sm:w-44 bg-blue-200/40 dark:bg-slate-800/60 rounded-md" />
               </div>
             </div>
             <div className="h-6 w-20 bg-blue-200/60 dark:bg-slate-800 rounded-full" />
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <div className="h-20 bg-blue-200/50 dark:bg-slate-800 rounded-xl" />
             <div className="h-20 bg-blue-200/50 dark:bg-slate-800 rounded-xl" />
             <div className="h-20 bg-blue-200/50 dark:bg-slate-800 rounded-xl" />
           </div>
-          <div className="h-32 bg-blue-200/40 dark:bg-slate-800/80 rounded-2xl" />
+          <div className="h-28 sm:h-32 bg-blue-200/40 dark:bg-slate-800/80 rounded-2xl" />
         </div>
-      </section>
+      </div>
     );
   }
 
   if (error || !weatherData || weatherData.daily.length === 0) {
     return (
-      <section className="px-5 mt-5">
+      <div className="w-full">
         <div className="bg-card border border-border rounded-2xl p-4 text-center space-y-2">
           <p className="text-xs text-muted-foreground">{error || "Weather data unavailable."}</p>
           <button
             onClick={() => loadWeather(activeLat, activeLng)}
-            className="text-xs font-semibold text-primary inline-flex items-center gap-1.5 hover:underline"
+            className="text-xs font-semibold text-primary inline-flex items-center gap-1.5 hover:underline cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" /> Retry Loading Forecast
           </button>
         </div>
-      </section>
+      </div>
     );
   }
 
@@ -601,8 +601,8 @@ export const WeatherWidget = ({
 
       {/* TRIP CALENDAR DATE SELECTOR MODAL */}
       {showCalendarModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-5 shadow-elevated space-y-4 relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-card border border-border rounded-2xl sm:rounded-3xl max-w-md w-full p-4 sm:p-5 shadow-elevated space-y-4 relative overflow-y-auto max-h-[90vh]">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <h3 className="font-display font-extrabold text-foreground text-lg flex items-center gap-2">
@@ -720,8 +720,8 @@ export const WeatherWidget = ({
 
       {/* CHOOSE AN AREA MODAL (Google Weather Style) */}
       {showAreaModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-5 shadow-elevated space-y-4 relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-card border border-border rounded-2xl sm:rounded-3xl max-w-md w-full p-4 sm:p-5 shadow-elevated space-y-4 relative overflow-y-auto max-h-[90vh]">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <h3 className="font-display font-extrabold text-foreground text-lg flex items-center gap-2">
