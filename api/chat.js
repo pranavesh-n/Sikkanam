@@ -1,8 +1,42 @@
 import fs from "fs";
 import path from "path";
 
+// In-memory Prompt & Response Cache for 0-token instant hits
+const memoryCache = new Map();
+const MAX_CACHE_ENTRIES = 300;
+
+function getFromCache(key) {
+  if (!key) return null;
+  const cleanKey = key.trim().toLowerCase().replace(/\s+/g, " ");
+  if (memoryCache.has(cleanKey)) {
+    return memoryCache.get(cleanKey);
+  }
+  const cachePath = path.join(process.cwd(), "api", "chat_cache.json");
+  try {
+    if (fs.existsSync(cachePath)) {
+      const fileCache = JSON.parse(fs.readFileSync(cachePath, "utf8"));
+      if (fileCache[cleanKey]) {
+        memoryCache.set(cleanKey, fileCache[cleanKey]);
+        return fileCache[cleanKey];
+      }
+    }
+  } catch (err) {
+    // Ignore read errors
+  }
+  return null;
+}
+
 // Helper to save successful responses to cache
 function saveToCache(normalizedQuery, reply) {
+  if (!normalizedQuery || !reply) return;
+  const cleanKey = normalizedQuery.trim().toLowerCase().replace(/\s+/g, " ");
+  
+  if (memoryCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = memoryCache.keys().next().value;
+    if (oldestKey) memoryCache.delete(oldestKey);
+  }
+  memoryCache.set(cleanKey, reply);
+
   const cachePath = path.join(process.cwd(), "api", "chat_cache.json");
   let cache = {};
   try {
@@ -12,7 +46,7 @@ function saveToCache(normalizedQuery, reply) {
   } catch (err) {
     // Cache file might not exist yet
   }
-  cache[normalizedQuery] = reply;
+  cache[cleanKey] = reply;
   try {
     fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2), "utf8");
   } catch (err) {
@@ -697,21 +731,14 @@ export default async function handler(req, res) {
       return res.status(200).json({ reply });
     }
 
-    // Check Local Cache first (Instant response, zero cost)
+    // Check In-Memory & File Cache first (Instant response, zero token consumption)
     const fullNormalizedQuery = prompt ? prompt.trim().toLowerCase() : "";
-    const cachePath = path.join(process.cwd(), "api", "chat_cache.json");
-    if (fs.existsSync(cachePath)) {
-      try {
-        const cache = JSON.parse(fs.readFileSync(cachePath, "utf8"));
-        if (cache[fullNormalizedQuery]) {
-          console.log("Serving reply from local chat cache.");
-          return res.status(200).json({
-            reply: cache[fullNormalizedQuery],
-          });
-        }
-      } catch (err) {
-        console.error("Failed to parse cache:", err);
-      }
+    const cachedReply = getFromCache(fullNormalizedQuery);
+    if (cachedReply) {
+      console.log("[AI Cache Hit] Serving reply directly from prompt cache (0 tokens consumed).");
+      return res.status(200).json({
+        reply: cachedReply,
+      });
     }
 
     // Retrieve RAG Context block
@@ -817,7 +844,13 @@ ${ragContext}
 
     // 5. Prioritize GROQ API if key is present
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
-      const groqModels = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "mixtral-8x7b-32768"];
+      const groqModels = [
+        "llama-3.1-8b-instant",
+        "gemma2-9b-it",
+        "qwen/qwen3.6-27b",
+        "qwen3.6-27b",
+        "mixtral-8x7b-32768"
+      ];
       for (const groqModel of groqModels) {
         try {
           console.log(`[AI] Attempting GROQ API call with model: ${groqModel}...`);
@@ -841,7 +874,7 @@ ${ragContext}
                 ...sanitizedMessages,
               ],
               temperature: 0.6,
-              max_tokens: 2048,
+              max_tokens: 1024,
             }),
           });
 
@@ -891,7 +924,7 @@ ${ragContext}
                 })),
                 generationConfig: {
                   temperature: 0.6,
-                  maxOutputTokens: 2048,
+                  maxOutputTokens: 1024,
                 },
               }),
             }
