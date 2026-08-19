@@ -19,8 +19,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Generate stateless JWT payload
-    const token = signToken({ id: uid, email, name, avatar }, "7d");
+    // Generate stateless JWT payload (valid for 365 days)
+    const token = signToken({ id: uid, email, name, avatar }, "365d");
 
     // Serialize JWT token into a secure HttpOnly cookie
     const cookie = createSessionCookie(token);
