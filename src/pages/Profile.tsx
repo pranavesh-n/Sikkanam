@@ -301,7 +301,7 @@ const Profile = () => {
         >
           <Row
             icon={WhatsAppIcon}
-            label="WhatsApp Community"
+            label="WhatsApp Contact"
             desc="+91 6374161918"
           />
         </a>
