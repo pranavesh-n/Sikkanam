@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Bookmark, Info, Mail, MessageCircle, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck } from "lucide-react";
+import { Heart, Bookmark, Info, Mail, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck, Trash2, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppLock } from "@/context/AppLockContext";
 import { PasscodeSetupModal } from "@/components/PasscodeSetupModal";
@@ -89,6 +89,15 @@ const Profile = () => {
     }
   };
 
+  const handleClearCache = () => {
+    try {
+      sessionStorage.clear();
+      toast.success("Temporary session cache cleared successfully");
+    } catch {
+      toast.error("Could not clear session cache");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -103,27 +112,37 @@ const Profile = () => {
       <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 text-center shadow-sm relative overflow-hidden">
         {user ? (
           <>
-            {user.avatar && !avatarError ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-16 h-16 mx-auto rounded-full object-cover shadow-md border-2 border-primary/20"
-                referrerPolicy="no-referrer"
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <div className="w-16 h-16 mx-auto rounded-full gradient-saffron grid place-items-center text-primary-foreground font-display font-extrabold text-2xl shadow-md">
-                {user.name.charAt(0).toUpperCase()}
+            <div className="relative inline-block mx-auto">
+              {user.avatar && !avatarError ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-primary/30 ring-4 ring-primary/10"
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full gradient-saffron grid place-items-center text-primary-foreground font-display font-extrabold text-2xl shadow-md ring-4 ring-primary/10">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-card shadow-sm" title="Active Account">
+                <BadgeCheck className="w-3.5 h-3.5" />
               </div>
-            )}
+            </div>
 
-            <h2 className="font-display font-extrabold mt-3 text-lg sm:text-xl text-foreground">
-              Welcome, {user.name}
+            <h2 className="font-display font-extrabold mt-3 text-lg sm:text-xl text-foreground flex items-center justify-center gap-1.5">
+              <span>{user.name}</span>
             </h2>
 
-            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-              {user.email}
-            </p>
+            <div className="flex items-center justify-center gap-1.5 mt-0.5">
+              <span className="text-xs text-muted-foreground font-medium">
+                {user.email}
+              </span>
+              <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.2 rounded-full bg-primary/10 text-primary border border-primary/20">
+                Verified Explorer
+              </span>
+            </div>
 
             {/* Interactive Stat Count Cards */}
             <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-border/50">
@@ -190,8 +209,8 @@ const Profile = () => {
         )}
       </div>
 
-      {/* Account & Security Section */}
-      <Section title="Account & Security">
+      {/* Security & Privacy Section */}
+      <Section title="Security & Privacy">
         <button
           onClick={() => {
             if (!user) {
@@ -233,6 +252,17 @@ const Profile = () => {
             />
           </button>
         )}
+
+        <button
+          onClick={handleClearCache}
+          className="block w-full text-left focus:outline-none"
+        >
+          <Row
+            icon={Trash2}
+            label="Clear Temporary Cache"
+            desc="Reset local session state & refresh travel cache"
+          />
+        </button>
       </Section>
 
       {/* App Experience Section */}
@@ -262,10 +292,7 @@ const Profile = () => {
             }
           />
         </button>
-      </Section>
 
-      {/* Support & About Section */}
-      <Section title="Support & About">
         <Link to="/whats-new" className="block">
           <Row
             icon={Sparkles}
@@ -273,14 +300,22 @@ const Profile = () => {
             desc="Monthly feature release notes & updates"
           />
         </Link>
+      </Section>
 
-        <button onClick={() => setShowAbout(true)} className="block w-full text-left focus:outline-none">
+      {/* Support & Community Section - No phone number text shown */}
+      <Section title="Support & Community">
+        <a
+          href="https://wa.me/916374161918?text=Hi%20Sikkanam%20Team"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
           <Row
-            icon={Info}
-            label="About Sikkanam"
-            desc="A budget travel companion for Tamil Nadu"
+            icon={WhatsAppIcon}
+            label="WhatsApp Support Desk"
+            desc="Chat directly with Sikkanam Travel Assistance"
           />
-        </button>
+        </a>
 
         <a
           href="mailto:sikkanam.customerfeedback@gmail.com"
@@ -288,23 +323,18 @@ const Profile = () => {
         >
           <Row
             icon={Mail}
-            label="Contact Email"
+            label="Official Support Email"
             desc="sikkanam.customerfeedback@gmail.com"
           />
         </a>
 
-        <a
-          href="https://wa.me/6374161918?text=Hi%20Sikkanam%20Team"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
+        <button onClick={() => setShowAbout(true)} className="block w-full text-left focus:outline-none">
           <Row
-            icon={WhatsAppIcon}
-            label="WhatsApp Contact"
-            desc="+91 6374161918"
+            icon={Info}
+            label="About Sikkanam"
+            desc="Origin, mission & budget travel companion for Tamil Nadu"
           />
-        </a>
+        </button>
       </Section>
 
       {/* Sign Out Action */}
@@ -324,7 +354,7 @@ const Profile = () => {
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-3">
-        சிக்கனம் · Sikkanam v2.6
+        சிக்கனம் · Sikkanam v2.6.3
       </p>
 
       {/* About Modal */}
@@ -414,7 +444,7 @@ const Profile = () => {
 
             {/* Footer Info & Action */}
             <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[11px] text-muted-foreground font-medium">
-              <span>Sikkanam v2.6.2 • Stable</span>
+              <span>Sikkanam v2.6.3 • Stable</span>
               <span>Made in Tamil Nadu ❤️</span>
             </div>
 

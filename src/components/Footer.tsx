@@ -103,7 +103,7 @@ export const Footer: React.FC = () => {
               </a>
 
               <a
-                href="https://wa.me/916374161918"
+                href="https://wa.me/916374161918?text=Hi%20Sikkanam%20Team"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40 border border-border hover:bg-muted/70 transition-colors"
@@ -112,8 +112,8 @@ export const Footer: React.FC = () => {
                   <MessageCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-foreground">WhatsApp Community</div>
-                  <div className="text-[11px] text-muted-foreground">+91 6374161918</div>
+                  <div className="text-xs font-bold text-foreground">WhatsApp Support Desk</div>
+                  <div className="text-[11px] text-muted-foreground">Chat with Sikkanam Team</div>
                 </div>
               </a>
             </div>
