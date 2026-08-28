@@ -1,26 +1,13 @@
 import { useState, useEffect } from "react";
+import { checkIsRunningStandalone } from "@/lib/pwa";
 
 const INSTALLED_KEY = "sikkanam_pwa_installed";
-
-const checkIsStandalone = (): boolean => {
-  if (typeof window === "undefined" || typeof document === "undefined") return false;
-  try {
-    return (
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.matchMedia("(display-mode: window-controls-overlay)").matches ||
-      (navigator as any)?.standalone === true ||
-      Boolean(document.referrer?.includes("android-app://"))
-    );
-  } catch (e) {
-    return false;
-  }
-};
 
 export function usePwaInstall() {
   const [isInstalled, setIsInstalled] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
-      if (checkIsStandalone()) return true;
+      if (checkIsRunningStandalone()) return true;
       return localStorage.getItem(INSTALLED_KEY) === "true";
     } catch (e) {
       return false;
@@ -44,7 +31,7 @@ export function usePwaInstall() {
       e.preventDefault();
       (window as any).deferredPwaPrompt = e;
       setPwaInstallAvailable(true);
-      if (!checkIsStandalone()) {
+      if (!checkIsRunningStandalone()) {
         try {
           localStorage.removeItem(INSTALLED_KEY);
         } catch (e) {}

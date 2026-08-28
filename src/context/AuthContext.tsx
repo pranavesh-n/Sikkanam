@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { checkIsRunningStandalone } from "@/lib/pwa";
 
 export interface UserType {
   _id: string;
@@ -32,10 +33,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authReady, setAuthReady] = useState(false);
   const [explicitLogin, setExplicitLogin] = useState<boolean>(() => {
     try {
-      return (
-        localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" ||
-        sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true"
-      );
+      const isStandalone = checkIsRunningStandalone();
+      if (isStandalone) {
+        return (
+          localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" ||
+          sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true"
+        );
+      }
+      return sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
     } catch (e) {
       return false;
     }
@@ -59,6 +64,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const checkAuth = async () => {
+    const isStandalone = checkIsRunningStandalone();
+    const isExplicitInSession = typeof window !== "undefined" && sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+
+    if (!isStandalone && !isExplicitInSession) {
+      setUser(null);
+      setExplicitLogin(false);
+      setLoading(false);
+      setAuthReady(true);
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/me");
       if (res.ok) {
@@ -67,8 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(data.user);
           setExplicitLogin(true);
           try {
-            localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
             sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+            if (isStandalone) {
+              localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+            }
             if (!localStorage.getItem(SESSION_STARTED_KEY)) {
               localStorage.setItem(SESSION_STARTED_KEY, Date.now().toString());
             }
@@ -86,11 +104,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async () => {
     setLoading(true);
     setError(null);
+    const isStandalone = checkIsRunningStandalone();
     try {
       const sessionTimestamp = Date.now();
       try {
-        localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
         sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+        if (isStandalone) {
+          localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+        }
         localStorage.setItem(SESSION_STARTED_KEY, sessionTimestamp.toString());
         sessionStorage.removeItem("sikkanam_applock_unlocked_session");
       } catch (e) { }
@@ -161,67 +182,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const isStandalone = checkIsRunningStandalone();
+      const isExplicitInSession = sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+
       if (firebaseUser) {
-        const userData: UserType = {
-          _id: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
-          avatar: firebaseUser.photoURL || undefined,
-        };
+        if (!isStandalone && !isExplicitInSession) {
+          // Regular browser visit without explicit login in this tab session:
+          // Treat as unauthenticated guest in UI so we don't lock with PIN or assume login,
+          // but DO NOT call auth.signOut() so PWA session is not destroyed in IndexedDB.
+          setUser(null);
+          setExplicitLogin(false);
+          setLoading(false);
+          setAuthReady(true);
+        } else {
+          const userData: UserType = {
+            _id: firebaseUser.uid,
+            email: firebaseUser.email || "",
+            name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+            avatar: firebaseUser.photoURL || undefined,
+          };
 
-        setUser(userData);
-        setExplicitLogin(true);
-        try {
-          localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-          sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-          if (!localStorage.getItem(SESSION_STARTED_KEY)) {
-            localStorage.setItem(SESSION_STARTED_KEY, Date.now().toString());
-          }
-        } catch (e) { }
+          setUser(userData);
+          setExplicitLogin(true);
+          try {
+            sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+            if (isStandalone) {
+              localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+            }
+            if (!localStorage.getItem(SESSION_STARTED_KEY)) {
+              localStorage.setItem(SESSION_STARTED_KEY, Date.now().toString());
+            }
+          } catch (e) { }
 
-        // Automatically sync & renew backend session cookie on app launch
-        await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: firebaseUser.displayName,
-            avatar: firebaseUser.photoURL,
-          }),
-        }).catch(() => { });
+          // Automatically sync & renew backend session cookie on app launch
+          await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName,
+              avatar: firebaseUser.photoURL,
+            }),
+          }).catch(() => { });
 
-        setLoading(false);
-        setAuthReady(true);
+          setLoading(false);
+          setAuthReady(true);
+        }
       } else {
-        // If Firebase auth is null, check backend cookie session as fallback
-        try {
-          const res = await fetch("/api/auth/me");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.loggedIn && data.user) {
-              setUser(data.user);
-              setExplicitLogin(true);
-              try {
-                localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-                sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-              } catch (e) { }
+        // If Firebase auth is null, check backend cookie session only if standalone or explicit in session
+        if (isStandalone || isExplicitInSession) {
+          try {
+            const res = await fetch("/api/auth/me");
+            if (res.ok) {
+              const data = await res.json();
+              if (data.loggedIn && data.user) {
+                setUser(data.user);
+                setExplicitLogin(true);
+                try {
+                  sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+                  if (isStandalone) {
+                    localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+                  }
+                } catch (e) { }
+              } else {
+                setUser(null);
+                setExplicitLogin(false);
+                try {
+                  localStorage.removeItem(EXPLICIT_LOGIN_KEY);
+                  sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
+                } catch (e) { }
+              }
             } else {
               setUser(null);
               setExplicitLogin(false);
-              try {
-                localStorage.removeItem(EXPLICIT_LOGIN_KEY);
-                sessionStorage.removeItem(EXPLICIT_LOGIN_KEY);
-              } catch (e) { }
             }
-          } else {
+          } catch (e) {
             setUser(null);
             setExplicitLogin(false);
+          } finally {
+            setLoading(false);
+            setAuthReady(true);
           }
-        } catch (e) {
+        } else {
           setUser(null);
           setExplicitLogin(false);
-        } finally {
           setLoading(false);
           setAuthReady(true);
         }

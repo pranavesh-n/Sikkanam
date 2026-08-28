@@ -5,6 +5,7 @@ import { useOnboarding } from "@/context/OnboardingContext";
 import { auth, db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
+import { checkIsRunningStandalone } from "@/lib/pwa";
 
 interface AppLockContextType {
   isLockEnabled: boolean;
@@ -39,6 +40,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [isLockEnabled, setIsLockEnabled] = useState<boolean>(() => {
     try {
+      const isStandalone = checkIsRunningStandalone();
+      const isExplicitInSession = typeof window !== "undefined" && sessionStorage.getItem("sikkanam_explicit_login") === "true";
+      if (!isStandalone && !isExplicitInSession) return false;
       return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
     } catch (e) {
       return false;
@@ -46,6 +50,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   });
   const [isLocked, setIsLocked] = useState<boolean>(() => {
     try {
+      const isStandalone = checkIsRunningStandalone();
+      const isExplicitInSession = typeof window !== "undefined" && sessionStorage.getItem("sikkanam_explicit_login") === "true";
+      if (!isStandalone && !isExplicitInSession) return false;
       return localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
     } catch (e) {
       return false;
@@ -64,20 +71,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     name: auth.currentUser.displayName || ""
   } : null);
 
-  const checkIsStandalone = () => {
-    if (typeof window === "undefined" || typeof document === "undefined") return false;
-    try {
-      const isStandalone = window.matchMedia ? window.matchMedia("(display-mode: standalone)").matches : false;
-      const isOverlay = window.matchMedia ? window.matchMedia("(display-mode: window-controls-overlay)").matches : false;
-      const isNavStandalone = (navigator as any)?.standalone === true;
-      const isAndroidApp = Boolean(document.referrer && typeof document.referrer === "string" && document.referrer.includes("android-app://"));
-      return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const isAppInstalled = Boolean(checkIsStandalone() || localStorage.getItem("sikkanam_pwa_installed") === "true");
+  const isAppInstalled = Boolean(checkIsRunningStandalone() || (typeof window !== "undefined" && localStorage.getItem("sikkanam_pwa_installed") === "true"));
 
   // Lock works across Mobile PWA, PC PWA, and Web Browsers whenever a logged-in Google user enables PIN passcode lock
   const effectiveLockEnabled = Boolean(authReady && user && explicitLogin && isLockEnabled);

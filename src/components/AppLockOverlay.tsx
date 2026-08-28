@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Delete, Lock, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
+import { checkIsRunningStandalone } from "@/lib/pwa";
 
 export const AppLockOverlay: React.FC = () => {
   const { isLocked, verifyPasscode, failedAttempts, resetAppLock } = useAppLock();
@@ -100,13 +101,14 @@ export const AppLockOverlay: React.FC = () => {
   }, [isLocked, showResetModal, handleKeyPress, handleDelete]);
 
   // Check if App Lock is enabled in local storage
+  const isRunningStandalone = checkIsRunningStandalone();
   const isAppLockSaved = typeof window !== "undefined" && localStorage.getItem("sikkanam_applock_enabled") === "true";
 
   if (typeof window === "undefined") return null;
 
-  // While Firebase Auth is loading (authReady is false), if lock is saved, render a solid dark Security Shield screen
+  // While Firebase Auth is loading (authReady is false), if lock is saved and in standalone PWA mode, render a solid dark Security Shield screen
   // so that NOT A SINGLE PIXEL of the home screen or private data is ever visible!
-  if (!authReady && isAppLockSaved) {
+  if (!authReady && isRunningStandalone && isAppLockSaved) {
     return createPortal(
       <div
         style={{ pointerEvents: "auto" }}

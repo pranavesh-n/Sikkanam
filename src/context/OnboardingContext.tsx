@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePwaInstall } from "@/hooks/usePwaInstall";
+import { checkIsRunningStandalone } from "@/lib/pwa";
 
 export type OnboardingStep = "WHATS_NEW" | "WELCOME_AUTH" | "INSTALL_PWA" | "NONE";
 
@@ -25,33 +26,6 @@ const getCookie = (name: string): string | null => {
     return match ? decodeURIComponent(match[2]) : null;
   } catch (e) {
     return null;
-  }
-};
-
-/**
- * Returns true ONLY if the app is currently RUNNING as an installed PWA
- * (standalone display mode, iOS standalone, or Android app referrer).
- * This is different from isPwaInstalled — a user can have the app installed
- * but still be visiting via a regular browser tab.
- */
-const checkIsRunningStandalone = (): boolean => {
-  if (typeof window === "undefined" || typeof document === "undefined") return false;
-  try {
-    const isStandalone = window.matchMedia
-      ? window.matchMedia("(display-mode: standalone)").matches
-      : false;
-    const isOverlay = window.matchMedia
-      ? window.matchMedia("(display-mode: window-controls-overlay)").matches
-      : false;
-    const isNavStandalone = (navigator as any)?.standalone === true;
-    const isAndroidApp = Boolean(
-      document.referrer &&
-        typeof document.referrer === "string" &&
-        document.referrer.includes("android-app://")
-    );
-    return isStandalone || isOverlay || isNavStandalone || isAndroidApp;
-  } catch (e) {
-    return false;
   }
 };
 
