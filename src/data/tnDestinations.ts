@@ -2192,7 +2192,6 @@ const rawDestinations: TNDestination[] = [
     "lat": 10.174,
     "lng": 78.783
   }
-
 ];
 
 const SPECIFIC_METADATA: Record<string, Partial<TNDestination>> = {

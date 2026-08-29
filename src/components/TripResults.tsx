@@ -1083,21 +1083,40 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
               🗓️ Suggested Itinerary
             </h2>
 
-            <div className="space-y-10">
+            <div className="space-y-8">
               {plan.itinerary.map((day) => {
-                const timeline = getTimelineHoursForDay(
-                  day.activities,
-                  day.day === 1,
-                  day.day === plan.itinerary.length,
-                  plan.itinerary.length
-                );
+                const isDayZero = day.isDayZero || day.day === 0;
+                const timeline = day.timeSchedule && day.timeSchedule.length > 0
+                  ? day.timeSchedule.map(s => ({ time: s.time, text: s.activity, status: s.status }))
+                  : getTimelineHoursForDay(
+                      day.activities,
+                      day.day === 1,
+                      day.day === plan.itinerary.length,
+                      plan.itinerary.length
+                    );
 
                 return (
-                  <div key={day.day} className="space-y-4">
+                  <div
+                    key={day.day}
+                    className={`space-y-4 p-6 rounded-2xl border transition-all ${
+                      isDayZero
+                        ? "bg-gradient-to-br from-amber-500/[0.07] via-primary/[0.04] to-card border-amber-500/30 shadow-card"
+                        : "bg-card border-border/80 shadow-card"
+                    }`}
+                  >
                     <div className="flex items-center justify-between border-b border-border/40 pb-2 text-left">
-                      <h3 className="font-display font-bold text-lg text-foreground">Day {day.day}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display font-bold text-lg text-foreground">
+                          {isDayZero ? "🌙 Day 0 – Overnight Departure" : `Day ${day.day}`}
+                        </h3>
+                        {isDayZero && (
+                          <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                            Sleeper Journey
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                        Schedule Verified
+                        {isDayZero ? "Overnight Mode" : "Schedule Synchronized"}
                       </span>
                     </div>
 
@@ -1105,13 +1124,23 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       {timeline.map((item, idx) => (
                         <div key={idx} className="relative flex items-start gap-4">
                           <div className="absolute -left-[40px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-background bg-primary" />
-                          <div className="w-12 flex-shrink-0 text-xs font-extrabold text-primary pt-0.5">
+                          <div className="w-32 flex-shrink-0 text-xs font-bold text-primary pt-0.5 leading-tight">
                             {item.time}
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 flex items-center justify-between flex-wrap gap-2">
                             <p className="text-sm font-semibold text-foreground leading-snug">
                               {item.text}
                             </p>
+                            {(item as any).status && (
+                              <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full border ${(item as any).status === "verified"
+                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                                : (item as any).status === "grounded"
+                                  ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                                  : "bg-muted text-muted-foreground border-border"
+                                }`}>
+                                {(item as any).status}
+                              </span>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -1128,6 +1157,60 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
             </div>
           </div>
 
+          {/* KNN Multi-Destination Spatial Circuit */}
+          {plan.dynamicCircuit && plan.dynamicCircuit.stops.length > 1 && (
+            <div className="p-6 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-amber-500/5 to-card space-y-4 text-left shadow-card">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">✨</span>
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-foreground">
+                      {plan.dynamicCircuit.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Connected route covering {plan.dynamicCircuit.stops.length} nearby destinations
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-primary text-primary-foreground shadow-sm">
+                  Recommended Multi-Stop Trail
+                </span>
+              </div>
+              <p className="text-xs text-foreground/90 leading-relaxed font-medium">
+                {plan.dynamicCircuit.tagline}
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                {plan.dynamicCircuit.stops.map((stop, sIdx) => (
+                  <div
+                    key={sIdx}
+                    onClick={() => onSelectDestination && onSelectDestination(stop.destination.id)}
+                    className="p-4 rounded-xl border border-border/70 bg-card hover:border-primary/50 hover:shadow-sm cursor-pointer transition-all space-y-1.5 active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span>{stop.destination.emoji || "📍"}</span>
+                        <span>{stop.destination.name}</span>
+                      </span>
+                      <span className="text-primary font-extrabold">{stop.allocatedDays} {stop.allocatedDays === 1 ? "Day" : "Days"}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {sIdx === 0 ? "🎯 Starting Base" : `➔ +${stop.distanceFromPreviousKm} km via ${stop.interStopMode} (₹${Math.max(25, stop.interStopCostPerPerson || 30)})`}
+                    </p>
+                    <div className="pt-1 flex items-center justify-between text-[10px] text-primary font-semibold">
+                      <span>Explore this stop →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-border/40 text-xs text-muted-foreground font-semibold">
+                <span>Total Multi-Spot Distance: ~{plan.dynamicCircuit.totalCircuitDistanceKm} km</span>
+                <span className="text-primary font-bold">Inter-Stop Transport Budget: ~₹{plan.dynamicCircuit.unifiedBudgetPerPerson}/person</span>
+              </div>
+            </div>
+          )}
+
           {/* 4. How You'll Travel */}
           <div className="space-y-6 pt-6 border-t border-border/40">
             <h2 className="font-display text-2xl font-bold tracking-tight text-foreground text-left">
@@ -1141,7 +1224,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
               const primaryLeg = plan.route[0];
               const bestMode = primaryLeg?.mode === "train" ? "Train" : primaryLeg?.mode === "auto" ? "Auto" : "Bus";
               const frequency = primaryLeg?.frequency || "Regular service";
-              const isVerified = plan.route.some(leg => leg.routeIntel?.routeStatus === "verified");
+              const isVerified = plan.route.some(leg => leg.confidence === "verified" || leg.routeIntel?.routeStatus === "verified");
 
               let durationStr = "";
               const totalMinutes = plan.route.reduce((sum, leg) => {
@@ -1168,7 +1251,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
                       <span className="block text-[9px] uppercase font-bold text-muted-foreground">Total Distance</span>
-                      <span className="text-sm font-bold text-foreground">{distanceKm} km</span>
+                      <span className="text-sm font-bold text-foreground">{distanceKm} km (One-Way)</span>
                     </div>
                     <div>
                       <span className="block text-[9px] uppercase font-bold text-muted-foreground">Travel Duration</span>
@@ -1181,8 +1264,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       </span>
                     </div>
                     <div>
-                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Availability</span>
-                      <span className="text-sm font-bold text-foreground">{frequency}</span>
+                      <span className="block text-[9px] uppercase font-bold text-muted-foreground">Round-Trip Fare</span>
+                      <span className="text-sm font-bold text-primary">₹{primaryLeg ? primaryLeg.costPerPerson * 2 : 0} / person (2-Way)</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 pt-2 border-t border-border/40 text-[10px] text-muted-foreground font-semibold">
@@ -1191,7 +1274,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
                       : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
                       }`}>
-                      {isVerified ? "Verified (OSRM)" : "Fallback Estimate"}
+                      {isVerified ? "Verified Schedule" : "Grounded Transit"}
                     </span>
                   </div>
                 </div>
@@ -1205,17 +1288,45 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                     <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-full border-2 border-background bg-foreground flex items-center justify-center text-xs">
                       {leg.mode === "train" ? "🚆" : leg.mode === "auto" ? "🛺" : "🚌"}
                     </div>
-                    <div className="space-y-1">
-                      <p className="font-medium text-base text-foreground text-left">
-                        {leg.mode === "train" && leg.fromStation && leg.toStation
-                          ? `${leg.fromStation} (${leg.from}) → ${leg.toStation} (${leg.to})`
-                          : `${leg.from} → ${leg.to}`}
-                      </p>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <p className="font-bold text-base text-foreground text-left">
+                          {leg.mode === "train" && leg.fromStation && leg.toStation
+                            ? `${leg.fromStation} (${leg.from}) → ${leg.toStation} (${leg.to})`
+                            : `${leg.from} → ${leg.to}`}
+                        </p>
+                        {leg.confidence && (
+                          <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                            leg.confidence === "verified"
+                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                              : leg.confidence === "grounded"
+                                ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                                : "bg-muted text-muted-foreground border-border"
+                          }`}>
+                            ● {leg.confidence}
+                          </span>
+                        )}
+                      </div>
+
+                      {leg.departureTime && leg.arrivalTime && (
+                        <div className="flex items-center gap-3 text-xs font-mono font-semibold text-primary pt-0.5">
+                          <span>Dep: {leg.departureTime}</span>
+                          <span>➔</span>
+                          <span>Arr: {leg.arrivalTime}</span>
+                          {leg.isOvernight && <span className="text-[10px] font-sans font-medium text-muted-foreground">(Overnight)</span>}
+                        </div>
+                      )}
+
                       <p className="text-xs text-muted-foreground text-left">
-                        {leg.mode.toUpperCase()} · {leg.distanceKm} km · {leg.duration}{leg.frequency ? ` · ${leg.frequency}` : ""}
+                        {leg.serviceName ? `${leg.serviceName} · ` : ""}{leg.mode.toUpperCase()} · {leg.distanceKm} km · {leg.duration}{leg.frequency ? ` · ${leg.frequency}` : ""}
                       </p>
+                      <div className="text-xs font-medium text-foreground/90 bg-muted/50 p-2 rounded-lg border border-border/40 inline-flex flex-wrap gap-x-3 gap-y-1 text-left">
+                        <span>One-Way: <strong className="text-primary font-bold">₹{leg.costPerPerson}</strong> / person</span>
+                        <span>·</span>
+                        <span>Round-Trip (Up & Down / 2-Way): <strong className="text-primary font-bold">₹{leg.costPerPerson * 2}</strong> / person</span>
+                        <span>(₹{leg.costPerPerson * 2 * plan.input.travellers} total for {plan.input.travellers} {plan.input.travellers === 1 ? "traveller" : "travellers"})</span>
+                      </div>
                       {leg.note && <p className="text-xs text-muted-foreground/80 mt-1 italic text-left">{leg.note}</p>}
-                      <p className="text-xs font-semibold text-primary text-left">Fare Estimated in Cost Breakdown</p>
                     </div>
                   </div>
                 ))}

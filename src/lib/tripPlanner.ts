@@ -11,6 +11,19 @@ import { CATEGORY_PRICING } from "@/data/categoryPricing";
 import { roundFriendly } from "@/lib/utils";
 import { getAttractionDetail, type AttractionDetail } from "@/data/activityDatabase";
 import { FOOD_PROFILES, getFoodCostIndex, type MealProfile } from "@/data/foodProfiles";
+import {
+  checkDirectRailConnectivity,
+  REGIONAL_HUB_FALLBACKS,
+  DIRECT_BUS_ROUTES,
+  type DataConfidence,
+  type VerifiedTrain,
+  type HubFallbackConfig
+} from "@/data/railwayCorridors";
+import {
+  buildDynamicKNNCircuit,
+  type MultiDestinationCircuit
+} from "@/lib/knnCircuitPlanner";
+
 export type TravelStyle = "budget" | "standard" | "comfort";
 export type TravellerType = "solo" | "couple" | "family" | "friends" | "seniors";
 
@@ -31,7 +44,7 @@ export interface RouteLeg {
   fromStation?: string;
   toStation?: string;
 
-  mode: "bus" | "train" | "auto";
+  mode: "bus" | "train" | "auto" | "cab";
 
   distanceKm: number;
   costPerPerson: number;
@@ -40,7 +53,14 @@ export interface RouteLeg {
   note?: string;
   
   routeIntel?: RouteIntelligence;
+  confidence?: DataConfidence;
+  departureTime?: string;
+  arrivalTime?: string;
+  trainNumber?: string;
+  serviceName?: string;
+  isOvernight?: boolean;
 }
+
 export interface BudgetBreakdown {
   transport: number;
   hotel: number;
@@ -77,12 +97,22 @@ export interface BudgetBreakdown {
   optionPremiumMax: number;
 }
 
+export interface DayActivitySlot {
+  time: string;
+  activity: string;
+  category?: "travel" | "stay" | "food" | "sightseeing" | "leisure";
+  status?: DataConfidence;
+  order?: number;
+}
+
 export interface DayPlan {
   day: number;
   title: string;
   activities: string[];
   meals: string;
   estimatedCost: number;
+  isDayZero?: boolean;
+  timeSchedule?: DayActivitySlot[];
 }
 
 export interface RecommendationMatch {
@@ -164,6 +194,8 @@ export interface TripPlan {
     route: string[];
     description: string;
   }[];
+  dynamicCircuit?: MultiDestinationCircuit;
+  hubAlternative?: RouteLeg[];
   aiItinerary?: string;
   intelligence?: TravelCostIntelligence;
 }
@@ -198,7 +230,7 @@ function getHotelMinPrice(hotel: Hotel) {
   }
 }
 
-export const USE_BACKEND_API = true;
+export const USE_BACKEND_API = false;
 
 function getPredefinedCircuit(destId: string): { name: string; route: string[]; description: string } | null {
   const templeCircuit = ["chidambaram", "kumbakonam", "thanjavur"];
@@ -697,6 +729,7 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
     .slice(0, 4);
 
   const suggestedCircuits = buildDynamicCircuits(dest, dests);
+  const dynamicCircuit = buildDynamicKNNCircuit(dest, input.days, srcDest?.lat, srcDest?.lng, input.source) || undefined;
 
   const bestTime = dest.category === "hill"
     ? "April–June"
@@ -733,6 +766,7 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
     alternatives,
     nearbyExperiences,
     suggestedCircuits,
+    dynamicCircuit,
     intelligence
   };
 }
@@ -1123,6 +1157,14 @@ const DESTINATION_GATEWAYS: Partial<Record<string, GatewayConfig>> = {
     frequency: "every 20–30 min",
     note: "Direct ECR buses are usually the most efficient last leg.",
   },
+  meghamalai: {
+    hub: "Theni",
+    lastMileKm: 48,
+    lastMileMode: "bus",
+    lastMileDuration: "2h 30m",
+    frequency: "every 45–60 min",
+    note: "Frequent buses from Madurai/Dindigul to Theni, then connecting hill bus/jeep to Highwavys.",
+  },
 };
 
 const FOOD_COST_PER_DAY: Record<TravelStyle, number> = {
@@ -1162,9 +1204,9 @@ function formatDuration(totalMinutes: number) {
 }
 
 function getTransportCost(distanceKm: number, mode: RouteLeg["mode"]) {
-  if (mode === "train") return roundCurrency(distanceKm * 0.8);
+  if (mode === "train") return Math.max(120, roundCurrency(distanceKm * 0.55));
   if (mode === "auto") return roundCurrency(distanceKm * 12);
-  return roundCurrency(distanceKm * 1.2);
+  return Math.max(50, roundCurrency(distanceKm * 1.05));
 }
 
 function getTransportDuration(distanceKm: number, mode: "bus" | "train") {
@@ -1402,26 +1444,163 @@ async function calculateRoute(source: string, destination: string, style: Travel
     dstDest.lng
   );
   const distance = routeIntel.roadDistanceKm;
+  const options: RouteCandidate[] = [];
+
+  // 1. Check Verified Rail Corridors & Direct Buses
+  const connectivity = checkDirectRailConnectivity(source, destination);
+
+  // Direct Rail Match (Verified)
+  if (connectivity.hasDirectRail && connectivity.trains.length > 0) {
+    const primaryTrain = connectivity.trains[0];
+    const trainCost = getTransportCost(distance, "train");
+    options.push({
+      totalCost: trainCost,
+      transferCount: 0,
+      preferredForComfort: true,
+      legs: [
+        {
+          from: srcDest.name,
+          to: dstDest.name,
+          fromStation: primaryTrain.fromStationCode,
+          toStation: primaryTrain.toStationCode,
+          mode: "train",
+          distanceKm: distance,
+          costPerPerson: trainCost,
+          duration: primaryTrain.duration,
+          frequency: primaryTrain.frequency,
+          confidence: "verified",
+          departureTime: primaryTrain.departureTime,
+          arrivalTime: primaryTrain.arrivalTime,
+          trainNumber: primaryTrain.trainNo,
+          serviceName: primaryTrain.name,
+          isOvernight: primaryTrain.type.includes("Overnight"),
+          note: `${primaryTrain.name} (#${primaryTrain.trainNo}) – ${primaryTrain.type} (${primaryTrain.departureTime} ➔ ${primaryTrain.arrivalTime})`,
+          routeIntel
+        }
+      ]
+    });
+  }
+
+  // Direct Bus Match (Grounded) or General Highway Bus (Estimated)
+  if (connectivity.directBus) {
+    const bus = connectivity.directBus;
+    options.push({
+      totalCost: bus.farePerPerson,
+      transferCount: 0,
+      preferredForComfort: false,
+      legs: [
+        {
+          from: srcDest.name,
+          to: dstDest.name,
+          mode: "bus",
+          distanceKm: distance,
+          costPerPerson: bus.farePerPerson,
+          duration: bus.duration,
+          frequency: "Daily Scheduled Service",
+          confidence: "grounded",
+          departureTime: bus.departureTime,
+          arrivalTime: bus.arrivalTime,
+          serviceName: `${bus.operator} (${bus.busType})`,
+          isOvernight: bus.isOvernight,
+          note: `Direct Bus: ${bus.operator} from ${bus.boardingPoint} to ${bus.droppingPoint}`,
+          routeIntel
+        }
+      ]
+    });
+  } else {
+    // General bus option
+    const busDurationMin = routeIntel.estimatedDurationMinutes;
+    // An overnight sleeper trip only applies for genuine long-distance journeys (>=340km & >=360 min)
+    const isOvernightBus = distance >= 340 && busDurationMin >= 360;
+    const depTime = isOvernightBus ? "21:30" : "06:30";
+    const totalMinutesFromMidnight = isOvernightBus ? (21.5 * 60 + busDurationMin) : (6.5 * 60 + busDurationMin);
+    const arrTimeH = Math.floor(totalMinutesFromMidnight / 60) % 24;
+    const arrTimeM = Math.round(totalMinutesFromMidnight % 60);
+    const arrTimeStr = `${String(arrTimeH).padStart(2, "0")}:${String(arrTimeM).padStart(2, "0")}`;
+
+    options.push({
+      totalCost: getTransportCost(distance, "bus"),
+      transferCount: 0,
+      legs: [
+        {
+          from: srcDest.name,
+          to: dstDest.name,
+          mode: "bus",
+          distanceKm: distance,
+          costPerPerson: getTransportCost(distance, "bus"),
+          duration: `${Math.floor(busDurationMin / 60)}h ${busDurationMin % 60}m`,
+          frequency: getBusFrequency(distance),
+          confidence: "estimated",
+          departureTime: depTime,
+          arrivalTime: arrTimeStr,
+          serviceName: isOvernightBus ? "SETC Ultra Deluxe Sleeper" : "TNSTC Express",
+          isOvernight: isOvernightBus,
+          note: isOvernightBus ? "Direct overnight state bus route." : "Direct daytime state bus connection.",
+          routeIntel
+        }
+      ]
+    });
+  }
+
+  // Regional Hub Fallback (e.g. Coimbatore Hub for Ooty, Madurai Hub for Kodai, Trichy for Velankanni)
+  if (connectivity.fallbackHub) {
+    const hub = connectivity.fallbackHub;
+    const hubDistance = Math.max(50, distance - hub.lastMileKm);
+    const trainToHubCost = getTransportCost(hubDistance, "train");
+    const totalHubCost = trainToHubCost + hub.lastMileCostPerPerson;
+
+    options.push({
+      totalCost: totalHubCost,
+      transferCount: 1,
+      preferredForComfort: true,
+      legs: [
+        {
+          from: srcDest.name,
+          to: hub.hubName,
+          fromStation: srcDest.nearestStation,
+          toStation: hub.hubStationCode,
+          mode: "train",
+          distanceKm: hubDistance,
+          costPerPerson: trainToHubCost,
+          duration: getTransportDuration(hubDistance, "train"),
+          frequency: `${hub.trainOptionsCount}+ daily express trains`,
+          confidence: "verified",
+          serviceName: srcDest.id === "chennai" ? (hub.popularTrains[0] || "Express Train") : `Express Train to ${hub.hubCity}`,
+          note: `Connecting rail hub (${hub.hubName}) with onward ${hub.lastMileMode} to ${dstDest.name}.`,
+          routeIntel: {
+            roadDistanceKm: hubDistance,
+            estimatedDurationMinutes: Math.round(routeIntel.estimatedDurationMinutes * (hubDistance / distance)),
+            routeSource: "OSRM",
+            routeStatus: "verified"
+          }
+        },
+        {
+          from: hub.hubName,
+          to: dstDest.name,
+          mode: hub.lastMileMode,
+          distanceKm: hub.lastMileKm,
+          costPerPerson: hub.lastMileCostPerPerson,
+          duration: hub.lastMileDuration,
+          frequency: hub.lastMileFrequency,
+          confidence: "grounded",
+          serviceName: "TNSTC Direct Hill / Connecting Service",
+          note: hub.transferNote,
+          routeIntel: {
+            roadDistanceKm: hub.lastMileKm,
+            estimatedDurationMinutes: parseDurationToMinutes(hub.lastMileDuration) || 90,
+            routeSource: "OSRM",
+            routeStatus: "fallback"
+          }
+        }
+      ]
+    });
+  }
+
+  // Also include standard Gateway if present
   const gateway = DESTINATION_GATEWAYS[destination];
-  const options: RouteCandidate[] = [buildDirectBusRoute(srcDest.name, dstDest.name, distance, routeIntel)];
-
-  const directTrain = buildDirectTrainRoute(
-    srcDest.name,
-    dstDest.name,
-    srcDest.nearestStation,
-    dstDest.nearestStation,
-    distance,
-    srcDest.hasRailAccess,
-    dstDest.hasRailAccess,
-    routeIntel
-  );
-  if (directTrain) options.push(directTrain);
-
-  if (gateway) {
+  if (gateway && (!connectivity.fallbackHub || gateway.hub !== connectivity.fallbackHub.hubName)) {
     const busViaGateway = buildGatewayRoute(srcDest.name, dstDest.name, distance, gateway, "bus", undefined, undefined, routeIntel);
-    const trainViaGateway = buildGatewayRoute(srcDest.name, dstDest.name, distance, gateway, "train", srcDest.nearestStation, srcDest.hasRailAccess, routeIntel);
     if (busViaGateway) options.push(busViaGateway);
-    if (trainViaGateway) options.push(trainViaGateway);
   }
 
   return pickBestRoute(options, style);
@@ -1500,38 +1679,213 @@ function generateItinerary(dest: TNDestination, days: number, perDayCost: number
   const attractionsPerDay = Math.max(1, Math.ceil(attractions.length / Math.max(days, 1)));
   const plans: DayPlan[] = [];
 
+  const totalDistance = route.reduce((sum, leg) => sum + (leg.distanceKm || 0), 0);
+  const primaryLeg = route[0];
+  const travelDurationMinutes = primaryLeg?.routeIntel?.estimatedDurationMinutes || Math.round((totalDistance / 48) * 60) + 20;
+  const isOvernightTrip = Boolean(primaryLeg?.isOvernight) || (totalDistance >= 340 && days > 1);
+
+  // If primaryLeg has a verified real-time departureTime (e.g. "21:05" for Nilgiri Express), prioritize it directly!
+  let depMinute = 6.0 * 60; // 06:00 AM default for daytime
+  if (primaryLeg?.departureTime && primaryLeg.departureTime.includes(":")) {
+    const [h, m] = primaryLeg.departureTime.split(":").map(Number);
+    if (!isNaN(h) && !isNaN(m)) {
+      depMinute = h * 60 + m;
+    }
+  } else if (isOvernightTrip) {
+    // For general overnight journeys without fixed timetable, calculate departure so arrival is between 05:30 AM and 07:00 AM
+    const targetArrMinute = 6.0 * 60; // 06:00 AM target
+    let rawDep = targetArrMinute - travelDurationMinutes;
+    while (rawDep < 0) rawDep += 24 * 60;
+    depMinute = Math.min(23 * 60, Math.max(20.5 * 60, rawDep));
+  }
+
+  // Exact arrival minute: use verified arrivalTime if provided, else calculate from OSM duration
+  let arrMinute = Math.round((depMinute + travelDurationMinutes) % (24 * 60));
+  if (primaryLeg?.arrivalTime && primaryLeg.arrivalTime.includes(":")) {
+    const [ah, am] = primaryLeg.arrivalTime.split(":").map(Number);
+    if (!isNaN(ah) && !isNaN(am)) {
+      arrMinute = ah * 60 + am;
+    }
+  }
+
+  const formatMinuteRange = (minStart: number, durationMin: number = 45): string => {
+    const startH24 = Math.floor(minStart / 60) % 24;
+    const startM = Math.round(minStart % 60);
+    const endMin = (minStart + durationMin) % (24 * 60);
+    const endH24 = Math.floor(endMin / 60) % 24;
+    const endM = Math.round(endMin % 60);
+
+    const fmt12 = (h24: number, m: number) => {
+      const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
+      const ampm = h24 >= 12 ? "PM" : "AM";
+      return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
+    };
+
+    return `${fmt12(startH24, startM)} – ${fmt12(endH24, endM)}`;
+  };
+
+  const formatTimeSingle = (min: number): string => {
+    const h24 = Math.floor(min / 60) % 24;
+    const m = Math.round(min % 60);
+    const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
+    const ampm = h24 >= 12 ? "PM" : "AM";
+    return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
+  };
+
+  const boardingMode = primaryLeg?.mode === "train" ? "Overnight Express Train" : (primaryLeg?.mode === "bus" ? "Overnight Sleeper Bus" : "Overnight Transport");
+  const boardingText = primaryLeg?.trainNumber ? `Board ${primaryLeg.serviceName} (#${primaryLeg.trainNumber})` : `Board ${boardingMode}`;
+  const originText = primaryLeg?.from ? `from ${primaryLeg.from}` : "from your station";
+
+  // Day 0: Overnight Journey Block (ONLY for genuine overnight long distance trips >= 340 km)
+  if (isOvernightTrip && days > 1) {
+    const boardingSlotFmt = formatMinuteRange(depMinute - 30, 30);
+    const travelSlotFmt = formatMinuteRange(depMinute, travelDurationMinutes);
+    plans.push({
+      day: 0,
+      title: "Day 0 – Overnight Sleeper Travel 🌙",
+      isDayZero: true,
+      activities: [
+        `${boardingText} ${originText} (Departs: ${formatTimeSingle(depMinute)}).`,
+        `Rest & sleep en route across ~${totalDistance} km (${Math.floor(travelDurationMinutes / 60)}h ${travelDurationMinutes % 60}m via OSM route).`,
+        `Expected early morning arrival at ${dest.name} (~${formatTimeSingle(arrMinute)}).`
+      ],
+      meals: "Dinner before departure / light travel snacks",
+      estimatedCost: 0,
+      timeSchedule: [
+        { time: boardingSlotFmt, activity: `${boardingText} ${originText} (Departs: ${formatTimeSingle(depMinute)})`, category: "travel", status: primaryLeg?.confidence || "grounded", order: depMinute - 30 },
+        { time: travelSlotFmt, activity: "Overnight journey – rest & sleep en route", category: "travel", status: "estimated", order: depMinute }
+      ]
+    });
+  }
+
   for (let index = 0; index < days; index += 1) {
     const isFirstDay = index === 0;
     const isLastDay = index === days - 1;
     const dayAttractions = attractions.splice(0, attractionsPerDay);
     const activities: string[] = [];
+    const timeSchedule: DayActivitySlot[] = [];
 
     if (days === 1) {
-      activities.push(`Start early from ${route[0]?.from ?? "your city"}`);
+      const depTimeFmt = formatMinuteRange(depMinute, 45);
+      activities.push(`Start early from ${primaryLeg?.from ?? "your city"} (~${depTimeFmt})`);
       activities.push(...dayAttractions.map((attraction) => `Visit ${attraction}`));
-      activities.push(`Return from ${dest.name} by evening`);
+      activities.push(`Return travel back home (~06:30 – 07:30 PM)`);
+
+      timeSchedule.push(
+        { time: depTimeFmt, activity: `Depart from ${primaryLeg?.from || "your city"}`, category: "travel", status: primaryLeg?.confidence || "estimated", order: depMinute },
+        { time: formatMinuteRange(arrMinute, 45), activity: `Arrive in ${dest.name}`, category: "travel", status: "grounded", order: arrMinute }
+      );
+      dayAttractions.forEach((spot, i) => {
+        const slotOrder = arrMinute + 60 + (i * 120);
+        timeSchedule.push({ time: formatMinuteRange(slotOrder, 90), activity: `Explore ${spot}`, category: "sightseeing", status: "grounded", order: slotOrder });
+      });
+      timeSchedule.push(
+        { time: "01:00 – 02:00 PM", activity: "Traditional South Indian Lunch", category: "food", status: "grounded", order: 13 * 60 },
+        { time: "06:30 – 07:30 PM", activity: "Return transit back home", category: "travel", status: "estimated", order: 18.5 * 60 }
+      );
     } else {
       if (isFirstDay) {
-        activities.push(`Travel via ${route.map((leg) => `${leg.mode} to ${leg.to}`).join(" + ")}`);
-        activities.push(`Check into stay and refresh in ${dest.name}`);
-      }
+        if (isOvernightTrip) {
+          // Overnight arrival scenario (dynamic arrival calculated from OSM duration)
+          const arrTimeFmt = formatMinuteRange(arrMinute, 45);
+          activities.push(`Arrive in ${dest.name} (~${arrTimeFmt}) via ${route.map((leg) => `${leg.serviceName || leg.mode}`).join(" + ")}`);
+          activities.push(`Early check-in / luggage drop & freshen up at stay`);
+          activities.push(`Enjoy authentic local breakfast near ${dest.name} center`);
 
-      activities.push(...dayAttractions.map((attraction) => `Visit ${attraction}`));
+          timeSchedule.push(
+            { time: arrTimeFmt, activity: `Arrive in ${dest.name}`, category: "travel", status: primaryLeg?.confidence || "verified", order: arrMinute },
+            { time: formatMinuteRange(arrMinute + 45, 45), activity: "Hotel luggage drop & fresh up", category: "stay", status: "grounded", order: arrMinute + 45 },
+            { time: formatMinuteRange(arrMinute + 90, 60), activity: "Traditional South Indian breakfast", category: "food", status: "grounded", order: arrMinute + 90 },
+            { time: "01:00 – 02:00 PM", activity: "Authentic lunch & midday rest", category: "food", status: "grounded", order: 780 },
+            { time: "07:30 – 09:00 PM", activity: "Dinner & local night walk", category: "food", status: "grounded", order: 1170 }
+          );
 
-      if (isLastDay) {
-        activities.push("Check out, cover any missed nearby spots, and start return travel");
-      } else if (!isFirstDay) {
-        activities.push("Use local bus/auto for nearby attractions to save money");
+          dayAttractions.forEach((spot, i) => {
+            const isTemple = dest.category === "temple" || spot.toLowerCase().includes("temple") || spot.toLowerCase().includes("kovil");
+            const orderMin = isTemple ? (i === 0 ? Math.max(570, arrMinute + 150) : 1020) : (i === 0 ? Math.max(600, arrMinute + 150) : i === 1 ? 870 : 1020);
+            const timing = formatMinuteRange(orderMin, 90);
+            timeSchedule.push({ time: timing, activity: `Explore ${spot}`, category: "sightseeing", status: "grounded", order: orderMin });
+          });
+        } else {
+          // Daytime morning departure scenario (departs ~06:00 - 06:45 AM, arrives based on actual travel distance)
+          activities.push(`Depart from ${primaryLeg?.from || "your city"} (~06:00 – 06:45 AM)`);
+          activities.push(`Arrive in ${dest.name} & drop luggage at stay`);
+          activities.push(`Enjoy local food & explore top sights`);
+
+          timeSchedule.push(
+            { time: "06:00 – 06:45 AM", activity: `Depart from ${primaryLeg?.from || "your city"}`, category: "travel", status: primaryLeg?.confidence || "grounded", order: 360 },
+            { time: formatMinuteRange(arrMinute, 45), activity: `Arrive in ${dest.name}`, category: "travel", status: primaryLeg?.confidence || "grounded", order: arrMinute },
+            { time: formatMinuteRange(arrMinute + 45, 45), activity: "Hotel luggage drop & fresh up", category: "stay", status: "grounded", order: arrMinute + 45 },
+            { time: "01:00 – 02:00 PM", activity: "Traditional South Indian Lunch", category: "food", status: "grounded", order: 780 },
+            { time: "07:30 – 09:00 PM", activity: "Dinner & evening leisure", category: "food", status: "grounded", order: 1170 }
+          );
+
+          dayAttractions.forEach((spot, i) => {
+            const isTemple = dest.category === "temple" || spot.toLowerCase().includes("temple") || spot.toLowerCase().includes("kovil");
+            // If arrival is late morning/afternoon, place sightseeing in afternoon/evening
+            let orderMin = arrMinute < 660
+              ? (i === 0 ? 690 : i === 1 ? 870 : 1020)
+              : (i === 0 ? 900 : 1020);
+            if (isTemple && orderMin >= 720 && orderMin < 960) {
+              orderMin = 1020; // Respect temple evening opening (04:30 - 08:30 PM)
+            }
+            const timing = formatMinuteRange(orderMin, 90);
+            timeSchedule.push({ time: timing, activity: `Explore ${spot}`, category: "sightseeing", status: "grounded", order: orderMin });
+          });
+        }
+
+        dayAttractions.forEach((spot) => {
+          activities.push(`Visit ${spot}`);
+        });
+      } else if (isLastDay) {
+        activities.push("Morning breakfast & pack bags");
+        activities.push("Standard checkout by 11:30 AM (leave bags at reception)");
+        activities.push(...dayAttractions.map((spot) => `Visit ${spot}`));
+        activities.push("Explore local bazaars, buy regional souvenirs & snacks");
+        activities.push(`Evening dinner & return transit to ${primaryLeg?.from || "home city"}`);
+
+        timeSchedule.push(
+          { time: "08:00 – 09:00 AM", activity: "Breakfast & morning refresh", category: "food", status: "grounded", order: 480 },
+          { time: "11:00 – 11:30 AM", activity: "Hotel room checkout & luggage storage", category: "stay", status: "grounded", order: 660 },
+          { time: "01:00 – 02:00 PM", activity: "Authentic lunch at local eatery", category: "food", status: "grounded", order: 780 },
+          { time: "05:00 – 06:30 PM", activity: "Souvenir shopping & street snacks", category: "leisure", status: "grounded", order: 1020 },
+          { time: "07:30 – 08:30 PM", activity: "Board return transit back home", category: "travel", status: primaryLeg?.confidence || "grounded", order: 1170 }
+        );
+
+        dayAttractions.forEach((spot, i) => {
+          const timing = i === 0 ? "09:30 – 11:00 AM" : i === 1 ? "02:30 – 04:30 PM" : "04:30 – 06:00 PM";
+          const orderMin = i === 0 ? 570 : i === 1 ? 870 : 990;
+          timeSchedule.push({ time: timing, activity: `Explore ${spot}`, category: "sightseeing", status: "grounded", order: orderMin });
+        });
+      } else {
+        // Middle full days
+        activities.push("Full day regional exploration & sightseeing");
+        activities.push(...dayAttractions.map((spot) => `Visit ${spot}`));
+
+        timeSchedule.push(
+          { time: "08:00 – 09:00 AM", activity: "Breakfast & start day's exploration", category: "food", status: "grounded", order: 480 },
+          { time: "01:00 – 02:00 PM", activity: "Traditional regional lunch", category: "food", status: "grounded", order: 780 },
+          { time: "07:30 – 09:00 PM", activity: "Dinner & cultural walk", category: "food", status: "grounded", order: 1170 }
+        );
+
+        dayAttractions.forEach((spot, i) => {
+          const timing = i === 0 ? "09:30 – 12:30 PM" : i === 1 ? "02:30 – 04:30 PM" : "05:00 – 06:30 PM";
+          const orderMin = i === 0 ? 570 : i === 1 ? 870 : 1020;
+          timeSchedule.push({ time: timing, activity: `Explore ${spot}`, category: "sightseeing", status: "grounded", order: orderMin });
+        });
       }
     }
+
+    // Sort timeSchedule numerically by order minute from midnight
+    timeSchedule.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const title = days === 1
       ? "Day 1 – Smart Day Trip"
       : isFirstDay
-        ? `Day ${index + 1} – Arrival & Local Start`
+        ? `Day ${index + 1} – Arrival & Core Highlights`
         : isLastDay
-          ? `Day ${index + 1} – Wrap-up & Return`
-          : `Day ${index + 1} – Core Exploration`;
+          ? `Day ${index + 1} – Final Sights & Return`
+          : `Day ${index + 1} – Full Exploration`;
 
     plans.push({
       day: index + 1,
@@ -1539,6 +1893,7 @@ function generateItinerary(dest: TNDestination, days: number, perDayCost: number
       activities,
       meals: getMealsForCategory(dest.category, index),
       estimatedCost: perDayCost,
+      timeSchedule
     });
   }
 

@@ -30,13 +30,19 @@ export interface RouteLeg {
   to: string;
   fromStation?: string;
   toStation?: string;
-  mode: "bus" | "train" | "auto";
+  mode: "bus" | "train" | "auto" | "cab";
   distanceKm: number;
   costPerPerson: number;
   duration: string;
   frequency?: string;
   note?: string;
   routeIntel?: RouteIntelligence;
+  confidence?: "verified" | "grounded" | "estimated";
+  departureTime?: string;
+  arrivalTime?: string;
+  trainNumber?: string;
+  serviceName?: string;
+  isOvernight?: boolean;
 }
 
 export interface HotelPricingEvidence {
@@ -205,28 +211,28 @@ export function calculateTravelCostIntelligence(
 
   // --- 1. Transport Component ---
   const distanceKm = route.reduce((sum, leg) => sum + leg.distanceKm, 0);
-  const trainMin = Math.round(distanceKm * 0.75 * 2 * travellers / 50) * 50;
-  const trainMax = Math.round(distanceKm * 1.30 * 2 * travellers / 50) * 50;
-  const govtBusMin = Math.round(distanceKm * 1.20 * 2 * travellers / 50) * 50;
-  const govtBusMax = Math.round(distanceKm * 1.60 * 2 * travellers / 50) * 50;
-  const privBusMin = Math.round(distanceKm * 1.70 * 2 * travellers / 50) * 50;
-  const privBusMax = Math.round(distanceKm * 2.60 * 2 * travellers / 50) * 50;
+  const trainMin = Math.round(distanceKm * 0.50 * 2 * travellers / 50) * 50;
+  const trainMax = Math.round(distanceKm * 0.85 * 2 * travellers / 50) * 50;
+  const govtBusMin = Math.round(distanceKm * 0.95 * 2 * travellers / 50) * 50;
+  const govtBusMax = Math.round(distanceKm * 1.30 * 2 * travellers / 50) * 50;
+  const privBusMin = Math.round(distanceKm * 1.35 * 2 * travellers / 50) * 50;
+  const privBusMax = Math.round(distanceKm * 1.90 * 2 * travellers / 50) * 50;
 
   const primaryLeg = route[0];
   const primaryMode = primaryLeg ? primaryLeg.mode : "bus";
 
   let transportMin = govtBusMin;
   let transportMax = govtBusMax;
-  let transportFormula = `Govt Bus Rate (2 × ${distanceKm} km × ₹1.2–₹1.6/km) × ${travellers} Pax`;
+  let transportFormula = `Round-Trip Govt Bus (2 × ${distanceKm} km × ₹0.95–₹1.30/km) × ${travellers} Pax`;
 
   if (primaryMode === "train") {
     transportMin = trainMin;
     transportMax = trainMax;
-    transportFormula = `Train Sleeper Rate (2 × ${distanceKm} km × ₹0.75–₹1.3/km) × ${travellers} Pax`;
+    transportFormula = `Round-Trip Train Sleeper (2 × ${distanceKm} km × ₹0.50–₹0.85/km) × ${travellers} Pax`;
   } else if (style === "comfort") {
     transportMin = privBusMin;
     transportMax = privBusMax;
-    transportFormula = `Private Bus Rate (2 × ${distanceKm} km × ₹1.7–₹2.6/km) × ${travellers} Pax`;
+    transportFormula = `Round-Trip AC/Private Bus (2 × ${distanceKm} km × ₹1.35–₹1.90/km) × ${travellers} Pax`;
   }
 
   if (distanceKm === 0) {

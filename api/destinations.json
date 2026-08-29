@@ -44,7 +44,15 @@
     "seasonalTags": [
       "peak_crowds",
       "winter_chill"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 8,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 82
   },
   {
     "id": "kodaikanal",
@@ -91,7 +99,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 5,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 4,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 80
   },
   {
     "id": "yercaud",
@@ -135,7 +151,15 @@
     "seasonalTags": [
       "scenic",
       "budget_friendly"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 8,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "yelagiri",
@@ -164,11 +188,6 @@
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -182,7 +201,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "kolli-hills",
@@ -209,11 +236,6 @@
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -227,7 +249,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "valparai",
@@ -270,7 +300,15 @@
     "seasonalTags": [
       "wildlife",
       "roadtrip"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 85
   },
   {
     "id": "javadi-hills",
@@ -294,11 +332,6 @@
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -312,13 +345,21 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "mahabalipuram",
     "name": "Mahabalipuram",
     "fullName": "Mahabalipuram (Mamallapuram)",
-    "category": "beach",
+    "category": "heritage",
     "emoji": "🏛️",
     "district": "Chengalpattu",
     "description": "UNESCO World Heritage Site. Shore Temple, Pancha Rathas, Arjuna's Penance. Easy day trip from Chennai.",
@@ -337,26 +378,33 @@
     "hasRailAccess": false,
     "lat": 12.62,
     "lng": 80.19,
-    "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
       "November",
       "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
-      "coastal",
-      "relaxation",
-      "seafood"
+      "heritage",
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "coastal",
-      "beach_vibes"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "rameswaram",
@@ -369,7 +417,7 @@
     "attractions": [
       "Ramanathaswamy Temple 🛕",
       "Pamban Bridge 🌉",
-      "Dhanushkodi (ghost town) 👻",
+      "Dhanushkodi (historic town) 🏛️",
       "Agnitheertham Beach 🌊",
       "Kothandaramar Temple 🛕",
       "Adams Bridge (Ram Setu) 🌐",
@@ -401,7 +449,15 @@
     "seasonalTags": [
       "spiritual",
       "coastal"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 7,
+      "paidAttractions": 3,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 90
   },
   {
     "id": "kanyakumari",
@@ -430,12 +486,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -446,14 +498,22 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "pondicherry",
     "name": "Pondicherry",
     "fullName": "Pondicherry (Puducherry)",
     "category": "beach",
-    "emoji": "🇫🇷",
+    "emoji": "🏛️",
     "district": "Puducherry UT",
     "description": "Former French colony. White Town, cafes, Promenade beach, Auroville. Best 2-day trip from Chennai. 3 hours away.",
     "attractions": [
@@ -491,18 +551,26 @@
     "seasonalTags": [
       "beach_vibes",
       "cafes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 7,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 88
   },
   {
     "id": "dhanushkodi",
     "name": "Dhanushkodi",
-    "fullName": "Dhanushkodi (Ghost Town)",
+    "fullName": "Dhanushkodi (Heritage Coast)",
     "category": "beach",
-    "emoji": "👻",
+    "emoji": "🏛️",
     "district": "Ramanathapuram",
-    "description": "India's last village. Destroyed by 1964 cyclone. Two seas visible simultaneously. Ghost town ruins, pristine beaches. Hauntingly beautiful.",
+    "description": "India's last village. Destroyed by 1964 cyclone. Two seas visible simultaneously. Historic town ruins, pristine beaches. Hauntingly beautiful.",
     "attractions": [
-      "Ghost Town Ruins 👻",
+      "Historic Town Ruins 🏛️",
       "Two-Sea Beach 🌊",
       "Arichal Munai (Land's End) 🏝️",
       "Adam's Bridge View 🌐",
@@ -518,12 +586,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -534,7 +598,15 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "madurai",
@@ -578,7 +650,15 @@
     "seasonalTags": [
       "temple_town",
       "street_food"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 8,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 90
   },
   {
     "id": "thanjavur",
@@ -621,7 +701,15 @@
     "seasonalTags": [
       "heritage_site",
       "unesco"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "kanchipuram",
@@ -663,7 +751,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "chidambaram",
@@ -703,7 +799,15 @@
     "seasonalTags": [
       "temple_town",
       "mangroves"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 1,
+      "averageEntryFee": 25
+    },
+    "budgetReliability": 95
   },
   {
     "id": "kumbakonam",
@@ -746,7 +850,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "trichy",
@@ -787,7 +899,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "vellore",
@@ -828,7 +948,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "cuddalore",
@@ -851,12 +979,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -867,7 +991,15 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "nagapattinam",
@@ -891,12 +1023,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -907,7 +1035,15 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "tiruvanamalai",
@@ -948,7 +1084,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "mudumalai",
@@ -992,7 +1136,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "topslip",
@@ -1035,7 +1187,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "pichavaram",
@@ -1076,7 +1236,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "salem",
@@ -1119,7 +1287,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "tirunelveli",
@@ -1163,7 +1339,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "chennai",
@@ -1208,7 +1392,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "coimbatore",
@@ -1253,7 +1445,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "erode",
@@ -1296,7 +1496,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "tiruppur",
@@ -1338,7 +1546,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "thoothukudi",
@@ -1381,7 +1597,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "dindigul",
@@ -1423,7 +1647,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "velankanni",
@@ -1465,13 +1697,21 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "tranquebar",
     "name": "Tranquebar",
     "fullName": "Tranquebar (Tharangambadi)",
-    "category": "beach",
+    "category": "heritage",
     "emoji": "🏰",
     "district": "Nagapattinam",
     "description": "Danish colonial town. 300-year-old Dansborg Fort, colonial bungalows, empty beaches. India's most underrated coastal heritage.",
@@ -1488,26 +1728,33 @@
     "hasRailAccess": false,
     "lat": 11.03,
     "lng": 79.85,
-    "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
       "November",
       "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
-      "coastal",
-      "relaxation",
-      "seafood"
+      "heritage",
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "coastal",
-      "beach_vibes"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "thirunallar",
@@ -1524,7 +1771,7 @@
       "Mayiladuthurai temple belt",
       "Nagore Dargah nearby"
     ],
-    "nearestStation": "Thirunallar or Karaikal",
+    "nearestStation": "Karaikal",
     "hasRailAccess": false,
     "lat": 10.92,
     "lng": 79.78,
@@ -1546,7 +1793,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "pillayarpatti",
@@ -1585,7 +1840,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "mayiladuthurai",
@@ -1625,7 +1888,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "tiruchendur",
@@ -1665,7 +1936,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "tiruttani",
@@ -1704,7 +1983,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "palani",
@@ -1743,7 +2030,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "swamimalai",
@@ -1782,7 +2077,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "tenkasi",
@@ -1822,7 +2125,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "thiruparankundram",
@@ -1861,7 +2172,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "pazhamudircholai",
@@ -1900,7 +2219,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "kapaleeshwarar",
@@ -1938,7 +2265,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "kamakshi-amman",
@@ -1977,7 +2312,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "kailasanathar",
@@ -2016,7 +2359,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "suchindram",
@@ -2055,7 +2406,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "bhagavathy-amman",
@@ -2094,7 +2453,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "parthasarathy",
@@ -2132,7 +2499,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "sankarankoil",
@@ -2141,12 +2516,12 @@
     "category": "temple",
     "emoji": "🔱",
     "district": "Tenkasi",
-    "description": "Temple town in the Tenkasi belt, famous for Sankaranarayanar Temple. Easy to combine with Tenkasi and Srivilliputhur.",
+    "description": "Temple town in the Tenkasi belt, famous for Sankaranarayanar Temple. Easy to combine with Tenkasi, Srivilliputhur, and Courtallam — all within the same one-day circuit.",
     "attractions": [
-      "Sankaranarayanar Temple",
+      "Sankaranarayanar Temple 🛕",
       "Tenkasi day trip",
       "Srivilliputhur Andal Temple",
-      "Courtallam Falls",
+      "Courtallam Falls 💦",
       "Rajapalayam belt"
     ],
     "nearestStation": "Sankarankovil",
@@ -2171,7 +2546,68 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
+  },
+  {
+    "id": "srivilliputhur",
+    "name": "Srivilliputhur",
+    "fullName": "Srivilliputhur (Andal Kovil — Emblem of Tamil Nadu)",
+    "category": "temple",
+    "emoji": "🪷",
+    "district": "Virudhunagar",
+    "description": "Home to the legendary Andal Kovil (Vadapatrasayi Perumal Temple) — whose 11-storey rajagopuram is the official emblem of the Tamil Nadu government. The presiding deity Andal is among the most revered saints of Vaishnavism. Beyond spirituality, the town is the undisputed capital of Palkova (milk fudge sweet) in Tamil Nadu. Kartick Mess near the temple serves outstanding local meals.",
+    "attractions": [
+      "Andal Kovil (Vadapatrasayi Temple) 🪷",
+      "Rajagopuram — Tamil Nadu State Emblem 🏛️",
+      "Andal Shrine (Goda Devi Sannidhi) 🌸",
+      "Palkova Sweet Shops 🍮",
+      "Kartick Mess (Local Meals near Temple) 🍛",
+      "Singampatti Wildlife Sanctuary (Nearby) 🐘",
+      "Vaigai River Viewpoint 🌊",
+      "Sundarar Temple 🛕"
+    ],
+    "nearestStation": "Srivilliputhur",
+    "hasRailAccess": true,
+    "lat": 9.51,
+    "lng": 77.63,
+    "whyVisit": "Srivilliputhur's Andal Kovil is not just a temple — its rajagopuram is the official emblem of Tamil Nadu printed on every government document. A deeply spiritual Vaishnava destination. Famous for Palkova (the best in TN, buy from shops near the temple). Kartick Mess nearby serves a filling South Indian meal for ₹80. Easy to combine with Sankarankoil, Tenkasi, and Courtallam as a 2-day Tenkasi belt circuit.",
+    "recommendedDays": 1,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February",
+      "March"
+    ],
+    "travelStyles": [
+      "spiritual",
+      "heritage",
+      "foodie",
+      "culture"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "temple_town",
+      "andal_festival",
+      "palkova"
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 1,
+      "averageEntryFee": 0
+    },
+    "budgetReliability": 95
   },
   {
     "id": "coonoor",
@@ -2188,18 +2624,13 @@
       "Tea estates",
       "Nilgiri Mountain Railway"
     ],
-    "nearestStation": "Coonoor",
-    "hasRailAccess": true,
+    "nearestStation": "Coimbatore Junction/Mettupalayam",
+    "hasRailAccess": false,
     "lat": 11.35,
     "lng": 76.79,
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -2213,7 +2644,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "kotagiri",
@@ -2230,18 +2669,13 @@
       "Tea estates",
       "Kotagiri walks"
     ],
-    "nearestStation": "Coonoor",
+    "nearestStation": "Mettupalayam",
     "hasRailAccess": false,
     "lat": 11.42,
     "lng": 76.86,
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -2255,7 +2689,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "meghamalai",
@@ -2272,18 +2714,13 @@
       "Highwavys",
       "Forest drives"
     ],
-    "nearestStation": "Theni",
+    "nearestStation": "Madurai junction",
     "hasRailAccess": false,
     "lat": 9.74,
     "lng": 77.41,
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -2297,7 +2734,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "thekkady",
@@ -2314,7 +2759,7 @@
       "Forest trekking",
       "Elephant camp"
     ],
-    "nearestStation": "Kottayam",
+    "nearestStation": "Kottayam junction",
     "hasRailAccess": false,
     "lat": 9.5949,
     "lng": 77.1741,
@@ -2337,7 +2782,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "sirumalai",
@@ -2360,11 +2813,6 @@
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -2378,7 +2826,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "pachamalai",
@@ -2401,11 +2857,6 @@
     "whyVisit": "Lush green tea gardens, mist-clad peaks, and refreshing weather.",
     "recommendedDays": 3,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
       "March",
       "April",
       "May"
@@ -2419,7 +2870,15 @@
     "seasonalTags": [
       "hill_station",
       "misty"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 5,
+      "paidAttractions": 3,
+      "averageEntryFee": 50
+    },
+    "budgetReliability": 82
   },
   {
     "id": "hogenakkal",
@@ -2458,28 +2917,41 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "courtallam",
     "name": "Courtallam",
-    "fullName": "Courtallam Falls",
+    "fullName": "Courtallam (Kutralam Falls — Spa of South India)",
     "category": "wildlife",
-    "emoji": "🌿",
+    "emoji": "💦",
     "district": "Tenkasi",
-    "description": "All Sengottai-side trains cross Tenkasi; buses/autos connect to the falls.",
+    "description": "Kutralam is the 'Spa of South India' — medicinal waterfalls fed by the Western Ghats monsoon. The water carries herbal minerals from forest streams. Seven different falls, each with its own mood. Plus the legendary Courtallam Border Rahmath Kadai — famous across TN for its sutta parotta and mutton biryani.",
     "attractions": [
-      "Main Falls",
-      "Five Falls",
-      "Old Courtallam",
-      "Tiger Falls",
-      "Tenkasi temple"
+      "Main Falls (Peraruvi) 💦",
+      "Five Falls (Aintharuvi) 🌊",
+      "Old Courtallam Falls 🌿",
+      "Tiger Falls (Puli Aruvi) 🐯",
+      "Honey Falls (Then Aruvi) 🍯",
+      "Shenbaga Devi Falls 🌸",
+      "Chittar Falls 💧",
+      "Kasi Viswanathar Temple 🛕",
+      "Courtallam Border Rahmath Kadai 🍖 (Famous Parotta & Mutton Biryani)",
+      "Tenkasi Market 🛒"
     ],
     "nearestStation": "Tenkasi Junction",
     "hasRailAccess": false,
     "lat": 8.93,
     "lng": 77.27,
-    "whyVisit": "Medicinal mountain waterfalls, local food, and refreshing monsoon mist.",
+    "whyVisit": "Medicinal waterfalls fed by Western Ghats streams — called the Spa of South India. Seven different falls each with a unique character. Peak season Jun–Sep when the monsoon fills every fall. And after all that nature: head to Courtallam Border Rahmath Kadai for legendary sutta parotta and mutton biryani — a must-eat for every visitor.",
     "recommendedDays": 2,
     "bestMonths": [
       "June",
@@ -2490,13 +2962,23 @@
     "travelStyles": [
       "nature",
       "waterfalls",
-      "relaxation"
+      "relaxation",
+      "foodie"
     ],
     "difficulty": "easy",
     "seasonalTags": [
       "waterfalls_active",
-      "monsoon_special"
-    ]
+      "monsoon_special",
+      "non_veg_food"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 85
   },
   {
     "id": "papanasam",
@@ -2535,7 +3017,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "manimuthar",
@@ -2574,7 +3064,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "thirparappu",
@@ -2613,7 +3111,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "srirangam",
@@ -2651,13 +3157,21 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "gangaikonda-cholapuram",
     "name": "Gangaikonda Cholapuram",
-    "fullName": "Gangaikonda Cholapuram",
-    "category": "temple",
+    "fullName": "Gangaikonda Cholapuram Chola Temple",
+    "category": "heritage",
     "emoji": "🛕",
     "district": "Ariyalur",
     "description": "Train to Ariyalur/Kumbakonam, then bus via Jayankondam.",
@@ -2666,11 +3180,11 @@
       "Chola heritage",
       "Jayankondam belt"
     ],
-    "nearestStation": "Ariyalur",
+    "nearestStation": "Madurai Junction",
     "hasRailAccess": false,
     "lat": 11.2,
     "lng": 79.44,
-    "whyVisit": "Stunning Dravidian architecture, historic stone carvings, and spiritual energy.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
@@ -2681,20 +3195,28 @@
     ],
     "travelStyles": [
       "heritage",
-      "spiritual",
-      "architecture"
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "temple_town",
-      "cultural"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "darasuram",
     "name": "Darasuram",
     "fullName": "Darasuram Airavatesvara Temple",
-    "category": "temple",
+    "category": "heritage",
     "emoji": "🛕",
     "district": "Thanjavur",
     "description": "Reach Kumbakonam by train, then local bus/auto to Darasuram.",
@@ -2708,7 +3230,7 @@
     "hasRailAccess": false,
     "lat": 10.95,
     "lng": 79.36,
-    "whyVisit": "Stunning Dravidian architecture, historic stone carvings, and spiritual energy.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
@@ -2719,14 +3241,22 @@
     ],
     "travelStyles": [
       "heritage",
-      "spiritual",
-      "architecture"
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "temple_town",
-      "cultural"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "nagore",
@@ -2764,7 +3294,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "karaikal",
@@ -2787,12 +3325,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -2803,13 +3337,21 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "karaikudi",
     "name": "Karaikudi",
-    "fullName": "Karaikudi (Chettinad Base)",
-    "category": "temple",
+    "fullName": "Karaikudi (Chettinad Heritage Hub)",
+    "category": "heritage",
     "emoji": "🛕",
     "district": "Sivaganga",
     "description": "Karaikudi Junction is the best base for Chettinad and Pillayarpatti.",
@@ -2823,7 +3365,7 @@
     "hasRailAccess": true,
     "lat": 10.07,
     "lng": 78.78,
-    "whyVisit": "Stunning Dravidian architecture, historic stone carvings, and spiritual energy.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
@@ -2834,20 +3376,28 @@
     ],
     "travelStyles": [
       "heritage",
-      "spiritual",
-      "architecture"
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "temple_town",
-      "cultural"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "chettinad",
     "name": "Chettinad",
-    "fullName": "Chettinad Heritage Villages",
-    "category": "temple",
+    "fullName": "Chettinad Mansions Region",
+    "category": "heritage",
     "emoji": "🛕",
     "district": "Sivaganga",
     "description": "Reach Karaikudi Junction and use buses/autos for Kanadukathan/Athangudi.",
@@ -2861,7 +3411,7 @@
     "hasRailAccess": false,
     "lat": 10.16,
     "lng": 78.78,
-    "whyVisit": "Stunning Dravidian architecture, historic stone carvings, and spiritual energy.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
@@ -2872,14 +3422,22 @@
     ],
     "travelStyles": [
       "heritage",
-      "spiritual",
-      "architecture"
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "temple_town",
-      "cultural"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "sivaganga",
@@ -2917,7 +3475,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "namakkal",
@@ -2955,7 +3521,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "krishnagiri",
@@ -2994,7 +3568,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "dharmapuri",
@@ -3033,7 +3615,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "kalakkad",
@@ -3072,7 +3662,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "koonthankulam",
@@ -3111,7 +3709,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "vedanthangal",
@@ -3150,7 +3756,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "marakkanam",
@@ -3173,12 +3787,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -3189,13 +3799,21 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "poompuhar",
     "name": "Poompuhar",
     "fullName": "Poompuhar Ancient Port",
-    "category": "beach",
+    "category": "heritage",
     "emoji": "🏖️",
     "district": "Mayiladuthurai",
     "description": "Train to Mayiladuthurai, then bus to Poompuhar.",
@@ -3209,26 +3827,33 @@
     "hasRailAccess": false,
     "lat": 11.14,
     "lng": 79.85,
-    "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
     "recommendedDays": 2,
     "bestMonths": [
       "October",
       "November",
       "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
-      "coastal",
-      "relaxation",
-      "seafood"
+      "heritage",
+      "history",
+      "photography"
     ],
     "difficulty": "easy",
     "seasonalTags": [
-      "coastal",
-      "beach_vibes"
-    ]
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   },
   {
     "id": "kodiakarai",
@@ -3267,7 +3892,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "point-calimere",
@@ -3306,7 +3939,15 @@
     "seasonalTags": [
       "forest",
       "wildlife"
-    ]
+    ],
+    "costIndex": 4,
+    "mobilityProfile": "high",
+    "activityProfile": {
+      "freeAttractions": 3,
+      "paidAttractions": 3,
+      "averageEntryFee": 100
+    },
+    "budgetReliability": 85
   },
   {
     "id": "pulicat",
@@ -3329,12 +3970,8 @@
     "whyVisit": "Golden sands, coastal breeze, and serene ocean views.",
     "recommendedDays": 2,
     "bestMonths": [
-      "October",
-      "November",
-      "December",
       "January",
-      "February",
-      "March"
+      "February"
     ],
     "travelStyles": [
       "coastal",
@@ -3345,7 +3982,15 @@
     "seasonalTags": [
       "coastal",
       "beach_vibes"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 30
+    },
+    "budgetReliability": 88
   },
   {
     "id": "pollachi",
@@ -3384,7 +4029,15 @@
     "seasonalTags": [
       "urban",
       "shopping"
-    ]
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 2,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 90
   },
   {
     "id": "avinashi",
@@ -3421,7 +4074,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "perur",
@@ -3459,7 +4120,15 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
   },
   {
     "id": "thirukadaiyur",
@@ -3497,6 +4166,690 @@
     "seasonalTags": [
       "temple_town",
       "cultural"
-    ]
+    ],
+    "costIndex": 2,
+    "mobilityProfile": "low",
+    "activityProfile": {
+      "freeAttractions": 6,
+      "paidAttractions": 1,
+      "averageEntryFee": 20
+    },
+    "budgetReliability": 95
+  },
+  {
+    "id": "gingee-fort",
+    "name": "Gingee Fort",
+    "fullName": "Gingee Fort (Troy of the East)",
+    "category": "heritage",
+    "emoji": "🏰",
+    "district": "Villupuram",
+    "description": "Impregnable hilltop fortress complex built by Cholas and expanded by Vijayanagara Kings, Nayaks, and Marathas. Dubbed 'Troy of the East' by the British.",
+    "attractions": [
+      "Rajagiri Citadel Hill 🏰",
+      "Krishnagiri Fort ⛰️",
+      "Kalyana Mahal 7-Storey Tower 🕌",
+      "Royal Granaries & Stables 🏛️",
+      "Venkataramana Temple 🛕",
+      "Ranganathar Cave Shrine 🕉️",
+      "Royal Moat & Bridge 💧",
+      "Chakrakulam Pond 🌊",
+      "Gymnasium Hall 🏋️‍♂️",
+      "Prisoners Cell & Watchtower 🔑"
+    ],
+    "nearestStation": "villupuram Junction",
+    "hasRailAccess": false,
+    "lat": 12.251,
+    "lng": 79.418,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "pudukkottai",
+    "name": "Pudukkottai",
+    "fullName": "Pudukkottai Heritage Town & Royal Palace",
+    "category": "heritage",
+    "emoji": "🏛️",
+    "district": "Pudukkottai",
+    "description": "Historic princely state kingdom renowned for royal palaces, ancient museums, rock-cut Jain & Chola monuments, and megalithic burial sites.",
+    "attractions": [
+      "Pudukkottai Royal Palace 👑",
+      "Government Museum Pudukkottai 📜",
+      "Brahadambal Temple & Tank 🛕",
+      "Thirumayam Fort Day Trip 🏰",
+      "Sittannavasal Cave Murals 🎨",
+      "Kudumiyanmalai Music Inscription Cave 🎶",
+      "Avur Church Heritage Site ⛪",
+      "Narthamalai Chola Cave Temple 🗿",
+      "Porpanaikottai Fort Ruins 🧱",
+      "Kunnandarkoil Rock Cave 🪨"
+    ],
+    "nearestStation": "Pudukkottai",
+    "hasRailAccess": true,
+    "lat": 10.383,
+    "lng": 78.821,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "sittannavasal",
+    "name": "Sittannavasal",
+    "fullName": "Sittannavasal Rock-Cut Caves & Monolithic Beds",
+    "category": "heritage",
+    "emoji": "🎨",
+    "district": "Pudukkottai",
+    "description": "World-famous 2nd-century BCE Jain heritage site featuring exquisite Lotus Pond fresco wall paintings, rock-cut Arivar Koil cave, and ancient stone beds.",
+    "attractions": [
+      "Lotus Pond Fresco Paintings 🎨",
+      "Arivar Koil Rock-Cut Cave 🛕",
+      "Ezhadippattam Jain Stone Beds 🪨",
+      "Natural Echo Cavern 🔊",
+      "Archaeological Park & Walkway 🌿",
+      "Thirumayam Fort Circuit 🛡️",
+      "Navagriha Relief Sculptures 🗿",
+      "Ancient Tamil-Brahmi Inscriptions 📜",
+      "Samandar Hilltop Viewpoint ⛰️",
+      "Kudumiyanmalai Rock Temple 🛕"
+    ],
+    "nearestStation": "Pudukkottai",
+    "hasRailAccess": false,
+    "lat": 10.457,
+    "lng": 78.731,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "thirumayam",
+    "name": "Thirumayam",
+    "fullName": "Thirumayam Rock Fort & Cave Temples",
+    "category": "heritage",
+    "emoji": "🛡️",
+    "district": "Pudukkottai",
+    "description": "Historic 17th-century fortress built by Vijaya Raghunatha Sethupathi, famous for its massive ring wall and twin rock-cut Shiva & Vishnu cave shrines.",
+    "attractions": [
+      "Thirumayam Hilltop Rock Fort 🏰",
+      "Cave Vishnu Temple (Adhi Meyyappar) 🕉️",
+      "Cave Satyagiriswarar Shiva Temple 🛕",
+      "Rampart Cannon Points 💣",
+      "Rock Inscriptions & Carvings 📜",
+      "Fort Moat Walkway 🌊",
+      "Poligar War History Display ⚔️",
+      "Kottai Vinayagar Shrine 🐘",
+      "Sittannavasal Day Route 🎨",
+      "Pudukkottai Museum Access 🏛️"
+    ],
+    "nearestStation": "Pudhukootai",
+    "hasRailAccess": true,
+    "lat": 10.247,
+    "lng": 78.749,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "panchalankurichi",
+    "name": "Panchalankurichi",
+    "fullName": "Panchalankurichi Fort (Veerapandiya Kattabomman Memorial)",
+    "category": "heritage",
+    "emoji": "⚔️",
+    "district": "Thoothukudi",
+    "description": "The historic citadel of freedom fighter Veerapandiya Kattabomman who revolted against East India Company. Features reconstructed fort walls and war museum.",
+    "attractions": [
+      "Kattabomman Memorial Fort Complex 🏰",
+      "Historical Freedom Struggle Museum 📜",
+      "Statue of Veerapandiya Kattabomman 🗿",
+      "Jakka Devi Temple 🛕",
+      "British Battery Siege Site 💣",
+      "Kayathar Kattabomman Memorial Tree 🌳",
+      "Ottapidaram V.O.C. House 🏠",
+      "Ettayapuram Bharatiyar Memorial ✍️",
+      "Maniyachi Junction Memorial 🚉",
+      "Thoothukudi Coast Side Trip 🌊"
+    ],
+    "nearestStation": "Kovilpatti",
+    "hasRailAccess": false,
+    "lat": 8.908,
+    "lng": 77.969,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "udayagiri-fort",
+    "name": "Udayagiri Fort",
+    "fullName": "Udayagiri Fort & De Lannoy's Tomb",
+    "category": "heritage",
+    "emoji": "🏰",
+    "district": "Kanyakumari",
+    "description": "17th-century Travancore kingdom granite fort re-engineered by Flemish commander Eustachius De Lannoy. Surrounded by massive walls and bio-park.",
+    "attractions": [
+      "Granite Ramparts & Moat 🏰",
+      "Eustachius De Lannoy's Tomb 🪦",
+      "Udayagiri Deer & Biodiversity Park 🦌",
+      "Foundry & Cannon Battery 💣",
+      "Palace Watchtower Ruins 👁️",
+      "Padmanabhapuram Palace Side Trip 🪵",
+      "Thiruvithamcode Arapally Church ⛪",
+      "Mathur Aqueduct 🌉",
+      "Chitharal Jain Monuments 🗿",
+      "Nagercoil Heritage Belt 🏛️"
+    ],
+    "nearestStation": "Eraniel/Nagercoil Junction",
+    "hasRailAccess": true,
+    "lat": 8.249,
+    "lng": 77.332,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "padmanabhapuram",
+    "name": "Padmanabhapuram Palace",
+    "fullName": "Padmanabhapuram Wooden Palace (Venad Kingdom Citadel)",
+    "category": "heritage",
+    "emoji": "🪵",
+    "district": "Kanyakumari",
+    "description": "Magnificent 16th-century wooden palace of the Travancore Maharajas, a architectural masterpiece of intricate timber carving and polished black egg-shell floors.",
+    "attractions": [
+      "King's Council Chamber (Mantrasala) 👑",
+      "Thai Kottaram (Queen Mother's Palace) 🏛️",
+      "Navarathri Mandapam Performance Hall 💃",
+      "Ancient Clock Tower ⏰",
+      "Royal Treasury & Weaponry Museum 🗡️",
+      "Belgian Mirror & Mahogany Gallery 🪞",
+      "Udayagiri Fort Side Trip 🏰",
+      "Mathur Hanging Trough Bridge 🌉",
+      "Thirparappu Waterfalls Route 💦",
+      "Kanyakumari Beach Circuit 🏖️"
+    ],
+    "nearestStation": "Nagercoil Junction",
+    "hasRailAccess": false,
+    "lat": 8.251,
+    "lng": 77.323,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "keezhadi",
+    "name": "Keezhadi",
+    "fullName": "Keezhadi Sangam Era Archaeological Site & Museum",
+    "category": "heritage",
+    "emoji": "🏺",
+    "district": "Sivaganga",
+    "description": "Epoch-making 6th-century BCE Vaigai River Valley Sangam civilization excavation site, featuring a state-of-the-art site museum with Tamil antiquity artifacts.",
+    "attractions": [
+      "Keezhadi Heritage Site Museum 🏛️",
+      "Excavated Brick Structures & Ring Wells 🧱",
+      "Tamil-Brahmi Inscribed Pottery 🏺",
+      "Carnelian Beads & Ivory Board Games 🎲",
+      "Weaving & Metal Craft Displays 🧵",
+      "Madurai Meenakshi Temple Route 🛕",
+      "Thirumalai Nayakar Mahal Side Trip 👑",
+      "Sivaganga Palace Circuit 🏰",
+      "Kondagai Burial Site Museum ⚱️",
+      "Agaram Excavation Zone ⛏️"
+    ],
+    "nearestStation": "Madurai Junction",
+    "hasRailAccess": false,
+    "lat": 9.863,
+    "lng": 78.184,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "kazhugumalai",
+    "name": "Kazhugumalai",
+    "fullName": "Kazhugumalai Rock-Cut Temples & Jain Bas-Reliefs",
+    "category": "heritage",
+    "emoji": "🗿",
+    "district": "Thoothukudi",
+    "description": "Renowned as the 'Ellora of the South', home to 8th-century monolithic Pandya Vettuvan Koil temple and breathtaking cliffside Jain Tirthankara relief carvings.",
+    "attractions": [
+      "Vettuvan Koil Monolithic Rock Temple 🛕",
+      "Jain Rock-Cut Bas-Relief Sculptures 🗿",
+      "Kazhugasathiamoorthy Murugan Cave Shrine 🛕",
+      "Vattam Rock Formations 🪨",
+      "Ancient Vatteluttu Rock Inscriptions 📜",
+      "Sankarankoil Temple Circuit 🕉️",
+      "Kovilpatti Town Base 🏙️",
+      "Ettayapuram Cultural Walk ✍️",
+      "Panchalankurichi Freedom Fort 🏰",
+      "Tirunelveli Heritage Route 🏛️"
+    ],
+    "nearestStation": "Kovilpatti",
+    "hasRailAccess": false,
+    "lat": 9.143,
+    "lng": 77.809,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "thirumalai-nayakar-mahal",
+    "name": "Tirumalai Nayakar Mahal",
+    "fullName": "Tirumalai Nayakar Palace & Heritage Complex",
+    "category": "heritage",
+    "emoji": "👑",
+    "district": "Madurai",
+    "description": "1636 CE architectural marvel built by King Tirumalai Nayak in Indo-Saracenic style, famous for giant stucco pillars, celestial hall, and sound & light show.",
+    "attractions": [
+      "Swarga Vilasam (Celestial Pavilion) 🏛️",
+      "Giant Stucco Pillars (82 ft tall) 🏛️",
+      "Royal Courtyard & Throne Room 👑",
+      "Nightly Sound & Light Show 🎆",
+      "ASI Archaeological Museum 📜",
+      "Meenakshi Amman Temple Walk 🛕",
+      "Koodal Azhagar Temple Route 🕉️",
+      "Madurai Teppakulam Lake 💧",
+      "Keezhadi Museum Day Trip 🏺",
+      "Gandhi Memorial Museum 🕊️"
+    ],
+    "nearestStation": "Madurai Junction",
+    "hasRailAccess": true,
+    "lat": 9.915,
+    "lng": 78.123,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "sadras",
+    "name": "Sadras Dutch Fort",
+    "fullName": "Sadras Historic Dutch Coastal Fort",
+    "category": "heritage",
+    "emoji": "⚓",
+    "district": "Chengalpattu",
+    "description": "17th-century coastal fortress built by the Dutch East India Company. Features brick ramparts, Dutch cemetery, granary, secret passages, and ancient bell tower.",
+    "attractions": [
+      "Dutch Fort Ramparts & Bastions 🏰",
+      "Historical Dutch Cemetery (1600s) 🪦",
+      "Brick Granary & Ordnance Store 🏛️",
+      "Historic Watchtower & Bell Tower 🔔",
+      "Sadras Beach & Fishing Harbor 🌊",
+      "Alamparai Fort Coastal Route 🏰",
+      "Mahabalipuram UNESCO Circuit 🗿",
+      "Kalpakkam Coastal Belt 🏖️",
+      "ECR Scenic Drive 🚗",
+      "Sadras Shiva Temple 🛕"
+    ],
+    "nearestStation": "Chengalpattu Junction",
+    "hasRailAccess": false,
+    "lat": 12.518,
+    "lng": 80.161,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "alamparai-fort",
+    "name": "Alamparai Fort",
+    "fullName": "Alamparai Seaside Fort & Ruins",
+    "category": "heritage",
+    "emoji": "🏰",
+    "district": "Chengalpattu",
+    "description": "Picturesque 18th-century Mughal & Carnatic fort ruins standing directly on backwaters and the Bay of Bengal, built with red brick masonry and palm groves.",
+    "attractions": [
+      "Seaside Red-Brick Ramparts 🏰",
+      "Backwater Boating & Fishermen Dock 🚣",
+      "Ruined Watchtowers & Barracks 🧱",
+      "Coastal Beach Viewpoint 🏖️",
+      "Sunset Point on ECR Backwaters 🌅",
+      "Sadras Dutch Fort Circuit ⚓",
+      "Marakkanam Salt Pans 🧂",
+      "Pondicherry ECR Route 🇫🇷",
+      "Tindivanam Heritage Base 🏙️",
+      "Mudaliarkuppam Boat House 🚤"
+    ],
+    "nearestStation": "Melmaruvathur",
+    "hasRailAccess": false,
+    "lat": 12.259,
+    "lng": 79.992,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
+  },
+  {
+    "id": "kanadukathan",
+    "name": "Kanadukathan",
+    "fullName": "Kanadukathan Chettinad Palace Village",
+    "category": "heritage",
+    "emoji": "🏰",
+    "district": "Sivaganga",
+    "description": "The grand heartland of Chettinad heritage, famous for the iconic 1912 Chettinad Palace, marble courtyards, Burmese teak pillars, and handmade Athangudi tiles.",
+    "attractions": [
+      "Chettinad Palace Kanadukathan 🏰",
+      "Thousand Window House 🪟",
+      "Traditional Mansion Street Walk 🚶‍♂️",
+      "Athangudi Handmade Tile Palace Workshop 🎨",
+      "Chettinad Antique Furniture Market 🏺",
+      "Pillayarpatti Temple Route 🐘",
+      "Karpaga Vinayagar Cave Shrine 🛕",
+      "Chettinad Cuisine Tasting 🍛",
+      "Kottaiyur Heritage Mansions 🏛️",
+      "Karaikudi Heritage Junction 🚉"
+    ],
+    "nearestStation": "Karaikudi Junction",
+    "hasRailAccess": true,
+    "lat": 10.174,
+    "lng": 78.783,
+    "whyVisit": "Historic monuments, ancient forts, and rich cultural legacy.",
+    "recommendedDays": 2,
+    "bestMonths": [
+      "October",
+      "November",
+      "December",
+      "January",
+      "February"
+    ],
+    "travelStyles": [
+      "heritage",
+      "history",
+      "photography"
+    ],
+    "difficulty": "easy",
+    "seasonalTags": [
+      "monument",
+      "historic"
+    ],
+    "costIndex": 3,
+    "mobilityProfile": "medium",
+    "activityProfile": {
+      "freeAttractions": 4,
+      "paidAttractions": 3,
+      "averageEntryFee": 40
+    },
+    "budgetReliability": 92
   }
 ]

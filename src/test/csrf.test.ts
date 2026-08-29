@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { verifyRequestOrigin } from "../../api/utils/auth.js";
+import { verifyRequestOrigin } from "../../api/_utils/auth.js";
 
 describe("CSRF Origin Verification", () => {
   it("should allow safe HTTP methods without verification", () => {

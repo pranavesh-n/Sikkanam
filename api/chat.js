@@ -682,7 +682,7 @@ export default async function handler(req, res) {
       return undefined;
     };
 
-    const GROQ_API_KEY = getEnvVar("GROQ_API_KEY");
+    const GROQ_API_KEY = getEnvVar("SIKKANAM_PLAN_API_KEY") || getEnvVar("GROQ_API_KEY");
     const GEMINI_API_KEY = getEnvVar("GEMINI_API_KEY");
 
     const prompt = sanitizedMessages
@@ -842,14 +842,13 @@ TRAVEL PLANNING GUIDELINES:
 ${ragContext}
 `;
 
-    // 5. Prioritize GROQ API if key is present
+    // 5. Prioritize GROQ API with SIKKANAM_PLAN_API_KEY
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
       const groqModels = [
+        "llama-3.3-70b-versatile",
         "llama-3.1-8b-instant",
-        "gemma2-9b-it",
-        "qwen/qwen3.6-27b",
-        "qwen3.6-27b",
-        "mixtral-8x7b-32768"
+        "mixtral-8x7b-32768",
+        "gemma2-9b-it"
       ];
       for (const groqModel of groqModels) {
         try {

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Bookmark, Info, Mail, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck, Trash2, BadgeCheck } from "lucide-react";
+import { Heart, Bookmark, Info, Mail, LogOut, Lock, KeyRound, Smartphone, Download, CheckCircle2, Sparkles, X, ShieldCheck, Trash2, BadgeCheck, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppLock } from "@/context/AppLockContext";
 import { PasscodeSetupModal } from "@/components/PasscodeSetupModal";
 import { DisablePasscodeModal } from "@/components/DisablePasscodeModal";
 import InstallPWAModal from "@/components/InstallPWAModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
+import { FeedbackModal } from "@/components/FeedbackModal";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
@@ -25,6 +26,7 @@ const Profile = () => {
   const [showDisablePasscode, setShowDisablePasscode] = useState(false);
   const [showPwaModal, setShowPwaModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
   const [savedCount, setSavedCount] = useState<number>(0);
@@ -304,6 +306,14 @@ const Profile = () => {
 
       {/* Support & Community Section - No phone number text shown */}
       <Section title="Support & Community">
+        <button onClick={() => setShowFeedbackModal(true)} className="block w-full text-left focus:outline-none">
+          <Row
+            icon={MessageSquare}
+            label="Share Feedback & Report Issues"
+            desc="Report timing corrections, transit fixes, or feature requests"
+          />
+        </button>
+
         <a
           href="https://wa.me/916374161918?text=Hi%20Sikkanam%20Team"
           target="_blank"
@@ -337,6 +347,11 @@ const Profile = () => {
         </button>
       </Section>
 
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
+
       {/* Sign Out Action */}
       {user && (
         <button
@@ -354,7 +369,7 @@ const Profile = () => {
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-3">
-        சிக்கனம் · Sikkanam v2.6.3
+        சிக்கனம் · Sikkanam v2.6.4
       </p>
 
       {/* About Modal */}
@@ -444,7 +459,7 @@ const Profile = () => {
 
             {/* Footer Info & Action */}
             <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[11px] text-muted-foreground font-medium">
-              <span>Sikkanam v2.6.3 • Stable</span>
+              <span>Sikkanam v2.6.4 • Stable</span>
               <span>Made in Tamil Nadu ❤️</span>
             </div>
 

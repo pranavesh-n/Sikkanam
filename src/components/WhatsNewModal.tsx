@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Sparkles, Heart, ShieldCheck, Cloud, Share2, Flame, Smartphone, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.6.3";
+const VERSION = "2.6.4";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -47,64 +47,64 @@ export default function WhatsNewModal() {
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v2.6.3
+          What's New in Sikkanam v2.6.4
         </h2>
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          1-Click Wishlist on Trip Plans, AI 2.0 Security Guardrails, Cloud Logout Sync & Official WhatsApp Sharing!
+          Intelligence Engine v4.4, Searchable 100-Place Catalog, Exact Railway Timetables & 2-Way Round-Trip Pricing!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — 1-Click Direct Wishlist on Trip Plans */}
-          <div className="flex gap-3.5 items-start text-left bg-rose-500/5 dark:bg-rose-500/10 p-3 rounded-2xl border border-rose-500/20">
-            <div className="p-2 rounded-xl bg-rose-500/20 text-rose-600 dark:text-rose-400 shrink-0">
-              <Heart className="w-5 h-5 fill-rose-500" />
+          {/* Feature 1 — Intelligence Engine v4.4 */}
+          <div className="flex gap-3.5 items-start text-left bg-primary/5 dark:bg-primary/10 p-3 rounded-2xl border border-primary/20">
+            <div className="p-2 rounded-xl bg-primary/20 text-primary shrink-0">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">1-Click Wishlist on Trip Plans</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Intelligence Engine v4.4</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Bookmark any destination directly from generated AI trip plans into your wishlist with instant real-time sync across all pages.
+                Official real-time railway timetables (e.g. Nilgiri Exp #12671 departing at 09:05 PM) and dynamic OSM road distance calculations.
               </p>
             </div>
           </div>
 
-          {/* Feature 2 — Sikkanam AI 2.0 Enterprise Security Guardrails */}
+          {/* Feature 2 — 2-Way (Round-Trip) Pricing Optimization */}
           <div className="flex gap-3.5 items-start text-left bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20">
             <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Sikkanam AI 2.0 Security Guardrails</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">2-Way Round-Trip Pricing</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Hardened anti-jailbreak detection, role spoofing defense, payload caps, and unbreakable prompt security.
+                Transparent outward & return fare calculations across train sleeper and government buses with realistic per-km rates.
               </p>
             </div>
           </div>
 
-          {/* Feature 3 — Multi-Device Cloud Logout Sync */}
+          {/* Feature 3 — Searchable 100-Destination Catalog */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
               <Cloud className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Multi-Device Cloud Logout Sync</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Searchable 100-Destination Catalog</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Signing out on your PC automatically signals and signs out all active sessions across all your devices in real time.
+                Fast type-to-search dropdown covering all 100 unique destinations in Tamil Nadu with mutual exclusivity and clean states.
               </p>
             </div>
           </div>
 
-          {/* Feature 4 — Official WhatsApp Sharing */}
+          {/* Feature 4 — Multi-Destination Spatial Circuits */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 shrink-0">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Official WhatsApp Sharing</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Spatial Multi-Stop Circuits</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Share complete trip itineraries to WhatsApp groups with authentic branding and rich formatted summaries.
+                Terrain-aware hill winding road distance factors and realistic local transit budgeting without fare anomalies.
               </p>
             </div>
           </div>

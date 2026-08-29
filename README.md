@@ -8,15 +8,26 @@ Unlike typical travel planners that show unexplained, static cost estimates, Sik
 
 ## 🌟 Key Features
 
-### 1. No Guesswork, Only Evidence
-Sikkanam does not display arbitrary "confidence scores" or fake percentages. Instead, it shows you a clear checklist of the verified data sources used to calculate your budget.
+### 1. Intelligence Engine v4.4 & Real-Time Railway Schedules 🚆
+Official timetable integration for premier Tamil Nadu express trains (e.g. *Nilgiri Express #12671* departing at 09:05 PM, *Pandian Express #12637*, *Rameswaram Sethu SF #22661*) combined with OpenStreetMap road routing for accurate early morning arrivals.
 
-### 2. Real-World Road Distances
-Travel times and distance calculations are powered by real-world road network routing, ensuring your intercity travel times match actual road conditions in Tamil Nadu.
+### 2. 2-Way Round-Trip (Up & Down) Fare Transparency 🔄
+Never guess whether transport costs are one-way or round-trip. Sikkanam calculates transparent outward and return rates using real-world IRCTC Sleeper rates (~₹0.55/km) and TNSTC/SETC Government bus rates (~₹1.05/km).
 
-### 3. Food Cost Breakdown
-Your daily food allowance isn't a random guess. Sikkanam breaks down your daily dining budget into:
+### 3. Searchable 100-Destination Catalog 🔍
+Instant live search combobox covering all 100 authentic destinations across Tamil Nadu with mutual exclusivity (the selected origin automatically vanishes from destination options).
 
+### 4. Dynamic Multi-Destination Spatial Circuits 🗺️
+Terrain-aware hill routing (1.5x winding distance factor for ghat roads) providing connected multi-stop circuits (e.g. Ooty + Coonoor) with realistic local transit fares.
+
+### 5. No Guesswork, Only Evidence
+Sikkanam does not display arbitrary "confidence scores" or fake percentages. Instead, it shows you a clear checklist of verified data sources used to calculate your budget.
+
+### 6. Real-World Road Distances
+Travel times and distance calculations are powered by real-world road network routing via OpenStreetMap / OSRM, ensuring intercity travel times match actual road conditions in Tamil Nadu.
+
+### 7. Food Cost Breakdown
+Your daily food allowance is broken down into:
 - 🍳 Breakfast
 - 🍛 Lunch
 - 🍲 Dinner
@@ -24,74 +35,28 @@ Your daily food allowance isn't a random guess. Sikkanam breaks down your daily 
 
 These rates automatically adjust depending on whether your destination is a small town (like Chidambaram) or a premium tourist spot (like Ooty or Kodaikanal).
 
-### 4. Realistic Hotel Stays
+### 8. Realistic Hotel Stays
 Sikkanam estimates hotel price ranges based on the actual number of nearby lodging options available in the town's inventory, ensuring you don't book underpriced or overpriced rooms.
 
-### 5. Real-Time Sync & Multi-Database Backend
-Sikkanam is a fully connected full-stack application. Your travel profile, saved itineraries, and wishlists are securely stored and synced across all your devices using a highly optimized, modern cloud architecture.
+### 9. Real-Time Cloud Sync & Multi-Database Backend
+Your travel profile, saved itineraries, and wishlists are securely stored and synced across all your devices using a modern cloud architecture.
 
-### 6. 100 Curated Destinations 🗺️
-Covers the full breadth of Tamil Nadu — from the Nilgiri hills to Kanyakumari, from temple towns to remote waterfalls and 21 heritage monuments. Every destination has curated metadata: best travel months, difficulty level, recommended days, and local food spots.
-
-### 7. Live Weather Forecast & Sikkanam AI Rain Risk System 🌤️
+### 10. Live Weather Forecast & Sikkanam AI Rain Risk System 🌤️
 Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model** (`models=ecmwf_ifs025`).
-- **Live Travel Metrics**: Real-time current temperature ("NOW"), 3-day forecast selector, Feels Like (°C), Wind Speed (km/h), Humidity (%), UV Index Category, and formatted Sunrise & Sunset times.
-- **Sikkanam Travel Intelligence**: Calculates hourly precipitation windows (*"Most likely rain window: 3 PM – 11 PM"*) and provides actionable traveler advice (*"Carry an umbrella or raincoat"*, *"Best time for outdoor sightseeing: 6 AM – 1 PM"*).
-- **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across Tamil Nadu destinations (e.g. *Anna Nagar*, *T. Nagar*, *Velachery* in Chennai; *Dhanushkodi*, *Pamban Bridge* in Rameswaram; *Coonoor*, *Doddabetta* in Ooty) plus a **"🎯 Use precise GPS location"** button.
-- **Sikkanam AI Rain Risk Alert**: Triggers smart rain risk warnings and recommends curated indoor alternatives (museums, indoor palaces, art galleries, historic churches) to replace outdoor viewpoints when heavy rain threatens sightseeing.
-
----
-
-## ⚙️ Full-Stack System Architecture
-
-To deliver secure authentication and seamless data persistence without compromises, Sikkanam utilizes a specialized **3-Database cloud architecture**:
-
-| Layer | Tech | Purpose |
-|---|---|---|
-| 🔐 Authentication | Firebase Auth (Google OAuth) | Passwordless client-side sign-in; JWT cookie sessions backend-side |
-| 🗄️ Itinerary Storage | Supabase (PostgreSQL) | Custom itineraries and planned trips, mapped to user profiles |
-| 🍃 Wishlist Persistence | MongoDB Atlas | Favorited destinations (hearting system) via NoSQL cluster |
-| ⚡ API Layer | Vercel Serverless | OAuth verification, trip CRUD, and wishlist handlers |
-
----
-
-## 🚘 How to Use Sikkanam
-
-1. **Sign In** — Click *Sign In with Google* in the Profile section to sync saved itineraries and wishlists across devices.
-2. **Choose Your Route** — Select your starting location and where you want to go in Tamil Nadu.
-3. **Specify Trip Details** — Enter the number of travelers and the duration of your stay.
-4. **Select Your Style:**
-   - **Budget** — Travel like a local using TNSTC buses, budget lodges, and local messes/eateries.
-   - **Standard** — The balanced approach with comfortable rooms, standard restaurants, and standard transit classes.
-   - **Comfort** — Private cabs/express buses, premium hotels, and fine-dining restaurants.
-5. **Get Your Budget Breakdown** — Instantly view the Recommended Carry Amount, Minimum Required, and Comfort Budgets.
-6. **Save & Edit** — Save the itinerary to your profile. You can rename, view, or delete it at any time.
-
----
-
-## 📊 Understanding Your Budget
-
-| Budget Type | What it Covers |
-|---|---|
-| **Minimum Required** | The absolute baseline cost needed for transport, basic rooms, food, and entrance tickets. |
-| **Comfort Budget** | A realistic budget that allows for comfortable dining, standard accommodations, and leisure transport. |
-| **Recommended Carry** | The maximum expected spend plus a calculated Emergency Buffer to cover delays, shopping, or medical emergencies. |
-
----
-
-## 🛡️ Data Sources
-
-Every estimate provided in Sikkanam is traceable to one of our verified databases:
-
-- 🗺️ **OpenStreetMap Routing** — Real driving miles and travel times.
-- 🎟️ **Attraction Fee Database** — Official district administration records for sightseeing entry fares.
-- 🍽️ **Food Cost Profiles** — Regional food cost index mappings (very cheap → cheap → average → tourist → premium).
-- 🏨 **Hotel Inventory Dataset** — Market price categories mapped by regional lodging availability.
-- 🧭 **Destination Intelligence Dataset** — Curated local expertise on best months to visit, difficulty levels, transit hubs, and local food spots.
+- **Live Travel Metrics**: Real-time current temperature ("NOW"), 3-day forecast selector, Feels Like (°C), Wind Speed (km/h), Humidity (%), UV Index Category, and Sunrise & Sunset times.
+- **Sikkanam Travel Intelligence**: Calculates hourly precipitation windows (*"Most likely rain window: 3 PM – 11 PM"*) and provides actionable traveler advice.
+- **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across Tamil Nadu destinations plus a **"🎯 Use precise GPS location"** button.
 
 ---
 
 ## 🆕 Changelog
+
+### v2.6.4 — August 2026 (Intelligence Engine v4.4, Exact Railway Timetables & 2-Way Round-Trip Pricing)
+- 🚆 **Intelligence Engine v4.4 & Official Timetable Grounding**: Replaced mathematical departure approximations with exact official IRCTC timetables (e.g. *Nilgiri Express #12671* departing Chennai at 09:05 PM and arriving at Mettupalayam at 05:20 AM).
+- 🔄 **2-Way (Round-Trip) Transport Pricing**: Added transparent outward and return fare breakdowns across train sleeper and government buses with realistic per-km rates.
+- 🔍 **Searchable 100-Destination Catalog**: Replaced dropdowns with a fast type-to-search combobox covering all 100 unique destinations in Tamil Nadu with mutual exclusivity and clean zero-result states.
+- 🏔️ **Multi-Destination Spatial Circuits**: Terrain-aware hill winding road distance factors and realistic local transit budgeting without fare anomalies.
+- 💬 **Cloud Feedback & Query History Management**: Complete database-backed query persistence allowing travelers to submit and delete route queries.
 
 ### v2.6.3 — August 2026 (1-Click Wishlist on Trip Plans, AI 2.0 Security & Multi-Device Cloud Logout Sync)
 - ❤️ **1-Click Direct Wishlist on Trip Plans**: Integrated an interactive 1:1 circular glassmorphism Heart bookmark button directly on AI trip plan hero cards, persisting destination IDs to MongoDB wishlist with real-time cross-page event broadcasting (`sikkanam:wishlist_updated`).

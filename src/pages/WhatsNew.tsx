@@ -40,16 +40,56 @@ interface MonthlyRelease {
 
 const MONTHLY_RELEASES: MonthlyRelease[] = [
   {
-    id: "august-2026-v263",
+    id: "august-2026-v264",
     monthYear: "August 2026 (Latest)",
+    version: "v2.6.4",
+    tagline: "Intelligence Engine v4.4, Searchable 100-Place Catalog, Exact Railway Timetables & 2-Way Round-Trip Pricing",
+    updates: [
+      {
+        title: "Intelligence Engine v4.4 & Official Timetable Grounding",
+        category: "Intelligence & Railways",
+        description:
+          "Official IRCTC timetable integration for popular expresses (Nilgiri Exp departing 09:05 PM, Pandian Exp, Sethu Exp) and OSRM-grounded dynamic early-morning arrival calculations.",
+        icon: Sparkles,
+        badgeColor: "bg-primary/10 text-primary border-primary/20",
+      },
+      {
+        title: "2-Way Round-Trip (Up & Down) Transit Pricing",
+        category: "Pricing & Calculations",
+        description:
+          "Optimized realistic per-km rates for sleeper train (~₹0.55/km) and government buses (~₹1.05/km) with transparent outward and return fare breakdowns.",
+        icon: Bus,
+        badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      },
+      {
+        title: "Searchable 100-Destination Catalog & Combobox",
+        category: "Catalog & Search",
+        description:
+          "Instant live type-to-search across all 100 authentic destinations in Tamil Nadu with mutual exclusivity and clean 'No places found' zero-result state.",
+        icon: MapPin,
+        badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      },
+      {
+        title: "Dynamic Multi-Stop KNN Spatial Circuits",
+        category: "Spatial AI & Circuits",
+        description:
+          "Multi-destination trail recommendation engine with terrain-aware distance factors (1.5x hills, 1.3x plains) and realistic non-zero transit budgets.",
+        icon: Rocket,
+        badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
+      },
+    ],
+  },
+  {
+    id: "august-2026-v263",
+    monthYear: "August 2026",
     version: "v2.6.3",
     tagline: "Direct 1-Click Wishlisting on Trip Plans, AI 2.0 Security Guardrails & Multi-Device Cloud Logout Sync",
     updates: [
       {
         title: "1-Click Direct Wishlist on Trip Plans",
-        category: "Wishlist & MongoDB",
+        category: "Wishlist & Stays",
         description:
-          "Bookmark any destination directly from generated trip plans into your personal MongoDB wishlist with real-time sync across Explore, Wishlist, and Profile pages.",
+          "Bookmark any destination directly from generated trip plans into your personal cloud wishlist with real-time sync across Explore, Wishlist, and Profile pages.",
         icon: Heart,
         badgeColor: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
       },
@@ -63,9 +103,9 @@ const MONTHLY_RELEASES: MonthlyRelease[] = [
       },
       {
         title: "Multi-Device Real-Time Cloud Logout Sync",
-        category: "Cloud Firestore",
+        category: "Cloud Sync",
         description:
-          "Signing out on your PC or mobile automatically broadcasts a real-time cloud signal via Firestore to sign out all active sessions across all your devices.",
+          "Signing out on your PC or mobile automatically syncs across the cloud to sign out all active sessions across all your devices in real time.",
         icon: Cloud,
         badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
       },

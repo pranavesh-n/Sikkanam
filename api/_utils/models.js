@@ -23,3 +23,16 @@ const TripSchema = new mongoose.Schema({
 });
 
 export const Trip = mongoose.models.Trip || mongoose.model("Trip", TripSchema);
+
+const FeedbackSchema = new mongoose.Schema({
+  userId: { type: String, required: true, index: true },
+  userEmail: { type: String, default: "anonymous" },
+  type: { type: String, required: true },
+  message: { type: String, required: true },
+  appVersion: { type: String, default: "v2.6.4" },
+  deviceInfo: { type: String, default: "" },
+  status: { type: String, default: "received" },
+  createdAt: { type: Date, default: Date.now }
+});
+
+export const Feedback = mongoose.models.Feedback || mongoose.model("Feedback", FeedbackSchema);

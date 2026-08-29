@@ -1,8 +1,8 @@
 import { useState, forwardRef, useEffect, useRef } from "react";
-import { tnDestinations } from "@/data/tnDestinations";
+import { tnDestinations, type TNDestination } from "@/data/tnDestinations";
 import { type TripInput, type TravelStyle, type TravellerType } from "@/lib/tripPlanner";
 import { CATEGORY_PRICING } from "@/data/categoryPricing";
-import { MapPin, Users, Calendar, Wallet, Compass } from "lucide-react";
+import { MapPin, Users, Calendar, Wallet, Compass, Search, X, ChevronDown, Check } from "lucide-react";
 
 const getDistance = (fromLat: number, fromLng: number, toLat: number, toLng: number) => {
   const R = 6371;
@@ -85,6 +85,149 @@ const calculateBudgetRange = (
 
   return { min: roundedMin, max: roundedMax };
 };
+
+interface SearchableSelectProps {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+  allowRecommend?: boolean;
+  destinations: TNDestination[];
+}
+
+function SearchableSelect({
+  label,
+  icon,
+  value,
+  onChange,
+  placeholder,
+  allowRecommend = false,
+  destinations,
+}: SearchableSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedDest = destinations.find((d) => d.id === value);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        setSearch("");
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const filtered = destinations.filter((d) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase().trim();
+    return (
+      d.name.toLowerCase().includes(q) ||
+      (d.fullName && d.fullName.toLowerCase().includes(q)) ||
+      (d.district && d.district.toLowerCase().includes(q))
+    );
+  });
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        {icon} {label}
+      </label>
+
+      {/* Classic Select Trigger Button */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setSearch("");
+        }}
+        className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground flex items-center justify-between hover:border-primary/50 focus:ring-2 focus:ring-ring focus:outline-none transition-colors text-left"
+      >
+        <span className="truncate">
+          {value === "" && allowRecommend ? (
+            <span className="font-medium text-foreground">🔮 Help Me Choose! (Recommend Destinations)</span>
+          ) : selectedDest ? (
+            <span>
+              {selectedDest.name} {selectedDest.district && selectedDest.district !== selectedDest.name ? `(${selectedDest.district})` : ""}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">{placeholder}</span>
+          )}
+        </span>
+        <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {/* Dropdown Menu with Search */}
+      {isOpen && (
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-card shadow-elevated overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+          {/* Search Box */}
+          <div className="p-2 border-b border-border bg-muted/30">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Type to search..."
+              className="w-full px-3 py-1.5 text-sm rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          {/* Options List */}
+          <div className="max-h-60 overflow-y-auto py-1">
+            {allowRecommend && !search && (
+              <div
+                onClick={() => {
+                  onChange("");
+                  setIsOpen(false);
+                  setSearch("");
+                }}
+                className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted font-medium transition-colors ${
+                  value === "" ? "bg-muted text-primary font-semibold" : "text-foreground"
+                }`}
+              >
+                🔮 Help Me Choose! (Recommend Destinations)
+              </div>
+            )}
+
+            {filtered.length > 0 ? (
+              filtered.map((d) => {
+                const labelText = `${d.name}${d.district && d.district !== d.name ? ` (${d.district})` : ""}`;
+                const isSelected = value === d.id;
+                return (
+                  <div
+                    key={d.id}
+                    onClick={() => {
+                      onChange(d.id);
+                      setIsOpen(false);
+                      setSearch("");
+                    }}
+                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted transition-colors ${
+                      isSelected ? "bg-muted text-primary font-semibold" : "text-foreground"
+                    }`}
+                  >
+                    {labelText}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+                No places found
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface TripPlannerFormProps {
   onGenerate: (input: TripInput) => void;
@@ -169,42 +312,34 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-elevated p-6 md:p-8 space-y-6">
           {/* Source & Destination */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                <MapPin className="w-4 h-4 text-primary" /> From
-              </label>
-              <select
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
-              >
-                <option value="">Select source</option>
-                {sortedDestinations.map((d) => (
-  <option key={d.id} value={d.id}>
-    {d.name}
-  </option>
-))}
-              </select>
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                <MapPin className="w-4 h-4 text-secondary" /> To
-              </label>
-              <select
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
-              >
-                <option value="">🔮 Help Me Choose! (Recommend Destinations)</option>
-                {sortedDestinations
-  .filter((d) => d.id !== source)
-  .map((d) => (
-    <option key={d.id} value={d.id}>
-      {d.name}
-    </option>
-))}
-              </select>
-            </div>
+            <SearchableSelect
+              label="From"
+              icon={<MapPin className="w-4 h-4 text-primary" />}
+              value={source}
+              onChange={(val) => {
+                setSource(val);
+                if (destination && destination === val) {
+                  setDestination("");
+                }
+              }}
+              placeholder="Select departure city / hub"
+              destinations={sortedDestinations.filter((d) => !destination || d.id !== destination)}
+            />
+
+            <SearchableSelect
+              label="To"
+              icon={<MapPin className="w-4 h-4 text-secondary" />}
+              value={destination}
+              onChange={(val) => {
+                setDestination(val);
+                if (source && source === val) {
+                  setSource("");
+                }
+              }}
+              placeholder="🔮 Help Me Choose! (Recommend Destinations)"
+              allowRecommend={true}
+              destinations={sortedDestinations.filter((d) => !source || d.id !== source)}
+            />
           </div>
 
           {/* Days & Travellers & Traveller Profile */}
