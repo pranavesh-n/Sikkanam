@@ -43,6 +43,7 @@ export const subLocationsByDestination: Record<string, SubLocation[]> = {
   ],
   coimbatore: [
     { name: "Gandhipuram", lat: 11.0168, lng: 76.9558 },
+    { name: "LuLu Mall (Lakshmi Mills, Avinashi Rd)", lat: 11.0185, lng: 76.9856 },
     { name: "RS Puram", lat: 11.008, lng: 76.946 },
     { name: "Peelamedu", lat: 11.028, lng: 77.0 },
     { name: "Singanallur", lat: 10.99, lng: 77.02 },
@@ -51,6 +52,25 @@ export const subLocationsByDestination: Record<string, SubLocation[]> = {
     { name: "Valparai Town", lat: 10.32, lng: 76.95 },
     { name: "Aliyar Dam Area", lat: 10.48, lng: 76.97 },
     { name: "Sholayar Dam Zone", lat: 10.32, lng: 76.84 },
+  ],
+  pollachi: [
+    { name: "Pollachi Central Bus Stand", lat: 10.659, lng: 77.005 },
+    { name: "Pollachi Junction Railway Station", lat: 10.655, lng: 77.008 },
+    { name: "Maasani Amman Temple (Anaimalai)", lat: 10.583, lng: 76.933 },
+    { name: "Aliyar Dam & Reservoir", lat: 10.485, lng: 76.971 },
+    { name: "Topslip Wildlife Gateway", lat: 10.472, lng: 76.842 },
+  ],
+  "maasani-amman": [
+    { name: "Arulmigu Maasani Amman Temple Sanctum", lat: 10.583, lng: 76.933 },
+    { name: "Anaimalai Bus Stand & River Ghats", lat: 10.585, lng: 76.935 },
+    { name: "Pollachi Transit Hub", lat: 10.659, lng: 77.005 },
+    { name: "Aliyar Dam", lat: 10.485, lng: 76.971 },
+  ],
+  marudhamalai: [
+    { name: "Arulmigu Subramaniyaswami Hilltop Temple", lat: 11.046, lng: 76.852 },
+    { name: "Marudhamalai Foothill Bus Terminus", lat: 11.037, lng: 76.865 },
+    { name: "Pambatti Siddhar Cave", lat: 11.047, lng: 76.851 },
+    { name: "Gandhipuram Central Bus Stand", lat: 11.017, lng: 76.967 },
   ],
   yercaud: [
     { name: "Yercaud Lake Center", lat: 11.77, lng: 78.21 },

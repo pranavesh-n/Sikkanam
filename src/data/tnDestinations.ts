@@ -5,6 +5,8 @@ export interface TNDestination {
   id: string; name: string; fullName: string; category: DestinationCategory;
   emoji: string; district: string; districtDesc?: string; description: string; attractions: string[];
   nearestStation: string; hasRailAccess: boolean; lat: number; lng: number;
+  localTransit?: string;
+  transitTips?: string[];
   hotels?: Hotel[]; // Optional hotels field for trip planning
   whyVisit?: string;
   recommendedDays?: number;
@@ -696,15 +698,14 @@ const rawDestinations: TNDestination[] = [
     "category": "city",
     "emoji": "🏭",
     "district": "Coimbatore",
-    "description": "Industrial capital of TN. Gateway to Ooty (90km), Valparai, and Mudumalai. Great food, textile shopping, and the famous Isha Yoga Centre.",
+    "description": "Industrial capital of TN and premier shopping hub. Gateway to Ooty (90km) and Valparai. Celebrated for textile shopping, legendary Kongu cuisine, the massive LuLu Mall (Tamil Nadu's largest hypermarket & popular leisure spot), and spiritual hubs like Isha Yoga Centre and Marudhamalai.",
     "attractions": [
-      "Isha Yoga Centre 🧘",
-      "Adiyogi Shiva Statue 🕉️",
-      "Marudamalai Temple 🛕",
-      "Ooty (90km) ⛰️",
-      "Valparai (64km) 🍃",
-      "VOC Park & Zoo 🦁",
+      "LuLu Mall (Tamil Nadu's Largest Hypermarket & Entertainment Zone) 🛍️",
+      "Isha Yoga Centre & Adiyogi 🧘",
+      "Marudhamalai Murugan Temple 🛕",
+      "Brookefields Mall & Fun Republic 🎬",
       "Perur Pateeswarar Temple 🛕",
+      "VOC Park & Zoo 🦁",
       "Eachanari Vinayagar Temple 🛕",
       "Velliangiri Hills 🏔️",
       "Siruvani Waterfalls 💦"
@@ -712,7 +713,13 @@ const rawDestinations: TNDestination[] = [
     "nearestStation": "Coimbatore Junction",
     "hasRailAccess": true,
     "lat": 11.02,
-    "lng": 76.96
+    "lng": 76.96,
+    "localTransit": "Coimbatore Junction and Gandhipuram Central Bus Stand form the primary transit gateways. LuLu Mall is situated in Lakshmi Mills on Avinashi Road (~4 km from Gandhipuram / 5 km from Coimbatore Jn); direct city buses heading along Avinashi Road towards Peelamedu, Hope College, or Airport stop directly at Lakshmi Mills / LuLu Mall.",
+    "transitTips": [
+      "LuLu Mall Transit: Board any Avinashi Road-bound city bus (Routes 11, 20A, 70 series, etc.) from Gandhipuram or Coimbatore Jn to Lakshmi Mills stop.",
+      "Leisure & Time-pass: LuLu Mall features a massive 1.1 lakh sq.ft hypermarket, extensive international food court, entertainment zone, and shopping arcades.",
+      "Bus Frequency: City buses connecting Gandhipuram, Railway Station, and Avinashi Road operate every 2–3 minutes."
+    ]
   },
   {
     "id": "erode",
@@ -1795,21 +1802,81 @@ const rawDestinations: TNDestination[] = [
   {
     "id": "pollachi",
     "name": "Pollachi",
-    "fullName": "Pollachi (Topslip and Valparai Base)",
+    "fullName": "Pollachi (Maasani Amman Temple, Topslip & Valparai Gateway)",
     "category": "city",
     "emoji": "🏙️",
     "district": "Coimbatore",
-    "description": "Pollachi Junction is a useful rail/bus base for Topslip and Valparai.",
+    "description": "Scenic coconut hub and gateway to the famed Arulmigu Maasani Amman Temple (Anaimalai), Topslip, and Valparai. Regular direct buses run from Pollachi Central Bus Stand to Maasani Amman Temple (any Anaimalai-bound bus also goes via the temple). From Pollachi Junction railway station to the bus stand, frequent share autos and occasional town buses are readily available.",
     "attractions": [
-      "Pollachi markets",
-      "Aliyar Dam",
-      "Topslip access",
-      "Valparai route"
+      "Arulmigu Maasani Amman Temple (Anaimalai) 🛕",
+      "Aliyar Dam & Reservoir 🌊",
+      "Topslip & Anamalai Tiger Reserve 🐘",
+      "Pollachi Coconut & Jaggery Market 🌴",
+      "Valparai Scenic Ghat Route 🍃"
     ],
     "nearestStation": "Pollachi Junction",
     "hasRailAccess": true,
     "lat": 10.66,
-    "lng": 77.01
+    "lng": 77.01,
+    "localTransit": "From Pollachi Junction railway station, take a share auto (₹10–₹15) or occasional town bus to Pollachi Central Bus Stand (~1.5 km). From Pollachi Bus Stand, frequent direct buses run to Maasani Amman Temple; any bus proceeding towards Anaimalai or Sethumadai also passes and stops directly at the temple.",
+    "transitTips": [
+      "Pollachi Jn to Bus Stand: Share autos and occasional town buses wait right outside Pollachi Junction railway station (5–10 min ride).",
+      "To Maasani Amman Temple: Board direct temple buses or any Anaimalai-bound bus from Pollachi Central Bus Stand (~15 km, 25–30 min).",
+      "Tuesdays, Fridays, and Amavasya (New Moon days) see high pilgrim frequency with additional special buses."
+    ]
+  },
+  {
+    "id": "maasani-amman",
+    "name": "Maasani Amman Temple",
+    "fullName": "Arulmigu Maasani Amman Temple (Anaimalai, Pollachi)",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Coimbatore",
+    "description": "Very powerful and highly revered shrine situated in Anaimalai near Pollachi, celebrated for its unique 14-foot reclining deity of Goddess Maasani Amman. Regular direct buses connect Pollachi Central Bus Stand to the temple, and all Anaimalai-bound buses also go via this route. Commuters arriving by train at Pollachi Junction can easily take a share auto or occasional town bus to reach the bus stand.",
+    "attractions": [
+      "Arulmigu Maasani Amman Reclining Sanctum 🛕",
+      "Anaimalai Aliyar River Ghats 🌊",
+      "Topslip Elephant Camp & Wildlife (nearby) 🐘",
+      "Aliyar Dam & Park 🏞️",
+      "Pollachi Coconut Countryside 🌴"
+    ],
+    "nearestStation": "Pollachi Junction",
+    "hasRailAccess": false,
+    "lat": 10.583,
+    "lng": 76.933,
+    "localTransit": "Take a train to Pollachi Junction (POY). Outside the railway station, take a share auto (₹10–₹15) or occasional town bus to Pollachi Central Bus Stand (~1.5 km). From the bus stand, board any direct temple bus or Anaimalai-bound bus to reach Maasani Amman Temple (~15 km).",
+    "transitTips": [
+      "Direct buses to Maasani Amman Temple operate at high frequency from Pollachi Central Bus Stand.",
+      "Any bus heading towards Anaimalai or Sethumadai stops directly at the temple.",
+      "Between Pollachi Junction railway station and the bus stand, share autos run continuously for nominal fares."
+    ]
+  },
+  {
+    "id": "marudhamalai",
+    "name": "Marudhamalai",
+    "fullName": "Marudhamalai Murugan Temple (Arulmigu Subramaniyaswami Temple)",
+    "category": "temple",
+    "emoji": "🛕",
+    "district": "Coimbatore",
+    "description": "Ancient and holy 12th-century hill shrine of Lord Murugan (Subramaniyaswami) situated amidst scenic Western Ghats hills rich in medicinal herbs. Coimbatore Junction (CBE) is the nearest railway station; from there, frequent city buses and share autos reach Gandhipuram Central Bus Stand, where high-frequency direct town buses run directly to Marudhamalai.",
+    "attractions": [
+      "Arulmigu Subramaniyaswami Hilltop Sanctum 🛕",
+      "Pambatti Siddhar Cave & Spring 🧘",
+      "Marudhamalai Scenic Western Ghats Vista 🌄",
+      "Medicinal Herbal Hill Trails (Marutham Tree Groves) 🌿",
+      "Perur Pateeswarar Temple (Nearby Heritage Circuit) 🕉️"
+    ],
+    "nearestStation": "Coimbatore Junction",
+    "hasRailAccess": false,
+    "lat": 11.046,
+    "lng": 76.852,
+    "localTransit": "Arrive at Coimbatore Junction (CBE) railway station. Take a city bus or share auto (~3 km) to Gandhipuram (CBE Main Bus Stand). From Gandhipuram Central Bus Stand, frequent direct town buses (Route 70, 70A, 1C) depart every 5–10 minutes directly to Marudhamalai foothill terminus (~14 km). Devasthanam mini-buses, ghat road vehicles, and steps connect the foothills to the hilltop temple.",
+    "transitTips": [
+      "Coimbatore Jn to Gandhipuram: Share autos and city buses run continuously between Coimbatore Junction and Gandhipuram Central Bus Stand (10–15 min).",
+      "Gandhipuram to Marudhamalai: High-frequency town buses (Route 70, 70A, 1C) depart every few minutes directly to Marudhamalai bus terminus.",
+      "Hilltop Access: Devasthanam operates regular shuttle mini-buses from the foothill bus stand to the hilltop temple; road transit and pedestrian steps are also available.",
+      "Auspicious Days: Sashti, Krittika, Thaipusam, Panguni Uthiram, and weekends see heavy pilgrim flow and additional special buses."
+    ]
   },
   {
     "id": "avinashi",

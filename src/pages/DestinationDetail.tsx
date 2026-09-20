@@ -301,6 +301,15 @@ const DestinationDetail = () => {
             </div>
             <Link to="/booking" className="text-xs text-primary font-medium">Book →</Link>
           </div>
+          {dest.localTransit && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+              <Route className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Local Transit & First / Last Mile</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{dest.localTransit}</p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -325,6 +334,11 @@ const DestinationDetail = () => {
       <section className="px-5 mt-6">
         <h2 className="font-display font-bold mb-3">Quick tips</h2>
         <ul className="space-y-2 text-sm text-foreground">
+          {dest.transitTips?.map((tip, idx) => (
+            <li key={`transit-tip-${idx}`} className="bg-card border border-primary/20 bg-primary/[0.02] rounded-xl p-3">
+              🚌 {tip}
+            </li>
+          ))}
           <li className="bg-card border border-border rounded-xl p-3">💰 Carry cash — UPI works in towns, not always in remote spots.</li>
           <li className="bg-card border border-border rounded-xl p-3">🚌 TNSTC buses are the cheapest option (₹1–₹2/km).</li>
           <li className="bg-card border border-border rounded-xl p-3">🍛 Try local meals (~₹80–₹150) before tourist restaurants.</li>
