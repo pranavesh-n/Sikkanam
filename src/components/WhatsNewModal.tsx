@@ -116,7 +116,7 @@ export default function WhatsNewModal() {
           onClick={handleClose}
           className="w-full mt-7 py-3.5 rounded-[1.25rem] gradient-saffron text-white font-bold text-sm md:text-base shadow-card active:scale-[0.98] transition-transform hover:opacity-95 text-center flex items-center justify-center gap-2"
         >
-          Explore All Monthly Updates <ArrowRight className="w-4 h-4" />
+          Explore the New Updates <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
     </div>
