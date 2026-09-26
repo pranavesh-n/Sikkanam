@@ -63,7 +63,7 @@ function validateAndSanitizeOutput(text: string): string {
   return text.trim();
 }
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 const LOVABLE_MODEL = "google/gemini-3-flash-preview";
 
 function sleep(ms: number) {

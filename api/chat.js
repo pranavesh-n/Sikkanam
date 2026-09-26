@@ -845,10 +845,9 @@ ${ragContext}
     // 5. Prioritize GROQ API with SIKKANAM_PLAN_API_KEY
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
       const groqModels = [
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant",
-        "mixtral-8x7b-32768",
-        "gemma2-9b-it"
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
       ];
       for (const groqModel of groqModels) {
         try {
@@ -898,7 +897,7 @@ ${ragContext}
 
     // 6. Fallback to Gemini API if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+      const geminiModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-flash-latest"];
       for (const geminiModel of geminiModels) {
         try {
           console.log(`[AI] Attempting Gemini API call with model: ${geminiModel}...`);
