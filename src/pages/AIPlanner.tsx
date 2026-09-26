@@ -17,6 +17,89 @@ const QUICK_PROMPTS = [
 
 const CHAT_URL = "/api/chat";
 
+function cleanAssistantContent(text: string): string {
+  if (!text || typeof text !== "string") return "";
+  if (!text.includes("|")) return text;
+
+  const lines = text.split("\n");
+  const outputLines: string[] = [];
+  let inTable = false;
+  let tableHeaders: string[] = [];
+  let tableRows: string[][] = [];
+
+  const flushTable = () => {
+    if (tableHeaders.length > 0 && tableRows.length > 0) {
+      tableRows.forEach((row) => {
+        const firstCol = row[0] || "";
+        const secondCol = row[1] || "";
+        const header0 = tableHeaders[0] || "Item";
+
+        if (header0.toLowerCase().includes("day") && firstCol) {
+          const title = secondCol ? `${header0} ${firstCol}: ${secondCol}` : `${header0} ${firstCol}`;
+          outputLines.push(`\n• **${title}**`);
+          for (let c = 2; c < row.length; c++) {
+            if (row[c] && tableHeaders[c]) {
+              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
+            }
+          }
+        } else if (header0.toLowerCase().includes("time") && firstCol) {
+          const act = secondCol ? ` - ${secondCol}` : "";
+          outputLines.push(`\n• ⏰ **${firstCol}${act}**`);
+          for (let c = 2; c < row.length; c++) {
+            if (row[c] && tableHeaders[c]) {
+              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
+            }
+          }
+        } else {
+          const headline = firstCol ? `• **${firstCol}**` : "•";
+          outputLines.push(`\n${headline}`);
+          for (let c = 1; c < row.length; c++) {
+            if (row[c] && tableHeaders[c]) {
+              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
+            }
+          }
+        }
+      });
+      outputLines.push("");
+    }
+    tableHeaders = [];
+    tableRows = [];
+    inTable = false;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith("|") && line.endsWith("|")) {
+      const cells = line
+        .slice(1, -1)
+        .split("|")
+        .map((c) => c.trim());
+      const isSeparator = cells.every((c) => /^:?-+:?$/.test(c) || c === "");
+      if (isSeparator) {
+        inTable = true;
+        continue;
+      }
+
+      if (!inTable && tableHeaders.length === 0) {
+        tableHeaders = cells;
+      } else {
+        tableRows.push(cells);
+      }
+    } else {
+      if (inTable || tableHeaders.length > 0) {
+        flushTable();
+      }
+      outputLines.push(lines[i]);
+    }
+  }
+
+  if (inTable || tableHeaders.length > 0) {
+    flushTable();
+  }
+
+  return outputLines.join("\n");
+}
+
 const AIPlanner = () => {
   const location = useLocation();
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -188,8 +271,27 @@ const AIPlanner = () => {
               >
                 {m.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1.5 prose-headings:my-2 prose-li:my-0.5 prose-strong:text-foreground prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground">
-                    <ReactMarkdown>
-                      {m.content}
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ children }) => <h1 className="text-base font-bold text-foreground mt-3 mb-1.5 flex items-center gap-1.5">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-sm font-bold text-foreground mt-3 mb-1.5 flex items-center gap-1.5">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-xs sm:text-sm font-bold text-primary mt-2.5 mb-1 tracking-wide">{children}</h3>,
+                        h4: ({ children }) => <h4 className="text-xs font-bold text-foreground mt-2 mb-1">{children}</h4>,
+                        p: ({ children }) => <p className="text-xs sm:text-sm leading-relaxed text-foreground/90 my-1">{children}</p>,
+                        ul: ({ children }) => <ul className="space-y-1 my-1.5 pl-2 list-none">{children}</ul>,
+                        ol: ({ children }) => <ol className="space-y-1 my-1.5 pl-4 list-decimal text-xs sm:text-sm">{children}</ol>,
+                        li: ({ children }) => <li className="text-xs sm:text-sm leading-relaxed text-foreground/90">{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                        table: ({ children }) => (
+                          <div className="my-2 overflow-x-auto rounded-xl border border-border bg-card/60 p-1">
+                            <table className="min-w-full text-xs text-left divide-y divide-border">{children}</table>
+                          </div>
+                        ),
+                        th: ({ children }) => <th className="px-2.5 py-1.5 font-bold bg-muted/60 text-foreground">{children}</th>,
+                        td: ({ children }) => <td className="px-2.5 py-1.5 border-t border-border/40 text-foreground/90">{children}</td>,
+                      }}
+                    >
+                      {cleanAssistantContent(m.content)}
                     </ReactMarkdown>
                   </div>
                 ) : (

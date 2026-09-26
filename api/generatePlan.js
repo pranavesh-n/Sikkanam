@@ -972,6 +972,7 @@ export default async function handler(req, res) {
 
   try {
     const input = req.body;
+    const GROQ_API_KEY = process.env.SIKKANAM_PLAN_API_KEY || process.env.GROQ_API_KEY;
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
     const dests = loadDestinations();
@@ -1161,7 +1162,7 @@ CRITICAL RULES:
 - You must NEVER calculate or estimate transport costs, fares, hotel prices, entrance fees, distances, or feasibility scores. All calculations are already finalized by the deterministic engine.
 - You must NOT suggest modifying the budget, calculations, or fares.
 - Keep your tone practical, budget-conscious, and friendly.
-- Format the output in clean, readable Markdown.
+- FORMATTING DIRECTIVE: DO NOT use raw markdown tables or pipe syntax (| col | col |). Present all itineraries, schedules, and food recommendations as PROPER, DETAILED, STRUCTURED TEXT with clean bullet points and clear section headers.
 `;
 
     const payload = `
@@ -1193,58 +1194,99 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
 - **Payments:** Keep cash handy for auto-rickshaws, tea stalls, and rural entry tickets.
 - **Live Weather:** Check the Sikkanam weather forecast widget for hourly rain alerts and indoor alternatives.`;
 
-    if (GEMINI_API_KEY) {
-      try {
-        console.log("[AI] Attempting Gemini API call for trip planning...");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
+    // 1. Prioritize Groq API with SIKKANAM_PLAN_API_KEY
+    if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
+      const groqModels = [
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+      ];
+      for (const groqModel of groqModels) {
+        try {
+          console.log(`[AI Plan] Attempting Groq (${groqModel}) for plan narration...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Authorization": `Bearer ${GROQ_API_KEY}`,
+              "Content-Type": "application/json",
+            },
             signal: controller.signal,
             body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: `${prompt}\n\nUser structured data:\n${payload}`
-                    }
-                  ]
-                }
+              model: groqModel,
+              messages: [
+                { role: "system", content: prompt },
+                { role: "user", content: `Generate the travel narrative for this trip:\n${payload}` },
               ],
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048
-              }
-            })
-          }
-        );
+              temperature: 0.6,
+              max_tokens: 1500,
+            }),
+          });
 
-        clearTimeout(timeoutId);
-        const data = await response.json().catch(() => ({}));
-        
-        if (
-          response.ok &&
-          data.candidates &&
-          data.candidates[0] &&
-          data.candidates[0].content &&
-          data.candidates[0].content.parts &&
-          data.candidates[0].content.parts[0]
-        ) {
-          reply = data.candidates[0].content.parts[0].text;
-          console.log("[AI] ✅ Gemini plan generation success");
-        } else {
-          console.warn("[AI] ⚠️ Gemini returned status:", response.status, "Using instant local database narrative fallback.");
-          reply = localFallbackNarrative;
+          clearTimeout(timeoutId);
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
+            reply = data.choices[0].message.content.trim();
+            console.log(`[AI Plan] ✅ Groq (${groqModel}) plan generation success`);
+            break;
+          }
+        } catch (err) {
+          console.warn(`[AI Plan] ❌ Groq (${groqModel}) failed:`, err.message);
         }
-      } catch (err) {
-        console.warn("[AI] ⚠️ Gemini API request timed out/failed:", err.message, "Using instant local database narrative fallback.");
-        reply = localFallbackNarrative;
       }
-    } else {
+    }
+
+    // 2. Fallback to Gemini if needed
+    if (!reply && GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
+      const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
+      for (const geminiModel of geminiModels) {
+        try {
+          console.log(`[AI Plan] Attempting Gemini (${geminiModel}) for plan narration...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: controller.signal,
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: prompt }] },
+                contents: [{ parts: [{ text: `User structured data:\n${payload}` }] }],
+                generationConfig: {
+                  temperature: 0.6,
+                  maxOutputTokens: 2048
+                }
+              })
+            }
+          );
+
+          clearTimeout(timeoutId);
+          const data = await response.json().catch(() => ({}));
+          
+          if (
+            response.ok &&
+            data.candidates &&
+            data.candidates[0] &&
+            data.candidates[0].content &&
+            data.candidates[0].content.parts &&
+            data.candidates[0].content.parts[0]
+          ) {
+            reply = data.candidates[0].content.parts[0].text.trim();
+            console.log(`[AI Plan] ✅ Gemini (${geminiModel}) plan generation success`);
+            break;
+          }
+        } catch (err) {
+          console.warn(`[AI Plan] ⚠️ Gemini (${geminiModel}) failed:`, err.message);
+        }
+      }
+    }
+
+    if (!reply) {
       reply = localFallbackNarrative;
     }
 
