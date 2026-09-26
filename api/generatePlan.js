@@ -1200,7 +1200,6 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
         "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
         "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant",
       ];
       for (const groqModel of groqModels) {
         try {
@@ -1208,23 +1207,42 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          const planPayload = {
+            model: groqModel,
+            messages: [
+              { role: "system", content: prompt },
+              { role: "user", content: `Generate the travel narrative for this trip:\n${payload}` },
+            ],
+            temperature: 0.6,
+            max_tokens: 1500,
+          };
+
+          if (groqModel.startsWith("openai/gpt-oss")) {
+            planPayload.tools = [{ type: "browser_search" }];
+          }
+
+          let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${GROQ_API_KEY}`,
               "Content-Type": "application/json",
             },
             signal: controller.signal,
-            body: JSON.stringify({
-              model: groqModel,
-              messages: [
-                { role: "system", content: prompt },
-                { role: "user", content: `Generate the travel narrative for this trip:\n${payload}` },
-              ],
-              temperature: 0.6,
-              max_tokens: 1500,
-            }),
+            body: JSON.stringify(planPayload),
           });
+
+          if (!response.ok && planPayload.tools) {
+            delete planPayload.tools;
+            response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              signal: controller.signal,
+              body: JSON.stringify(planPayload),
+            });
+          }
 
           clearTimeout(timeoutId);
           const data = await response.json().catch(() => ({}));

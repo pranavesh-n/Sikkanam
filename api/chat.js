@@ -1117,7 +1117,6 @@ ${groundSearchReport}
         "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
         "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant",
       ];
       for (const groqModel of groqModels) {
         try {
@@ -1125,26 +1124,48 @@ ${groundSearchReport}
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-          const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          const bodyPayload = {
+            model: groqModel,
+            messages: [
+              {
+                role: "system",
+                content: systemPromptText,
+              },
+              ...sanitizedMessages,
+            ],
+            temperature: 0.6,
+            max_tokens: 1500,
+          };
+
+          // Enable Groq built-in browser search grounding for GPT-OSS models
+          if (groqModel.startsWith("openai/gpt-oss")) {
+            bodyPayload.tools = [{ type: "browser_search" }];
+          }
+
+          let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${GROQ_API_KEY}`,
               "Content-Type": "application/json",
             },
             signal: controller.signal,
-            body: JSON.stringify({
-              model: groqModel,
-              messages: [
-                {
-                  role: "system",
-                  content: systemPromptText,
-                },
-                ...sanitizedMessages,
-              ],
-              temperature: 0.6,
-              max_tokens: 1500,
-            }),
+            body: JSON.stringify(bodyPayload),
           });
+
+          // If browser_search tool returns an error, retry immediately without tools
+          if (!response.ok && bodyPayload.tools) {
+            console.warn(`[AI] Groq browser_search not supported on this endpoint, retrying without tools for ${groqModel}...`);
+            delete bodyPayload.tools;
+            response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              signal: controller.signal,
+              body: JSON.stringify(bodyPayload),
+            });
+          }
 
           clearTimeout(timeoutId);
           const data = await response.json().catch(() => ({}));
