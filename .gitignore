@@ -27,3 +27,5 @@ dist-ssr
 .env*
 .env.local
 chat_cache.json
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json

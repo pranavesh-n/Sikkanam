@@ -11,9 +11,9 @@ const getDistance = (fromLat: number, fromLng: number, toLat: number, toLng: num
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((fromLat * Math.PI) / 180) *
-      Math.cos((toLat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos((toLat * Math.PI) / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c);
 };
@@ -189,9 +189,8 @@ function SearchableSelect({
                   setIsOpen(false);
                   setSearch("");
                 }}
-                className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted font-medium transition-colors ${
-                  value === "" ? "bg-muted text-primary font-semibold" : "text-foreground"
-                }`}
+                className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted font-medium transition-colors ${value === "" ? "bg-muted text-primary font-semibold" : "text-foreground"
+                  }`}
               >
                 🔮 Help Me Choose! (Recommend Destinations)
               </div>
@@ -209,9 +208,8 @@ function SearchableSelect({
                       setIsOpen(false);
                       setSearch("");
                     }}
-                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted transition-colors ${
-                      isSelected ? "bg-muted text-primary font-semibold" : "text-foreground"
-                    }`}
+                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-muted transition-colors ${isSelected ? "bg-muted text-primary font-semibold" : "text-foreground"
+                      }`}
                   >
                     {labelText}
                   </div>
@@ -232,9 +230,10 @@ function SearchableSelect({
 interface TripPlannerFormProps {
   onGenerate: (input: TripInput) => void;
   initialInput?: TripInput | null;
+  isGenerating?: boolean;
 }
 
-const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate, initialInput }, ref) => {
+const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate, initialInput, isGenerating = false }, ref) => {
   const [source, setSource] = useState(initialInput?.source || "");
   const [destination, setDestination] = useState(initialInput?.destination || "");
   const [days, setDays] = useState(initialInput?.days || 2);
@@ -306,7 +305,7 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
             Plan Your Trip
           </h2>
-              <p className="text-muted-foreground">Fill in the details — we’ll handle the rest</p>
+          <p className="text-muted-foreground">Fill in the details — we’ll handle the rest</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-elevated p-6 md:p-8 space-y-6">
@@ -401,11 +400,10 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
                   key={opt.value}
                   type="button"
                   onClick={() => setStyle(opt.value)}
-                  className={`px-4 py-3 rounded-xl border-2 text-center transition-all duration-200 font-medium ${
-                    style === opt.value
+                  className={`px-4 py-3 rounded-xl border-2 text-center transition-all duration-200 font-medium ${style === opt.value
                       ? "border-primary bg-primary/10 text-foreground shadow-card"
                       : "border-border text-muted-foreground hover:border-primary/40"
-                  }`}
+                    }`}
                 >
                   <span className="text-xl block mb-1">{opt.emoji}</span>
                   <span className="text-sm">{opt.label}</span>
@@ -454,9 +452,18 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
 
           <button
             type="submit"
-            className="w-full gradient-saffron text-primary-foreground py-4 rounded-xl font-display font-semibold text-lg shadow-card hover:shadow-elevated transition-shadow duration-200"
+            disabled={isGenerating}
+            className={`w-full gradient-saffron text-primary-foreground py-4 rounded-xl font-display font-semibold text-lg shadow-card hover:shadow-elevated transition-all duration-200 flex items-center justify-center gap-2 ${isGenerating ? "opacity-80 cursor-not-allowed" : ""
+              }`}
           >
-            Generate Travel Plan 🗺️
+            {isGenerating ? (
+              <>
+                <span className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin inline-block" />
+                <span>Sikkanam Planning...</span>
+              </>
+            ) : (
+              <span>Generate Travel Plan 🗺️</span>
+            )}
           </button>
         </form>
       </div>

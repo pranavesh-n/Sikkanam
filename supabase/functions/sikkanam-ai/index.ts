@@ -223,7 +223,12 @@ Deno.serve(async (req: Request) => {
     let lastBody = "";
     let reply = "";
 
-    const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const GEMINI_MODELS = [
+      "gemini-3.0-flash",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2.5-pro",
+    ];
     for (const model of GEMINI_MODELS) {
       const geminiResponse = await callGemini(model, contents, GEMINI_API_KEY);
 

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { queryScrapeGraphLiveIntelligence, formatScrapeGraphGroundedContext } from "./_utils/scrapegraphGrounding.js";
 
 // In-memory Prompt & Response Cache for 0-token instant hits
 const memoryCache = new Map();
@@ -30,6 +31,11 @@ function getFromCache(key) {
 function saveToCache(normalizedQuery, reply) {
   if (!normalizedQuery || !reply) return;
   const cleanKey = normalizedQuery.trim().toLowerCase().replace(/\s+/g, " ");
+
+  // Guard: If asking for trip/plan/itinerary, only cache if complete with Day 1
+  if ((cleanKey.includes("trip") || cleanKey.includes("plan") || cleanKey.includes("itinerary")) && !reply.toLowerCase().includes("day 1")) {
+    return;
+  }
 
   if (memoryCache.size >= MAX_CACHE_ENTRIES) {
     const oldestKey = memoryCache.keys().next().value;
@@ -373,7 +379,25 @@ function generateLocalFallbackResponse(intent, params, destinations, tourismAsse
           reply += `* **Estimated Cost**: ~₹${d.cost} for a **${d.days}-day trip**\n`;
           reply += `* **Must-See**: ${d.attractions?.slice(0, 3).join(", ") || ""}\n\n`;
         });
-        reply += `*Tip: Ask me to plan a trip to a specific place (e.g., "Plan a trip to ${topAffordable[0].name}") for a day-wise plan.*`;
+        const featured = topAffordable[0];
+        const days = featured.days || 2;
+        reply += `### 🗓️ Recommended Itinerary: ${days}-Day Trip to ${featured.name}\n\n`;
+        reply += `#### 🗓️ Day-by-Day Detailed Plan:\n\n`;
+        const attrs = featured.attractions || [];
+        const perDay = Math.max(1, Math.ceil(attrs.length / days));
+        for (let i = 0; i < days; i++) {
+          const dayAttrs = attrs.slice(i * perDay, (i + 1) * perDay);
+          reply += `### 🗓️ Day ${i + 1}: Exploring ${featured.name}\n`;
+          reply += `• **Morning (08:00 AM - 12:00 PM)**: Breakfast at local canteen (₹70). Visit ${dayAttrs[0] || "scenic viewpoint"}.\n`;
+          reply += `• **Afternoon (12:30 PM - 04:30 PM)**: South Indian lunch thali (₹140). Explore ${dayAttrs[1] || "town center & gardens"}.\n`;
+          reply += `• **Evening & Night (05:00 PM - 09:30 PM)**: Sunset walk, budget dinner (₹160), and stay.\n\n`;
+        }
+        reply += `#### 💰 Detailed Budget Breakdown (Per Person):\n`;
+        reply += `• 🚆 Transport (Local Bus / Trains): ~₹${Math.round(featured.cost * 0.25)}\n`;
+        reply += `• 🏨 Accommodation (${days} days): ~₹${Math.round(featured.cost * 0.45)}\n`;
+        reply += `• 🍛 Food & Drinks: ~₹${Math.round(featured.cost * 0.20)}\n`;
+        reply += `• 🎟️ Entry Tickets & Local Activities: ~₹${Math.round(featured.cost * 0.10)}\n`;
+        reply += `• **Total Estimated Cost**: **~₹${featured.cost} per person**\n\n`;
         return reply;
       }
     }
@@ -393,23 +417,30 @@ function generateLocalFallbackResponse(intent, params, destinations, tourismAsse
       }
     }
 
-    reply += `Here is a curated list of budget travel recommendations across Tamil Nadu:\n\n`;
-    const sampleDests = [
-      { name: "Ooty", cat: "Hill Station", desc: "Misty mountains, UNESCO Toy Train, tea estates." },
-      { name: "Madurai", cat: "Heritage & Temple", desc: "Historic temple city, rich culture, and famous street food." },
-      { name: "Rameswaram", cat: "Coastal & Spiritual", desc: "Pamban bridge, spiritual temples, and peaceful beaches." }
-    ];
-    sampleDests.forEach(sd => {
-      const dest = destinations.find(d => d.name.toLowerCase() === sd.name.toLowerCase());
-      reply += `#### 📍 ${sd.name} (${sd.cat})\n`;
-      reply += `* **Highlight**: ${sd.desc}\n`;
-      if (dest) {
-        reply += `* **Must-See**: ${dest.attractions?.slice(0, 3).join(", ") || ""}\n`;
-        reply += `* **Estimated Budget**: ~₹${(dest.recommendedDays || 2) * 1600} for ${dest.recommendedDays || 2} days\n`;
-      }
-      reply += `\n`;
-    });
-    reply += `*Tip: Ask me to plan a trip to a specific place (e.g., "Plan a 3 day trip to Ooty") for a day-wise plan.*`;
+    // Default to a complete 2-day short budget trip with explicit Day 1 and Day 2 sections
+    reply += `### 🌟 2-Day Budget Weekend Getaway: Chennai ➔ Mahabalipuram ➔ Pondicherry\n\n`;
+    reply += `Here is a complete, verified short budget trip plan designed for Tamil Nadu:\n\n`;
+    reply += `#### 🚌 Verified Transit & How to Reach:\n`;
+    reply += `• **Train (Suburban/Express)**: Chennai Central / Egmore to Chengalpattu / Villupuram (~₹45 - ₹140 per person).\n`;
+    reply += `• **Bus (TNSTC Route 588 / ECR Express)**: Board at CMBT or Thiruvanmiyur to Mahabalipuram (₹45, 1.5 hrs). Connect from Mahabalipuram to Pondicherry via ECR bus (₹85, 2 hrs).\n`;
+    reply += `• **Local Transit**: Shared autos and town buses (~₹30 - ₹50 per ride, ~₹100/day).\n\n`;
+    reply += `#### 🗓️ Day-by-Day Detailed Plan:\n\n`;
+    reply += `### 🗓️ Day 1: Heritage & Ocean Breezes in Mahabalipuram\n`;
+    reply += `• **Morning (07:30 AM - 12:00 PM)**: Breakfast at local Saravana mess (₹70). Explore the UNESCO Shore Temple and Pancha Rathas (Entry fee: ₹40).\n`;
+    reply += `• **Afternoon (12:30 PM - 04:30 PM)**: Authentic South Indian lunch thali at Moonrakers or local mess (₹150). Marvel at Krishna's Butterball and Arjuna's Penance.\n`;
+    reply += `• **Evening & Night (05:00 PM - 09:30 PM)**: Board ECR bus to Pondicherry. Check in at TTDC Hotel Tamil Nadu or budget guest house (₹900/night double sharing, ₹450/person). Promenade beach walk & dinner (₹180).\n\n`;
+    reply += `### 🗓️ Day 2: French Quarter & Spiritual Calm in Pondicherry\n`;
+    reply += `• **Morning (07:00 AM - 11:30 AM)**: French bakery breakfast (₹120). Visit Sri Aurobindo Ashram, cycle through White Town French Quarter colonial streets.\n`;
+    reply += `• **Afternoon (12:00 PM - 04:00 PM)**: Budget coastal meals/mess (₹160). Visit Paradise Beach or Auroville Matrimandir viewing point.\n`;
+    reply += `• **Evening & Return (04:30 PM - 09:00 PM)**: Sunset at Rock Beach. Board direct TNSTC bus back to Chennai KCBT/CMBT (₹140, 3.5 hrs).\n\n`;
+    reply += `#### 💰 Detailed Budget Breakdown (Per Person):\n`;
+    reply += `• 🚆 Transport (TNSTC Buses across ECR): ₹270\n`;
+    reply += `• 🏨 Accommodation (1 night budget lodge / TTDC): ₹450\n`;
+    reply += `• 🍛 Food & Drinks (2 days): ₹680\n`;
+    reply += `• 🎟️ Entry Tickets & Local Activities: ₹100\n`;
+    reply += `• 🎒 Buffer / Emergency: ₹200\n`;
+    reply += `• **Total Estimated Cost**: **~₹1,700 per person**\n\n`;
+    reply += `💡 *Sikkanam Budget Tip: Take regular non-AC TNSTC buses along East Coast Road (ECR) for scenic ocean views at one-third the price of private taxis.*`;
     return reply;
   }
 
@@ -691,7 +722,14 @@ function validateAndSanitizeOutput(text) {
       return "I am **Sikkanam AI**, your Tamil Nadu budget travel planner. How can I assist you with your travel planning today?";
     }
   }
-  const cleanText = convertMarkdownTablesToText(text.trim());
+  // Normalize non-breaking / narrow unicode spaces to standard ASCII space
+  let cleanText = text.replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ");
+
+  // Strictly enforce user instruction: NO verified badges or artificial tags
+  cleanText = cleanText.replace(/\[\s*⚡?\s*(Live\s+)?Verified(\s+Badge)?\s*\]/gi, "");
+  cleanText = cleanText.replace(/【\s*⚡?\s*(Live\s+)?Verified(\s+Badge)?\s*】/gi, "");
+
+  cleanText = convertMarkdownTablesToText(cleanText.trim());
   return cleanText;
 }
 
@@ -1073,6 +1111,17 @@ export default async function handler(req, res) {
     // 4. Ground Search & Intelligence Gathering
     const groundSearchReport = runSikkanamGroundSearch(lastUserMessage, destinations, tourismAssets, params);
 
+    // 4b. ScrapeGraph AI Real-Time Grounding & Autonomous Web Search Intelligence
+    const primaryDestName = matchedDestinations.length > 0 ? matchedDestinations[0].name : (params.destination || "Tamil Nadu");
+    let scrapegraphReport = "";
+    try {
+      const liveIntelligence = await queryScrapeGraphLiveIntelligence(primaryDestName, lastUserMessage);
+      scrapegraphReport = formatScrapeGraphGroundedContext(liveIntelligence);
+      console.log(`[ScrapeGraph AI] Embedded real-time intelligence for ${primaryDestName}`);
+    } catch (sgErr) {
+      console.warn("[ScrapeGraph AI] Grounding query skipped:", sgErr.message);
+    }
+
     // Hardened, Grounded System Prompt enforcing Proper & Detailed Text Output (NO tables)
     const systemPromptText = `
 You are Sikkanam AI (சிக்கனம்), the official, dedicated AI Budget Travel Companion for Tamil Nadu, India.
@@ -1090,16 +1139,19 @@ CRITICAL MANDATORY FORMATTING DIRECTIVES (STRICTLY ENFORCED):
    - UNDER NO CIRCUMSTANCES should you output raw markdown tables (do NOT use pipe characters '|' or table syntax like '|---|---|').
    - NEVER generate ASCII or markdown grids.
    - Present ALL itineraries, day-wise activities, transit guides, and budget breakdowns as PROPER, DETAILED, STRUCTURED TEXT with clean bullet points.
-2. TEXT STRUCTURE REQUIREMENTS FOR ITINERARIES & PLANS:
-   - 🌟 Title & Summary: Clear trip title, duration, budget tier, and route summary.
-   - 🚌 Verified Transit & How to Reach: Specific IRCTC train name & number, or TNSTC bus route/boarding terminal, duration, and government fares.
-   - 🗓️ Day-by-Day Detailed Plan:
-     For each day, use clear headers (e.g. "### 🗓️ Day 1: Exploring Chennai") and detailed, readable chronological bullet points:
+2. TEXT STRUCTURE REQUIREMENTS FOR ITINERARIES & PLANS (MANDATORY):
+   - Whenever the user asks for a trip plan, trip idea, budget trip, weekend trip, recommendation, or itinerary (even if broad or unspecific):
+     YOU MUST ALWAYS SELECT A CONCRETE DESTINATION AND GENERATE A COMPLETE DAY-BY-DAY PLAN WITH EXPLICIT "Day 1" AND "Day 2" HEADINGS:
+     ### 🗓️ Day 1: [Location & Sightseeing]
      • Morning (07:00 AM - 12:00 PM): Breakfast at local mess with cost, morning sightseeing with entry fees and local tips.
      • Afternoon (12:30 PM - 04:30 PM): Local meals/mess with cost, afternoon sightseeing, transfer tips.
      • Evening & Night (05:00 PM - 09:30 PM): Sunset/promenade, dinner recommendation with cost, budget stay name/type with exact nightly tariff.
-   - 💰 Detailed Budget Breakdown:
-     A clear itemized list of all expenses in ₹:
+     ### 🗓️ Day 2: [Location & Activities]
+     • Morning (07:00 AM - 12:00 PM): Breakfast, morning sightseeing and temple/nature walk.
+     • Afternoon (12:30 PM - 04:30 PM): Lunch, local shopping and viewpoint visit.
+     • Evening & Return (05:00 PM - 09:30 PM): Return transit and travel summary.
+   - ALWAYS include the detailed itemized cost breakdown:
+     💰 Detailed Budget Breakdown:
      • 🚆 Transport (Trains / Buses): ₹...
      • 🏨 Accommodation (... nights): ₹...
      • 🍛 Food & Drinks: ₹...
@@ -1107,8 +1159,12 @@ CRITICAL MANDATORY FORMATTING DIRECTIVES (STRICTLY ENFORCED):
      • 🎒 Buffer / Emergency: ₹...
      • **Total Estimated Cost**: **₹... per person**
    - 💡 Sikkanam Budget Tips: Practical money-saving tips (e.g., government bus passes, local canteen recommendations, timing advice).
+   - NEVER return just an overview or summary without the explicit "Day 1" schedule!
+   - NO BADGES OR LABELS: Do NOT output badges like [⚡ Live Verified], [Verified Badge], or similar tags. Present the facts naturally and cleanly.
 
 ${groundSearchReport}
+
+${scrapegraphReport}
 `;
 
     // 5. Prioritize GROQ API with SIKKANAM_PLAN_API_KEY
@@ -1134,7 +1190,7 @@ ${groundSearchReport}
               ...sanitizedMessages,
             ],
             temperature: 0.6,
-            max_tokens: 1500,
+            max_tokens: 2500,
           };
 
           // Enable Groq built-in browser search grounding for GPT-OSS models
@@ -1187,7 +1243,12 @@ ${groundSearchReport}
 
     // 6. Fallback to Gemini API with Google Search Grounding if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
+      const geminiModels = [
+        "gemini-3.0-flash",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-pro",
+      ];
       for (const geminiModel of geminiModels) {
         // First try with Google Search Grounding tool, then without
         const configs = [{ useSearch: true }, { useSearch: false }];

@@ -229,6 +229,7 @@ export async function getNearbyHotels(destId: string, lat: number, lng: number):
           name: entry.name,
           type: entry.type || "standard",
           priceCategory: priceCategory as any,
+          pricePerNight: entry.pricePerNight,
           tier: (priceCategory.charAt(0).toUpperCase() + priceCategory.slice(1)),
           distanceKm: parseFloat(distance.toFixed(1)),
           rating: entry.rating || 4.0,

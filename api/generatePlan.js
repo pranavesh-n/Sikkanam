@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { calculateTravelCostIntelligence } from "../src/lib/intelligenceEngine.ts";
+import { queryScrapeGraphLiveIntelligence, formatScrapeGraphGroundedContext } from "./_utils/scrapegraphGrounding.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -471,10 +472,17 @@ function calculateFeasibilityScore(input, dest, estimatedMinTotal, distanceKm) {
 
   const score = Math.round((distScore + budgetScore + durationScore + transportScore + travellerScore + accomScore) / 6);
   let grade = "Possible";
-  if (score >= 85) grade = "Highly Recommended";
-  else if (score >= 60) grade = "Good Choice";
-  else if (score >= 40) grade = "Possible";
-  else grade = "Not Recommended";
+  if (userTotalBudget < estimatedMinTotal) {
+    grade = "Consider Increasing Budget";
+  } else if (score >= 85) {
+    grade = "Highly Recommended";
+  } else if (score >= 60) {
+    grade = "Good Choice";
+  } else if (score >= 40) {
+    grade = "Possible";
+  } else {
+    grade = "Not Recommended";
+  }
 
   return { score, grade, reasons };
 }
@@ -831,6 +839,29 @@ const HOTEL_FALLBACKS = {
 };
 
 async function getNearbyHotels(destId, lat, lng) {
+  // 1. Instant check in curated database (0ms latency, authentic TTDC & budget stays)
+  const curated = HOTEL_FALLBACKS[destId] || [];
+  if (curated.length > 0) {
+    return curated.map((entry, idx) => {
+      const offset = 0.01 * (idx + 1);
+      const hotelLat = lat + offset;
+      const hotelLng = lng + (offset * ((idx % 2 === 0) ? 1 : -1));
+      const distance = getDistance(lat, lng, hotelLat, hotelLng);
+      const priceCategory = entry.priceCategory || "standard";
+      return {
+        name: entry.name,
+        priceCategory,
+        tier: priceCategory.charAt(0).toUpperCase() + priceCategory.slice(1),
+        distanceKm: parseFloat(distance.toFixed(1)),
+        rating: entry.rating || 4.0,
+        amenities: entry.amenities || ["WiFi"],
+        lat: hotelLat,
+        lng: hotelLng,
+      };
+    }).slice(0, 4);
+  }
+
+  // 2. Fallback to Overpass API with aggressive 1200ms timeout
   const query = `
     [out:json];
     (
@@ -842,10 +873,15 @@ async function getNearbyHotels(destId, lat, lng) {
   `;
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
+
     const res = await fetch("https://overpass-api.de/api/interpreter", {
       method: "POST",
       body: query,
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (res.ok) {
       const data = await res.json();
@@ -901,27 +937,7 @@ async function getNearbyHotels(destId, lat, lng) {
     console.error("OSRM/Overpass API hotels query failed:", err);
   }
 
-  // Fallback curated database
-  const curated = HOTEL_FALLBACKS[destId] || [];
-  if (curated.length > 0) {
-    return curated.map((entry, idx) => {
-      const offset = 0.01 * (idx + 1);
-      const hotelLat = lat + offset;
-      const hotelLng = lng + (offset * ((idx % 2 === 0) ? 1 : -1));
-      const distance = getDistance(lat, lng, hotelLat, hotelLng);
-      const priceCategory = entry.priceCategory || "standard";
-      return {
-        name: entry.name,
-        priceCategory,
-        tier: priceCategory.charAt(0).toUpperCase() + priceCategory.slice(1),
-        distanceKm: parseFloat(distance.toFixed(1)),
-        rating: entry.rating || 4.0,
-        amenities: entry.amenities || ["WiFi"],
-        lat: hotelLat,
-        lng: hotelLng,
-      };
-    }).slice(0, 3);
-  }
+  // Final fallback synthetic stays if neither curated nor Overpass available
   const capitalized = destId.charAt(0).toUpperCase() + destId.slice(1);
   return [
     {
@@ -1153,6 +1169,16 @@ export default async function handler(req, res) {
       intelligence
     };
 
+    // Real-Time ScrapeGraph Web Grounding & Transit Verification
+    let liveIntelligenceBlock = "";
+    try {
+      const liveData = await queryScrapeGraphLiveIntelligence(dest.name);
+      liveIntelligenceBlock = formatScrapeGraphGroundedContext(liveData);
+      console.log(`[AI Plan] Embedded ScrapeGraph real-time intelligence for ${dest.name}`);
+    } catch (err) {
+      console.warn("[AI Plan] ScrapeGraph live query skipped:", err.message);
+    }
+
     // AI Companion Prompt (strictly storytelling, narrative generated after planning is complete)
     const prompt = `
 You are the Sikkanam AI Travel Companion, a storytelling narrative generator.
@@ -1163,6 +1189,9 @@ CRITICAL RULES:
 - You must NOT suggest modifying the budget, calculations, or fares.
 - Keep your tone practical, budget-conscious, and friendly.
 - FORMATTING DIRECTIVE: DO NOT use raw markdown tables or pipe syntax (| col | col |). Present all itineraries, schedules, and food recommendations as PROPER, DETAILED, STRUCTURED TEXT with clean bullet points and clear section headers.
+- NO BADGES OR LABELS: Do NOT output badges like [⚡ Live Verified], [Verified Badge], or similar tags. Present the facts naturally and cleanly.
+
+${liveIntelligenceBlock}
 `;
 
     const payload = `
@@ -1194,18 +1223,24 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
 - **Payments:** Keep cash handy for auto-rickshaws, tea stalls, and rural entry tickets.
 - **Live Weather:** Check the Sikkanam weather forecast widget for hourly rain alerts and indoor alternatives.`;
 
+    // In-memory cache for instant zero-latency repeats
+    const cacheKey = `${dest.id}_${input.days}_${input.style || "standard"}`;
+    if (global.__sikkanamNarrativeCache && global.__sikkanamNarrativeCache.has(cacheKey)) {
+      reply = global.__sikkanamNarrativeCache.get(cacheKey);
+      console.log(`[AI Plan] ⚡ Served narrative instantly from memory cache for ${cacheKey}`);
+    }
+
     // 1. Prioritize Groq API with SIKKANAM_PLAN_API_KEY
-    if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
+    if (!reply && GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
       const groqModels = [
         "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
-        "llama-3.3-70b-versatile",
       ];
       for (const groqModel of groqModels) {
         try {
           console.log(`[AI Plan] Attempting Groq (${groqModel}) for plan narration...`);
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
 
           const planPayload = {
             model: groqModel,
@@ -1214,12 +1249,8 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
               { role: "user", content: `Generate the travel narrative for this trip:\n${payload}` },
             ],
             temperature: 0.6,
-            max_tokens: 1500,
+            max_tokens: 800,
           };
-
-          if (groqModel.startsWith("openai/gpt-oss")) {
-            planPayload.tools = [{ type: "browser_search" }];
-          }
 
           let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -1231,24 +1262,13 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
             body: JSON.stringify(planPayload),
           });
 
-          if (!response.ok && planPayload.tools) {
-            delete planPayload.tools;
-            response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${GROQ_API_KEY}`,
-                "Content-Type": "application/json",
-              },
-              signal: controller.signal,
-              body: JSON.stringify(planPayload),
-            });
-          }
-
           clearTimeout(timeoutId);
           const data = await response.json().catch(() => ({}));
           if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
             reply = data.choices[0].message.content.trim();
             console.log(`[AI Plan] ✅ Groq (${groqModel}) plan generation success`);
+            if (!global.__sikkanamNarrativeCache) global.__sikkanamNarrativeCache = new Map();
+            global.__sikkanamNarrativeCache.set(cacheKey, reply);
             break;
           }
         } catch (err) {
@@ -1257,14 +1277,17 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
       }
     }
 
-    // 2. Fallback to Gemini if needed
     if (!reply && GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
+      const geminiModels = [
+        "gemini-3.0-flash",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+      ];
       for (const geminiModel of geminiModels) {
         try {
           console.log(`[AI Plan] Attempting Gemini (${geminiModel}) for plan narration...`);
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
           
           const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
@@ -1277,7 +1300,7 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
                 contents: [{ parts: [{ text: `User structured data:\n${payload}` }] }],
                 generationConfig: {
                   temperature: 0.6,
-                  maxOutputTokens: 2048
+                  maxOutputTokens: 1024
                 }
               })
             }
@@ -1296,6 +1319,8 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
           ) {
             reply = data.candidates[0].content.parts[0].text.trim();
             console.log(`[AI Plan] ✅ Gemini (${geminiModel}) plan generation success`);
+            if (!global.__sikkanamNarrativeCache) global.__sikkanamNarrativeCache = new Map();
+            global.__sikkanamNarrativeCache.set(cacheKey, reply);
             break;
           }
         } catch (err) {

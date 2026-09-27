@@ -16,19 +16,23 @@ const TripPlanner = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [tripInput, setTripInput] = useState<TripInput | null>(null);
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = useCallback(
     async (input: TripInput) => {
       setTripInput(input);
-      const plan = await generateTripPlan(input);
-
-      setTripPlan(plan);
-
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 150);
+      setIsGenerating(true);
+      try {
+        const plan = await generateTripPlan(input);
+        setTripPlan(plan);
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({
+            behavior: "smooth",
+          });
+        }, 150);
+      } finally {
+        setIsGenerating(false);
+      }
     },
     []
   );
@@ -79,6 +83,7 @@ const TripPlanner = () => {
       <TripPlannerForm
         onGenerate={handleGenerate}
         initialInput={tripInput}
+        isGenerating={isGenerating}
       />
 
       {tripPlan && (

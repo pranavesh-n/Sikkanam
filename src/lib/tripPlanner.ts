@@ -384,11 +384,18 @@ function calculateFeasibilityScore(
   );
   
   let grade = "Possible";
-  if (score >= 85) grade = "Highly Recommended";
-  else if (score >= 60) grade = "Good Choice";
-  else if (score >= 40) grade = "Possible";
-  else grade = "Not Recommended";
-  
+  if (userTotalBudget < estimatedMinTotal) {
+    grade = "Consider Increasing Budget";
+  } else if (score >= 85) {
+    grade = "Highly Recommended";
+  } else if (score >= 60) {
+    grade = "Good Choice";
+  } else if (score >= 40) {
+    grade = "Possible";
+  } else {
+    grade = "Not Recommended";
+  }
+
   return { score, grade, reasons };
 }
 

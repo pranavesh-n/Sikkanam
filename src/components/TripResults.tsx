@@ -927,15 +927,35 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
         const checks = [isTransportAvailable, isHotelsAvailable, isAttractionsAvailable, isBudgetFit, isWeekendSuitable];
         const passedCount = checks.filter(Boolean).length;
 
-        const statusColor =
-          passedCount >= 5 ? "bg-emerald-500 text-white" :
-            passedCount >= 4 ? "bg-emerald-600/90 text-white" :
-              passedCount >= 3 ? "bg-amber-500 text-black" : "bg-destructive text-white";
+        const userTotalBudget = plan.input.budget * plan.input.travellers;
+        const expectedTotal = plan.intelligence ? plan.intelligence.expectedSpend : plan.budget.estimatedTotal;
+        const deficitPerPerson = Math.max(
+          500,
+          Math.ceil((expectedTotal - userTotalBudget) / Math.max(1, plan.input.travellers) / 250) * 250
+        );
 
-        const statusLabel =
-          passedCount >= 5 ? "Highly Recommended" :
-            passedCount >= 4 ? "Recommended" :
-              passedCount >= 3 ? "Possible With Planning" : "Not Recommended";
+        let statusLabel = "Recommended";
+        let statusColor = "bg-emerald-600/90 text-white";
+
+        if (!isBudgetFit) {
+          statusLabel = "Consider Increasing Budget";
+          statusColor = "bg-amber-500 text-white font-bold";
+        } else if (!isTransportAvailable || !isHotelsAvailable) {
+          statusLabel = "Route / Stay Limited";
+          statusColor = "bg-destructive text-white";
+        } else if (passedCount >= 5) {
+          statusLabel = "Highly Recommended";
+          statusColor = "bg-emerald-500 text-white";
+        } else if (passedCount >= 4) {
+          statusLabel = "Recommended";
+          statusColor = "bg-emerald-600/90 text-white";
+        } else if (passedCount >= 3) {
+          statusLabel = "Possible With Planning";
+          statusColor = "bg-amber-500 text-black";
+        } else {
+          statusLabel = "Not Recommended";
+          statusColor = "bg-destructive text-white";
+        }
 
         return (
           <div className="container max-w-2xl px-4 mt-6">
@@ -1001,17 +1021,27 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                 </span>
               </div>
 
-              {passedCount < 3 && (
-                <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/10 space-y-2 text-left">
-                  <p className="text-xs font-semibold text-destructive uppercase tracking-wider">
-                    Areas needing attention:
+              {(!isBudgetFit || passedCount < 3) && (
+                <div className={`p-4 rounded-xl space-y-2 text-left ${
+                  !isBudgetFit ? "bg-amber-500/10 border border-amber-500/25" : "bg-destructive/5 border border-destructive/10"
+                }`}>
+                  <p className={`text-xs font-semibold uppercase tracking-wider ${
+                    !isBudgetFit ? "text-amber-800 dark:text-amber-300" : "text-destructive"
+                  }`}>
+                    {!isBudgetFit ? "💡 Budget Recommendation:" : "Areas needing attention:"}
                   </p>
-                  <ul className="text-xs text-destructive/95 space-y-1 font-medium list-disc list-inside">
+                  <ul className={`text-xs space-y-1.5 font-medium list-disc list-inside ${
+                    !isBudgetFit ? "text-amber-950 dark:text-amber-100" : "text-destructive/95"
+                  }`}>
+                    {!isBudgetFit && (
+                      <li>
+                        Your allocated budget (₹{userTotalBudget.toLocaleString("en-IN")}) is tight for {plan.input.days} days with transit and lodging. Consider increasing your budget by approx <strong>₹{deficitPerPerson.toLocaleString("en-IN")} per person</strong>, or selecting budget sleeper buses / TTDC dorms.
+                      </li>
+                    )}
                     {!isTransportAvailable && <li>No verified transport route found</li>}
                     {!isHotelsAvailable && <li>No hotel inventory available</li>}
                     {!isAttractionsAvailable && <li>No attractions data available</li>}
-                    {!isBudgetFit && <li>Budget may not cover expected expenses</li>}
-                    {!isWeekendSuitable && <li>Duration exceeds typical weekend trip</li>}
+                    {!isWeekendSuitable && passedCount < 3 && <li>Duration exceeds typical weekend trip</li>}
                   </ul>
                 </div>
               )}
