@@ -5,6 +5,7 @@ import { X, Lock, ShieldCheck, Bookmark, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import logo from "@/assets/logo.png";
+import { appConfig } from "@/config/appConfig";
 
 interface AuthPromptModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ interface AuthPromptModalProps {
 export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
   isOpen,
   onClose,
-  title = "Already a Sikkanam User or New User?",
+  title = `Already a ${appConfig.name} User or New User?`,
   subtitle = "Sign in or sign up with Google to sync your saved trips, wishlists, and passcode lock across your devices.",
 }) => {
   const { loginWithGoogle } = useAuth();

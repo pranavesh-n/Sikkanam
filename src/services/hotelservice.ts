@@ -1,5 +1,6 @@
 import { getDistance, getDestinationById, type Hotel } from "@/data/tnDestinations";
 import { HOTEL_FALLBACKS } from "@/data/hotelFallbacks";
+import { appConfig } from "@/config/appConfig";
 
 function getPriceCategory(hotel: any) {
   const name = (
@@ -68,8 +69,9 @@ export async function getNearbyHotels(destId: string, lat: number, lng: number):
   `;
 
   try {
+    const endpoint = appConfig.apis.overpassEndpoints[0] || "https://overpass-api.de/api/interpreter";
     const res = await fetch(
-      "https://overpass-api.de/api/interpreter",
+      endpoint,
       {
         method: "POST",
         body: query,

@@ -14,6 +14,7 @@ import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { appConfig } from "@/config/appConfig";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
@@ -109,7 +110,7 @@ export default function SikkanamMap({ source, destination, routeGeometry }: Prop
     >
       <TileLayer
         attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url={appConfig.apis.osmTiles}
       />
 
       {source && (

@@ -6,6 +6,8 @@ import { Delete, Lock, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import { checkIsRunningStandalone } from "@/lib/pwa";
+import logo from "@/assets/logo.png";
+import { appConfig } from "@/config/appConfig";
 
 export const AppLockOverlay: React.FC = () => {
   const { isLocked, verifyPasscode, failedAttempts, resetAppLock } = useAppLock();
@@ -157,19 +159,21 @@ export const AppLockOverlay: React.FC = () => {
       className="fixed inset-0 z-[9999999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 overflow-y-auto select-none animate-in fade-in duration-200"
     >
       <div className="flex flex-col items-center max-w-sm w-full my-auto py-6">
-        {/* Sikkanam Logo Image */}
-        <img
-          src="/logo.png"
-          alt="Sikkanam Logo"
-          className="w-16 h-16 rounded-2xl shadow-lg shadow-orange-500/20 mb-6 object-cover"
-        />
+        {/* App Logo Image */}
+        <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg shadow-orange-500/20 mb-6 shrink-0">
+          <img
+            src={logo}
+            alt={`${appConfig.name} Logo`}
+            className="w-full h-full object-cover scale-[1.08]"
+          />
+        </div>
 
         {/* Header */}
         <h1 className="font-display font-bold text-2xl tracking-tight text-white mb-1">
           Welcome Back, Traveler 👋
         </h1>
         <p className="text-xs sm:text-sm text-zinc-400 mb-8 font-medium">
-          Enter your 4-digit PIN to unlock Sikkanam
+          Enter your 4-digit PIN to unlock {appConfig.name}
         </p>
 
         {/* PIN Indicators */}

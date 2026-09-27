@@ -6,6 +6,8 @@
  * 3. User Choice Custom Date Support for any date selected via calendar picker
  */
 
+import { appConfig } from "@/config/appConfig";
+
 export interface CurrentWeather {
   temperature: number; // °C
   apparentTemperature: number; // °C
@@ -319,8 +321,9 @@ export async function fetchLiveWeatherData(
     "sunset",
   ].join(",");
 
-  const ecmwfUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&models=ecmwf_ifs025&timezone=auto`;
-  const fallbackUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&timezone=auto`;
+  const baseUrl = appConfig.apis.openMeteo;
+  const ecmwfUrl = `${baseUrl}?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&models=ecmwf_ifs025&timezone=auto`;
+  const fallbackUrl = `${baseUrl}?latitude=${lat}&longitude=${lng}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=16&timezone=auto`;
 
   let data: any = null;
   let isEcmwfModel = false;

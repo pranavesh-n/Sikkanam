@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import ShareTripModal from "@/components/ShareTripModal";
 import { WeatherWidget } from "@/components/WeatherWidget";
+import { appConfig } from "@/config/appConfig";
 
 interface TripResultsProps {
   plan: TripPlan;
@@ -1017,7 +1018,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                   </span>
                 </div>
                 <span className="text-xs text-muted-foreground font-semibold">
-                  Based on Sikkanam Intelligence Engine v4.3
+                  Based on Sikkanam Intelligence Engine v4.4
                 </span>
               </div>
 
@@ -1471,7 +1472,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       <button
                         onClick={() => {
                           const query = `${hotel.name}, ${plan.destination?.name}`;
-                          window.open(`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(query)}`, "_blank");
+                          window.open(appConfig.bookingLinks.bookingComSearch(query), "_blank");
                         }}
                         className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors self-start sm:self-center"
                       >

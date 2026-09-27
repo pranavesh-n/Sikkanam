@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { queryScrapeGraphLiveIntelligence, formatScrapeGraphGroundedContext } from "./_utils/scrapegraphGrounding.js";
+import { serverConfig } from "./_utils/config.js";
 
 // In-memory Prompt & Response Cache for 0-token instant hits
 const memoryCache = new Map();
@@ -1169,10 +1170,9 @@ ${scrapegraphReport}
 
     // 5. Prioritize GROQ API with SIKKANAM_PLAN_API_KEY
     if (GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
-      const groqModels = [
+      const groqModels = serverConfig.groqModels.length > 0 ? serverConfig.groqModels : [
         "openai/gpt-oss-120b",
         "openai/gpt-oss-20b",
-        "llama-3.3-70b-versatile",
       ];
       for (const groqModel of groqModels) {
         try {
@@ -1198,7 +1198,7 @@ ${scrapegraphReport}
             bodyPayload.tools = [{ type: "browser_search" }];
           }
 
-          let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          let response = await fetch(serverConfig.groqApiUrl, {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${GROQ_API_KEY}`,
@@ -1212,7 +1212,7 @@ ${scrapegraphReport}
           if (!response.ok && bodyPayload.tools) {
             console.warn(`[AI] Groq browser_search not supported on this endpoint, retrying without tools for ${groqModel}...`);
             delete bodyPayload.tools;
-            response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            response = await fetch(serverConfig.groqApiUrl, {
               method: "POST",
               headers: {
                 "Authorization": `Bearer ${GROQ_API_KEY}`,
@@ -1243,11 +1243,10 @@ ${scrapegraphReport}
 
     // 6. Fallback to Gemini API with Google Search Grounding if key is present
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = [
+      const geminiModels = serverConfig.geminiModels.length > 0 ? serverConfig.geminiModels : [
         "gemini-3.0-flash",
         "gemini-2.5-flash",
         "gemini-2.5-flash-lite",
-        "gemini-2.5-pro",
       ];
       for (const geminiModel of geminiModels) {
         // First try with Google Search Grounding tool, then without
@@ -1277,7 +1276,7 @@ ${scrapegraphReport}
             }
 
             const response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
+              `${serverConfig.geminiApiUrl}/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
               {
                 method: "POST",
                 headers: {

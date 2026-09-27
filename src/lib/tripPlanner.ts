@@ -23,6 +23,7 @@ import {
   buildDynamicKNNCircuit,
   type MultiDestinationCircuit
 } from "@/lib/knnCircuitPlanner";
+import { appConfig } from "@/config/appConfig";
 
 export type TravelStyle = "budget" | "standard" | "comfort";
 export type TravellerType = "solo" | "couple" | "family" | "friends" | "seniors";
@@ -1433,7 +1434,7 @@ export async function getRoadDistanceAndStatus(
 ): Promise<RouteIntelligence> {
   const fallbackDist = Math.round(getDistance(fromLat, fromLng, toLat, toLng) * 1.25);
   const fallbackDurationMin = Math.round((fallbackDist / 45) * 60);
-  const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=false`;
+  const url = `${appConfig.apis.osrmRouter}/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=false`;
   try {
     const res = await fetch(url);
     if (res.ok) {

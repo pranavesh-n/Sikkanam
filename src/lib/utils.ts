@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { appConfig } from "@/config/appConfig";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -89,7 +90,7 @@ export function generateTrainSearchUrl(fromStation: string, toStation: string): 
   const toName = encodeURIComponent(toDetails.name);
 
   // RailYatri trains between stations query URL structure
-  return `https://www.railyatri.in/booking/trains-between-stations?from_code=${fromCode}&from_name=${fromName}&to_code=${toCode}&to_name=${toName}&src=tbs`;
+  return `${appConfig.apis.railyatri}?from_code=${fromCode}&from_name=${fromName}&to_code=${toCode}&to_name=${toName}&src=tbs`;
 }
 
 export function roundFriendly(value: number): number {

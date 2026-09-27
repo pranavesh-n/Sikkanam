@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { calculateTravelCostIntelligence } from "../src/lib/intelligenceEngine.ts";
 import { queryScrapeGraphLiveIntelligence, formatScrapeGraphGroundedContext } from "./_utils/scrapegraphGrounding.js";
+import { serverConfig } from "./_utils/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1232,10 +1233,7 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
 
     // 1. Prioritize Groq API with SIKKANAM_PLAN_API_KEY
     if (!reply && GROQ_API_KEY && !GROQ_API_KEY.includes("YOUR_")) {
-      const groqModels = [
-        "openai/gpt-oss-120b",
-        "openai/gpt-oss-20b",
-      ];
+      const groqModels = serverConfig.groqModels.length > 0 ? serverConfig.groqModels : ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
       for (const groqModel of groqModels) {
         try {
           console.log(`[AI Plan] Attempting Groq (${groqModel}) for plan narration...`);
@@ -1252,7 +1250,7 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
             max_tokens: 800,
           };
 
-          let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          let response = await fetch(serverConfig.groqApiUrl, {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${GROQ_API_KEY}`,
@@ -1278,11 +1276,7 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
     }
 
     if (!reply && GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_")) {
-      const geminiModels = [
-        "gemini-3.0-flash",
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-      ];
+      const geminiModels = serverConfig.geminiModels.length > 0 ? serverConfig.geminiModels : ["gemini-3.0-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
       for (const geminiModel of geminiModels) {
         try {
           console.log(`[AI Plan] Attempting Gemini (${geminiModel}) for plan narration...`);
@@ -1290,7 +1284,7 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
           const timeoutId = setTimeout(() => controller.abort(), 3500);
           
           const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
+            `${serverConfig.geminiApiUrl}/${geminiModel}:generateContent?key=${GEMINI_API_KEY}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },

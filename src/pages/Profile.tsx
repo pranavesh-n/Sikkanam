@@ -14,6 +14,7 @@ import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import logo from "@/assets/logo.png";
 
 import { usePwaInstall } from "@/hooks/usePwaInstall";
+import { appConfig } from "@/config/appConfig";
 
 const Profile = () => {
   const { user, loading, loginWithGoogle, logout } = useAuth();
@@ -298,8 +299,8 @@ const Profile = () => {
         <Link to="/whats-new" className="block">
           <Row
             icon={Sparkles}
-            label="What's New in Sikkanam"
-            desc="September 2026 (v2.6.5) release notes & updates"
+            label={`What's New in ${appConfig.name}`}
+            desc={`${appConfig.releaseDate} (${appConfig.version}) release notes & updates`}
           />
         </Link>
       </Section>
@@ -315,7 +316,7 @@ const Profile = () => {
         </button>
 
         <a
-          href="https://wa.me/916374161918?text=Hi%20Sikkanam%20Team"
+          href={appConfig.supportWhatsAppUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="block"
@@ -323,26 +324,26 @@ const Profile = () => {
           <Row
             icon={WhatsAppIcon}
             label="WhatsApp Support Desk"
-            desc="Chat directly with Sikkanam Travel Assistance"
+            desc={`Chat directly with ${appConfig.name} Travel Assistance`}
           />
         </a>
 
         <a
-          href="mailto:sikkanam.customerfeedback@gmail.com"
+          href={`mailto:${appConfig.supportEmail}`}
           className="block"
         >
           <Row
             icon={Mail}
             label="Official Support Email"
-            desc="sikkanam.customerfeedback@gmail.com"
+            desc={appConfig.supportEmail}
           />
         </a>
 
         <button onClick={() => setShowAbout(true)} className="block w-full text-left focus:outline-none">
           <Row
             icon={Info}
-            label="About Sikkanam"
-            desc="Origin, mission & budget travel companion for Tamil Nadu"
+            label={`About ${appConfig.name}`}
+            desc={`Origin, mission & budget travel companion for Tamil Nadu`}
           />
         </button>
       </Section>
@@ -369,7 +370,7 @@ const Profile = () => {
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-3">
-        சிக்கனம் · Sikkanam v2.6.5
+        {appConfig.tamilName} · {appConfig.name} {appConfig.version}
       </p>
 
       {/* About Modal */}
@@ -459,7 +460,7 @@ const Profile = () => {
 
             {/* Footer Info & Action */}
             <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[11px] text-muted-foreground font-medium">
-              <span>Sikkanam v2.6.5 • Stable</span>
+              <span>{appConfig.name} {appConfig.version} • Stable</span>
               <span>Made in Tamil Nadu ❤️</span>
             </div>
 
@@ -467,7 +468,7 @@ const Profile = () => {
               onClick={() => setShowAbout(false)}
               className="w-full mt-4 py-3 rounded-xl gradient-saffron text-white font-bold text-xs md:text-sm shadow-card active:scale-[0.98] transition-transform text-center hover:opacity-95"
             >
-              Explore Sikkanam
+              Explore {appConfig.name}
             </button>
           </div>
         </div>

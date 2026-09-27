@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { X, Bug, Lightbulb, Clock, MessageSquare, Send, CheckCircle2, History, AlertCircle, Trash2, Loader2, Database } from "lucide-react";
 import { toast } from "sonner";
+import { appConfig } from "@/config/appConfig";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -64,7 +65,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
         body: JSON.stringify({
           type: feedbackType,
           message: message.trim(),
-          appVersion: "v2.6.5",
+          appVersion: appConfig.version,
           deviceInfo: `${navigator.platform} | ${navigator.userAgent.slice(0, 80)}`,
         }),
       });

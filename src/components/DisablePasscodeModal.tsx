@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAppLock } from "@/context/AppLockContext";
 import { Delete, X, Lock } from "lucide-react";
 import { toast } from "sonner";
+import logo from "@/assets/logo.png";
+import { appConfig } from "@/config/appConfig";
 
 interface DisablePasscodeModalProps {
   isOpen: boolean;
@@ -99,11 +101,13 @@ export const DisablePasscodeModal: React.FC<DisablePasscodeModalProps> = ({ isOp
         </button>
 
         {/* Sikkanam Logo Image */}
-        <img
-          src="/logo.png"
-          alt="Sikkanam Logo"
-          className="w-14 h-14 rounded-2xl shadow-md shadow-orange-500/20 mb-4 object-cover"
-        />
+        <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-md shadow-orange-500/20 mb-4 shrink-0">
+          <img
+            src={logo}
+            alt={`${appConfig.name} Logo`}
+            className="w-full h-full object-cover scale-[1.08]"
+          />
+        </div>
 
         {/* Title & Subtitle */}
         <h2 className="font-display font-bold text-xl text-white mb-1">

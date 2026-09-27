@@ -5,6 +5,7 @@ import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Hear
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { WeatherWidget } from "@/components/WeatherWidget";
+import { appConfig } from "@/config/appConfig";
 
 const seasonByCat: Record<string, string> = {
   hill: "Apr – Jun (cool)",
@@ -141,7 +142,7 @@ const DestinationDetail = () => {
           shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
         });
         const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([dest.lat, dest.lng], 11);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
+        L.tileLayer(appConfig.apis.osmTiles, { maxZoom: 18 }).addTo(map);
         L.marker([dest.lat, dest.lng]).addTo(map).bindPopup(`<b>${dest.name}</b><br/>${dest.district}`);
         mapInstance.current = map;
         setTimeout(() => map && map.invalidateSize && map.invalidateSize(), 200);

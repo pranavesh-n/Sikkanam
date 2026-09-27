@@ -12,7 +12,7 @@ interface ShareTripModalProps {
 }
 
 function getTripShareUrl(plan: TripPlan): string {
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://sikkanam.vercel.app";
+  const origin = typeof window !== "undefined" ? window.location.origin : (import.meta.env.VITE_APP_URL || "");
   const { source, destination, days, travellers, budget, style } = plan.input;
   return `${origin}/plan?from=${encodeURIComponent(source)}&to=${encodeURIComponent(destination)}&days=${days}&pax=${travellers}&budget=${budget}&style=${style}`;
 }

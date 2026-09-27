@@ -1,6 +1,7 @@
 import { connectToDatabase } from "./_utils/db.js";
 import { Feedback } from "./_utils/models.js";
 import { getSessionFromReq } from "./_utils/auth.js";
+import { serverConfig } from "./_utils/config.js";
 
 export default async function handler(req, res) {
   try {
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
         userEmail,
         type: type || "other",
         message: message.trim().slice(0, 2000),
-        appVersion: appVersion || "v2.6.5",
+        appVersion: appVersion || serverConfig.appVersion,
         deviceInfo: deviceInfo || "",
         status: "received",
         createdAt: new Date(),

@@ -1,5 +1,50 @@
-# Logs
-logs
+# ============================================================
+# Sikkanam — Comprehensive .gitignore
+# Stack: Vite + React + TypeScript + Node API + Firebase
+#        + Supabase + MongoDB + Vercel + Playwright + TestSprite
+# ============================================================
+
+# ─────────────────────────────────────────
+# 🔐 Environment & Secrets (NEVER commit)
+# ─────────────────────────────────────────
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.pem
+*.key
+*.cert
+secrets/
+service-account*.json
+
+# ─────────────────────────────────────────
+# 📦 Dependencies
+# ─────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ─────────────────────────────────────────
+# 🏗️ Build Output
+# ─────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+out/
+.output/
+.nuxt/
+.next/
+
+# ─────────────────────────────────────────
+# 📝 Logs
+# ─────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,25 +52,87 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# ─────────────────────────────────────────
+# 🗄️ Cache & Temp Files
+# ─────────────────────────────────────────
+.cache/
+.parcel-cache/
+.turbo/
+.vite/
 *.local
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+chat_cache.json
+*.tmp
+*.temp
+tmp/
 
-# Editor directories and files
+# ─────────────────────────────────────────
+# 🧪 Testing
+# ─────────────────────────────────────────
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
+
+# TestSprite runtime artifacts (keep test code, ignore execution artifacts)
+testsprite_tests/tmp/
+testsprite_tests/tmp/**
+
+# Vitest
+coverage/
+.vitest/
+
+# ─────────────────────────────────────────
+# ☁️ Deployment & Hosting
+# ─────────────────────────────────────────
+.vercel/
+.netlify/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+
+# ─────────────────────────────────────────
+# 🗺️ Large Data Files
+# ─────────────────────────────────────────
+export.geojson
+blobs/
+*.geojson
+
+# ─────────────────────────────────────────
+# 🖥️ OS Files
+# ─────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─────────────────────────────────────────
+# 💻 Editor & IDE
+# ─────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
-.vercel
-.env*
-.env.local
-chat_cache.json
-testsprite_tests/tmp/
-testsprite_tests/tmp/config.json
+*.swp
+*.bak
+*~
+
+# ─────────────────────────────────────────
+# 🐞 Debug & Misc
+# ─────────────────────────────────────────
+.scratch/
+scratch/
+*.map
+report.*.json

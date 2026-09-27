@@ -308,11 +308,53 @@ async function scrapeLiveWebSearch(query) {
 }
 
 /**
+ * Query Official ScrapeGraph AI v2 API directly using SCRAPEGRAPH_API_KEY
+ */
+async function queryScrapeGraphDirectApi(destinationName) {
+  const apiKey = getEnv("SCRAPEGRAPH_API_KEY");
+  if (!apiKey || apiKey.includes("YOUR_")) return null;
+
+  const apiUrl = getEnv("SCRAPEGRAPH_API_URL") || "https://v2-api.scrapegraphai.com/api/search";
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "SGAI-APIKEY": apiKey,
+        "x-api-key": apiKey,
+        "Authorization": `Bearer ${apiKey}`
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        query: `${destinationName} Tamil Nadu TTDC room tariffs TNSTC bus fares entry tickets`,
+        num_results: 2
+      })
+    });
+
+    clearTimeout(timeoutId);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data && (data.result || data.data || data.snippets)) {
+      console.log(`[ScrapeGraph API] ✅ Successfully fetched live data for ${destinationName}`);
+      return data.result || data.data || data.snippets;
+    }
+  } catch (err) {
+    // Non-fatal fallback
+  }
+  return null;
+}
+
+/**
  * Query ScrapeGraph AI MCP Server via JSON-RPC protocol
  */
 async function queryScrapeGraphMcp(destinationName, prompt) {
   const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
-  const token = getEnv("MCPMARKET_TOKEN") || getEnv("SCRAPEGRAPH_API_KEY");
+  const token = getEnv("SCRAPEGRAPH_API_KEY") || getEnv("MCPMARKET_TOKEN");
 
   if (!mcpUrl) return null;
 
@@ -338,6 +380,8 @@ async function queryScrapeGraphMcp(destinationName, prompt) {
     };
     if (token && !token.includes("YOUR_")) {
       headers["Authorization"] = `Bearer ${token}`;
+      headers["x-api-key"] = token;
+      headers["SGAI-APIKEY"] = token;
     }
 
     const response = await fetch(mcpUrl, {
@@ -394,18 +438,25 @@ export async function queryScrapeGraphLiveIntelligence(destinationName, userQuer
 
   // 2. Parallel quick live queries if needed
   try {
-    const apiKey = getEnv("SCRAPEGRAPH_API_KEY") || getEnv("MCPMARKET_TOKEN");
+    const apiKey = getEnv("SCRAPEGRAPH_API_KEY");
     const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
     const fetchPromises = [];
 
-    // MCP query if configured (either via URL or API key)
-    if (mcpUrl || (apiKey && !apiKey.includes("YOUR_"))) {
+    // Primary: Direct ScrapeGraph AI v2 API if API key is available
+    if (apiKey && !apiKey.includes("YOUR_")) {
       fetchPromises.push(
-        queryScrapeGraphMcp(destinationName, userQuery).then(r => { mcpResult = r; }).catch(() => {})
+        queryScrapeGraphDirectApi(destinationName).then(r => { mcpResult = r; }).catch(() => {})
       );
     }
 
-    // Only run live web search if benchmark not already present, or do rapid query
+    // Secondary: MCP URL endpoint if explicitly configured
+    if (mcpUrl && mcpUrl !== "" && !mcpUrl.includes("mcpmarket.com")) {
+      fetchPromises.push(
+        queryScrapeGraphMcp(destinationName, userQuery).then(r => { if (!mcpResult) mcpResult = r; }).catch(() => {})
+      );
+    }
+
+    // Fallback: live web search if no benchmark and no API results
     if (!benchmark) {
       fetchPromises.push(
         scrapeLiveWebSearch(`${destinationName} Tamil Nadu TTDC Hotel room tariff TNSTC bus fare`)

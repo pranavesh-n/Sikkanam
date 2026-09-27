@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import logo from "@/assets/logo.png";
+import { appConfig } from "@/config/appConfig";
 
 interface ReleaseUpdate {
   title: string;
@@ -367,14 +368,14 @@ const WhatsNew: React.FC = () => {
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground font-semibold text-xs border border-border/60">
             <Calendar className="w-3.5 h-3.5 text-primary" />
-            <span>Last Updated: September 2026</span>
+            <span>Last Updated: {appConfig.releaseDate}</span>
           </div>
         </div>
         <h1 className="font-display font-extrabold text-3xl md:text-5xl text-foreground tracking-tight mb-3">
-          What's New in Sikkanam
+          What's New in {appConfig.name}
         </h1>
         <p className="text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
-          The latest features, updates, and continuous improvements brought to Sikkanam every month. Last updated in September 2026.
+          The latest features, updates, and continuous improvements brought to {appConfig.name} every month. Last updated in {appConfig.releaseDate}.
         </p>
       </div>
 

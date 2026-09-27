@@ -1,10 +1,11 @@
 import { Bus, Train, Hotel, ExternalLink } from "lucide-react";
+import { appConfig } from "@/config/appConfig";
 
 const Booking = () => {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-12 space-y-6 md:space-y-8">
       <p className="text-xs md:text-sm text-muted-foreground">
-        Sikkanam links you to trusted services. We never charge a booking fee.
+        {appConfig.name} links you to trusted services. We never charge a booking fee.
       </p>
 
       {/* Bus */}
@@ -12,19 +13,19 @@ const Booking = () => {
         <Card
           title="TNSTC online"
           desc="Government rates · WhatsApp & web booking"
-          href="https://www.tnstc.in/"
+          href={appConfig.bookingLinks.tnstcOnline}
           cta="Book bus"
         />
         <Card
           title="WhatsApp booking"
           desc="Send 'Hi' to TNSTC bot for instant assistance"
-          href="https://wa.me/+919444018898 "
+          href={appConfig.tnstcWhatsAppUrl}
           cta="Open WhatsApp"
         />
         <Card
           title="RedBus (private)"
           desc="Compare private operators across TN"
-          href="https://www.redbus.in/"
+          href={appConfig.bookingLinks.redBus}
           cta="Compare buses"
         />
       </Section>
@@ -34,13 +35,13 @@ const Booking = () => {
         <Card
           title="IRCTC official"
           desc="Sleeper from ₹100 · Book up to 120 days ahead"
-          href="https://www.irctc.co.in/"
+          href={appConfig.bookingLinks.irctcOfficial}
           cta="Book train"
         />
         <Card
           title="Live train status"
           desc="Track Tamil Nadu trains in real-time"
-          href="https://enquiry.indianrail.gov.in/mntes/"
+          href={appConfig.bookingLinks.liveTrainStatus}
           cta="Track now"
         />
       </Section>
@@ -50,25 +51,25 @@ const Booking = () => {
         <Card
           title="Booking.com"
           desc="Cancellable hotels across TN"
-          href="https://www.booking.com/searchresults.html?ss=Tamil+Nadu"
+          href={appConfig.bookingLinks.bookingCom}
           cta="Browse hotels"
         />
         <Card
           title="Goibibo"
           desc="Domestic deals · UPI checkout"
-          href="https://www.goibibo.com/hotels/hotels-in-tamil-nadu-state/"
+          href={appConfig.bookingLinks.goibibo}
           cta="Find deals"
         />
         <Card
           title="Agoda"
           desc="Pay later · Best for Ooty/Kodai"
-          href="https://www.agoda.com/country/india.html"
+          href={appConfig.bookingLinks.agoda}
           cta="Check rates"
         />
         <Card
           title="TTDC official"
           desc="Government-run hotels (₹450–₹1500/night)"
-          href="https://www.ttdconline.com/"
+          href={appConfig.bookingLinks.ttdcOfficial}
           cta="Book TTDC"
         />
       </Section>

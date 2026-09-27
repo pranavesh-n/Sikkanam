@@ -1,38 +1,34 @@
 [
   {
     "id": "TC001",
-    "title": "Ask for a budget trip idea in the AI planner",
-    "description": "A traveler can start an AI planning conversation and receive a day-wise budget itinerary with costs.",
-    "category": "AI Trip Planning",
+    "title": "View destination details for planning",
+    "description": "A traveler can review a destination's overview, weather, and hotel suggestions before deciding to visit.",
+    "category": "Destination Detail",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /ai"
-      },
-      {
-        "type": "action",
-        "description": "Enter a budget trip request for a short Tamil Nadu trip"
-      },
-      {
-        "type": "action",
-        "description": "Submit the request"
+        "description": "Navigate to /destination/chennai"
       },
       {
         "type": "assertion",
-        "description": "Verify a day-wise itinerary is displayed"
+        "description": "Verify destination information is displayed"
       },
       {
         "type": "assertion",
-        "description": "Verify itemized costs are displayed"
+        "description": "Verify weather information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify hotel suggestions are displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC002",
-    "title": "Ask for a budget trip plan in chat",
-    "description": "A traveler can request a short budget trip in AI chat and receive a day-wise itinerary with costs.",
-    "category": "AI Trip Planning Chat",
+    "title": "Generate a trip itinerary from the AI planner",
+    "description": "This verifies that a traveler can submit a trip request and receive a day-by-day itinerary in the AI planner.",
+    "category": "AI Trip Planner",
     "steps": [
       {
         "type": "action",
@@ -40,110 +36,94 @@
       },
       {
         "type": "action",
-        "description": "Fill in the chat input with a budget trip request"
+        "description": "Enter a three-day trip request for Ooty into the trip request field"
       },
       {
         "type": "action",
-        "description": "Submit the chat request"
+        "description": "Submit the trip request"
       },
       {
         "type": "assertion",
-        "description": "Verify a day-wise itinerary is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an itemized cost breakdown is displayed"
+        "description": "Verify a day-by-day itinerary is displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC003",
-    "title": "Generate a structured trip plan",
-    "description": "A traveler can choose trip settings and generate a structured itinerary with recommendations and costs.",
-    "category": "Interactive Trip Planner",
+    "title": "Create and save an AI-generated itinerary",
+    "description": "A traveler can submit a trip request, receive a generated itinerary, and save it for later.",
+    "category": "AI Planner",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /plan"
+        "description": "Navigate to /ai"
       },
       {
         "type": "action",
-        "description": "Select a destination"
+        "description": "Fill in the trip request field with a realistic Tamil Nadu trip request"
       },
       {
         "type": "action",
-        "description": "Adjust the trip duration"
-      },
-      {
-        "type": "action",
-        "description": "Adjust the traveler count"
-      },
-      {
-        "type": "action",
-        "description": "Choose a budget tier"
-      },
-      {
-        "type": "action",
-        "description": "Generate the plan"
+        "description": "Submit the trip request"
       },
       {
         "type": "assertion",
-        "description": "Verify a generated itinerary is displayed"
+        "description": "Verify a day-by-day itinerary is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Save the generated trip plan"
       },
       {
         "type": "assertion",
-        "description": "Verify a cost breakdown and hotel recommendations are displayed"
+        "description": "Verify the plan is saved successfully"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC004",
-    "title": "Generate a structured itinerary from the planner",
-    "description": "A traveler can choose trip inputs in the structured planner and generate a complete itinerary with recommendations and expenses.",
-    "category": "AI Trip Planning Chat",
+    "title": "Get an AI itinerary and save it",
+    "description": "This test verifies that a traveler can submit an AI trip request, receive an itinerary, and save it for later review.",
+    "category": "AI trip planner submit -> generate itinerary -> save trip",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /plan"
+        "description": "Navigate to /ai"
       },
       {
         "type": "action",
-        "description": "Choose a destination"
+        "description": "Fill in the trip request field with a valid trip description"
       },
       {
         "type": "action",
-        "description": "Choose a trip duration"
-      },
-      {
-        "type": "action",
-        "description": "Choose a traveler count"
-      },
-      {
-        "type": "action",
-        "description": "Choose a budget tier"
-      },
-      {
-        "type": "action",
-        "description": "Generate the itinerary"
+        "description": "Submit the trip request"
       },
       {
         "type": "assertion",
-        "description": "Verify an itinerary is displayed"
+        "description": "Verify a day-by-day itinerary is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Save the generated itinerary"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /saved-trips"
       },
       {
         "type": "assertion",
-        "description": "Verify hotel recommendations and expense breakdown are displayed"
+        "description": "Verify the saved itinerary appears in saved trips"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC005",
-    "title": "Discover destinations through search and filters",
-    "description": "A traveler can search and filter Tamil Nadu destinations and see relevant results on explore.",
-    "category": "Explore Destinations",
+    "title": "View weather and hotel options on destination detail",
+    "description": "This test verifies that a traveler can inspect weather information and hotel options on a destination detail page.",
+    "category": "destination detail weather/hotel/booking actions",
     "steps": [
       {
         "type": "action",
@@ -151,27 +131,106 @@
       },
       {
         "type": "action",
-        "description": "Search for a destination"
-      },
-      {
-        "type": "action",
-        "description": "Filter destinations by a category"
+        "description": "Open a destination detail page"
       },
       {
         "type": "assertion",
-        "description": "Verify matching destination results are displayed"
+        "description": "Verify weather information is displayed"
       },
       {
         "type": "assertion",
-        "description": "Verify the filtered results reflect the selected category"
+        "description": "Verify hotel options are displayed"
       }
     ],
     "priority": "High"
   },
   {
     "id": "TC006",
-    "title": "Search for a destination and open its details",
-    "description": "A traveler can search for a destination from Explore and open the matching detail page to review trip information.",
+    "title": "Browse featured destinations from the home page",
+    "description": "A traveler can view featured destinations on the home page and open one to continue planning.",
+    "category": "Home Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click a featured destination card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify destination information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Save an AI-generated trip plan",
+    "description": "This verifies that a traveler can generate an itinerary and save it as a trip plan for later use.",
+    "category": "AI Trip Planner",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ai"
+      },
+      {
+        "type": "action",
+        "description": "Enter a three-day trip request for Ooty into the trip request field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip request"
+      },
+      {
+        "type": "action",
+        "description": "Save the generated trip plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a saved confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the trip plan is available to revisit later"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Use booking links from destination detail",
+    "description": "This test verifies that a traveler can access booking-related actions from a destination detail page to continue planning a trip.",
+    "category": "destination detail weather/hotel/booking actions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /explore"
+      },
+      {
+        "type": "action",
+        "description": "Open a destination detail page"
+      },
+      {
+        "type": "action",
+        "description": "Use a booking action from the destination page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking options are displayed or launched"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Search destinations from Explore",
+    "description": "A traveler can search for a destination on Explore and open a matching result.",
     "category": "Explore Destinations",
     "steps": [
       {
@@ -184,11 +243,11 @@
       },
       {
         "type": "assertion",
-        "description": "Verify matching destination results are displayed"
+        "description": "Verify filtered destination results are displayed"
       },
       {
         "type": "action",
-        "description": "Open a destination result"
+        "description": "Click a matching destination card"
       },
       {
         "type": "assertion",
@@ -198,32 +257,316 @@
     "priority": "High"
   },
   {
-    "id": "TC007",
-    "title": "View previously saved trips",
-    "description": "A returning user can open saved trip history and see previously generated itineraries.",
-    "category": "Saved Trips",
+    "id": "TC010",
+    "title": "Access protected saved content after signing in",
+    "description": "A signed-in traveler can open wishlist and saved trips pages and see their saved content.",
+    "category": "Profile",
     "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wishlist page is displayed"
+      },
       {
         "type": "action",
         "description": "Navigate to /saved-trips"
       },
       {
         "type": "assertion",
-        "description": "Verify saved trip history is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify previously saved itineraries are listed"
+        "description": "Verify the saved trips page is displayed"
       }
     ],
     "priority": "High"
   },
   {
-    "id": "TC008",
-    "title": "Save a destination for later",
-    "description": "A traveler can save a destination from discovery and find it again in the wishlist.",
-    "category": "Wishlist",
+    "id": "TC011",
+    "title": "Use home page navigation to reach key planning areas",
+    "description": "A traveler can use the home page quick navigation to access core trip planning sections.",
+    "category": "Home Page",
     "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for Explore"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the explore page is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for AI planning"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the AI planner page is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for Maps"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the maps page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Open destination details from home navigation",
+    "description": "This test verifies that the home page provides a working entry point to a destination detail page for deeper trip planning.",
+    "category": "Home featured destination browsing and bottom-nav entry points",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click a destination entry point from the home page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify weather or travel planning information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Browse to a destination from the home page",
+    "description": "An anonymous traveler can use featured destinations on the home page to open a destination detail page.",
+    "category": "What's New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open a featured destination"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination detail page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "View the profile after signing in",
+    "description": "A signed-in traveler can access the profile area and see their saved account-related information.",
+    "category": "Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved account information is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Filter destinations and open a detail page",
+    "description": "This test verifies that a traveler can filter Explore results and open a destination detail page from the filtered list.",
+    "category": "Explore search/filter -> destination detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /explore"
+      },
+      {
+        "type": "action",
+        "description": "Select a destination filter"
+      },
+      {
+        "type": "action",
+        "description": "Open a destination from the filtered results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify destination details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Save a destination to the wishlist from its detail page",
+    "description": "A traveler can add a destination to the wishlist and later see it reflected in saved destinations.",
+    "category": "Destination Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /destination/chennai"
+      },
+      {
+        "type": "action",
+        "description": "Add the destination to the wishlist"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved destination is displayed in the wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wishlist contains at least one destination"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "View profile travel counts after signing in",
+    "description": "This test verifies that a signed-in traveler can access the profile page and review saved wishlist and trip counts.",
+    "category": "User Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved wishlist and trip counts are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account settings are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Open the structured trip planner and generate a plan",
+    "description": "This verifies that a traveler can fill out the guided trip planner form and receive a generated trip plan.",
+    "category": "Structured Trip Planner",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /plan"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid destination and travel details in the trip planner form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip planner form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a generated trip plan is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Save a destination to the wishlist from detail",
+    "description": "This test verifies that an authenticated traveler can add a destination from its detail page and later see it in the wishlist.",
+    "category": "add/remove wishlist from destination detail and verify counts/lists",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
       {
         "type": "action",
         "description": "Navigate to /explore"
@@ -234,28 +577,251 @@
       },
       {
         "type": "action",
-        "description": "Save the destination to the wishlist"
+        "description": "Add the destination to the wishlist"
       },
       {
         "type": "action",
-        "description": "Open the wishlist page"
+        "description": "Navigate to /wishlist"
       },
       {
         "type": "assertion",
         "description": "Verify the saved destination appears in the wishlist"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the destination remains available for later review"
       }
     ],
     "priority": "High"
   },
   {
-    "id": "TC009",
-    "title": "Save a generated trip and revisit it later",
-    "description": "A returning user can save a generated itinerary and find it again in saved trips.",
+    "id": "TC020",
+    "title": "Use destination booking options",
+    "description": "A traveler can open transport or hotel booking options from a destination detail page.",
+    "category": "Destination Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /destination/chennai"
+      },
+      {
+        "type": "action",
+        "description": "Click a travel booking option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the booking options page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify external booking options are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Filter destinations by category on Explore",
+    "description": "A traveler can narrow destinations by category on Explore and open one of the filtered results.",
+    "category": "Explore Destinations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /explore"
+      },
+      {
+        "type": "action",
+        "description": "Select a destination category filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination results update to match the selected category"
+      },
+      {
+        "type": "action",
+        "description": "Click a destination card from the filtered results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination detail page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Remove a destination from the wishlist from detail",
+    "description": "This test verifies that an authenticated traveler can remove a saved destination from the wishlist and see it removed from the list.",
+    "category": "add/remove wishlist from destination detail and verify counts/lists",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /explore"
+      },
+      {
+        "type": "action",
+        "description": "Open a destination detail page"
+      },
+      {
+        "type": "action",
+        "description": "Add the destination to the wishlist"
+      },
+      {
+        "type": "action",
+        "description": "Remove the destination from the wishlist"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed destination no longer appears in the wishlist"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Get directions between two destinations",
+    "description": "This test verifies that a traveler can select two destinations on the map and review the suggested route between them.",
+    "category": "Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /maps"
+      },
+      {
+        "type": "action",
+        "description": "Select a starting destination"
+      },
+      {
+        "type": "action",
+        "description": "Select an ending destination"
+      },
+      {
+        "type": "action",
+        "description": "Request directions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a route is displayed on the map"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify directions information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Refine an existing AI trip request",
+    "description": "This verifies that a traveler can continue from a previous AI itinerary and refine the request to get an updated plan.",
+    "category": "AI Trip Planner",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ai"
+      },
+      {
+        "type": "action",
+        "description": "Enter a trip request for a weekend trip to Madurai"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip request"
+      },
+      {
+        "type": "action",
+        "description": "Refine the trip request with an additional preference for family-friendly activities"
+      },
+      {
+        "type": "action",
+        "description": "Submit the refined request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an updated itinerary is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Search for a place on the map",
+    "description": "This test verifies that a traveler can search for a location on the map and see matching map results.",
+    "category": "Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /maps"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the map search field with a valid place name"
+      },
+      {
+        "type": "action",
+        "description": "Submit the map search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching map results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Review saved trips list",
+    "description": "An authenticated traveler can open the saved trips page and see previously saved itineraries in their list.",
     "category": "Saved Trips",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /saved-trips"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved itineraries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Use the structured trip planner to generate a plan",
+    "description": "A traveler can complete the structured trip form and generate a trip plan.",
+    "category": "Trip Planner",
     "steps": [
       {
         "type": "action",
@@ -263,27 +829,309 @@
       },
       {
         "type": "action",
-        "description": "Choose a destination"
+        "description": "Fill in the trip planner form with valid trip details"
       },
       {
         "type": "action",
-        "description": "Choose a trip duration"
+        "description": "Submit the trip planner form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a trip plan is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the plan contains itinerary details"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Visit booking hub options",
+    "description": "This test verifies that a traveler can open the booking hub and view outbound travel and stay options.",
+    "category": "Booking Hub outbound links to TNSTC/RedBus/IRCTC/hotel sites",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bus booking options are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify train and hotel booking options are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Open a saved trip plan",
+    "description": "An authenticated traveler can open a saved itinerary and view its trip details.",
+    "category": "Saved Trips",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Choose a traveler count"
+        "description": "Fill in the login user field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
-        "description": "Choose a budget tier"
+        "description": "Fill in the login password field with {{LOGIN_PASSWORD}}"
       },
       {
         "type": "action",
-        "description": "Generate the itinerary"
+        "description": "Submit the login form"
       },
       {
         "type": "action",
-        "description": "Save the trip"
+        "description": "Navigate to /saved-trips"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved trip plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected trip details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Use the maps page to find places and directions",
+    "description": "A traveler can search the map, select a place, and view directions for planning a visit.",
+    "category": "Maps",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /maps"
+      },
+      {
+        "type": "action",
+        "description": "Search for a place on the map"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching map results are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Select a place from the map results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify directions or route details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Resubmit the structured trip planner with updated trip details",
+    "description": "This verifies that a traveler can change trip inputs and regenerate the plan with the new details.",
+    "category": "Structured Trip Planner",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /plan"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid destination and travel details in the trip planner form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip planner form"
+      },
+      {
+        "type": "action",
+        "description": "Update the destination or travel dates in the trip planner form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip planner form again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated trip plan is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Open a destination from the map",
+    "description": "This test verifies that a traveler can open a destination from the map view and inspect its popup information.",
+    "category": "Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /maps"
+      },
+      {
+        "type": "action",
+        "description": "Click a destination pin on the map"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a destination popup is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify destination information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Open bus booking options from the booking hub",
+    "description": "This verifies that a traveler can use the booking hub to open an external bus booking option.",
+    "category": "Booking Hub",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /booking"
+      },
+      {
+        "type": "action",
+        "description": "Choose a bus booking option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the bus booking destination is opened"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC034",
+    "title": "Remove a saved destination from the wishlist",
+    "description": "A returning traveler can remove a previously saved destination from the wishlist.",
+    "category": "Destination Detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /destination/chennai"
+      },
+      {
+        "type": "action",
+        "description": "Add the destination to the wishlist"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /wishlist"
+      },
+      {
+        "type": "action",
+        "description": "Remove the saved destination from the wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination is no longer displayed in the wishlist"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wishlist updates after removal"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC035",
+    "title": "Enable the app lock with a 6-digit passcode",
+    "description": "This test verifies that a signed-in traveler can enable the profile passcode lock using a valid 6-digit passcode.",
+    "category": "User Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Enable the app lock"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a valid 6-digit passcode"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the passcode"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the lock is active"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC036",
+    "title": "Open train booking options from the booking hub",
+    "description": "This verifies that a traveler can use the booking hub to open an external train booking option.",
+    "category": "Booking Hub",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /booking"
+      },
+      {
+        "type": "action",
+        "description": "Choose a train booking option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the train booking destination is opened"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC037",
+    "title": "Open a saved AI itinerary",
+    "description": "A traveler can review a previously saved itinerary from the saved trips area.",
+    "category": "AI Planner",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ai"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the trip request field with a realistic Tamil Nadu trip request"
+      },
+      {
+        "type": "action",
+        "description": "Submit the trip request"
+      },
+      {
+        "type": "action",
+        "description": "Save the generated trip plan"
       },
       {
         "type": "action",
@@ -292,88 +1140,241 @@
       {
         "type": "assertion",
         "description": "Verify the saved itinerary is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC010",
-    "title": "Open a destination and review trip details",
-    "description": "A traveler can open a destination page and use its attractions, transit, and accommodation information to decide a visit.",
-    "category": "Destination Details",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /explore"
-      },
-      {
-        "type": "action",
-        "description": "Open a destination detail page"
       },
       {
         "type": "assertion",
-        "description": "Verify destination attractions are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify transit and accommodation information are displayed"
+        "description": "Verify saved trip details can be opened"
       }
     ],
-    "priority": "High"
+    "priority": "Medium"
   },
   {
-    "id": "TC011",
-    "title": "Save a generated trip and find it later",
-    "description": "A user can generate a trip, save it, and then see it appear in saved trip history.",
-    "category": "Saved Trips",
+    "id": "TC038",
+    "title": "Open hotel booking options from the booking hub",
+    "description": "This verifies that a traveler can use the booking hub to open an external hotel booking option.",
+    "category": "Booking Hub",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to /plan"
+        "description": "Navigate to /booking"
       },
       {
         "type": "action",
-        "description": "Choose a destination"
+        "description": "Choose a hotel booking option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hotel booking destination is opened"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Sign out from the profile page",
+    "description": "This test verifies that a signed-in traveler can sign out from the profile page and end the session.",
+    "category": "User Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
       },
       {
         "type": "action",
-        "description": "Select a trip duration"
+        "description": "Fill in the email field with {{LOGIN_USER}}"
       },
       {
         "type": "action",
-        "description": "Select the number of travelers"
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
       },
       {
         "type": "action",
-        "description": "Select a budget tier"
+        "description": "Submit the login form"
       },
       {
         "type": "action",
-        "description": "Generate the trip itinerary"
+        "description": "Navigate to /profile"
       },
       {
         "type": "action",
-        "description": "Save the generated itinerary"
+        "description": "Sign out"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is signed out"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Review a saved itinerary from saved trips",
+    "description": "This test verifies that a returning user can open a saved AI-generated trip plan from the saved trips page.",
+    "category": "saved itinerary review/open from /saved-trips",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
       },
       {
         "type": "action",
         "description": "Navigate to /saved-trips"
       },
       {
-        "type": "assertion",
-        "description": "Verify the saved itinerary appears in trip history"
+        "type": "action",
+        "description": "Open a saved itinerary"
       },
       {
         "type": "assertion",
-        "description": "Verify the trip can be reviewed from saved trips"
+        "description": "Verify the itinerary details are displayed"
       }
     ],
-    "priority": "High"
+    "priority": "Medium"
   },
   {
-    "id": "TC012",
-    "title": "Filter destinations by category and open a result",
-    "description": "A traveler can narrow Explore results by a category filter and open a destination from the filtered list.",
+    "id": "TC041",
+    "title": "Disable the app lock",
+    "description": "This test verifies that a signed-in traveler can turn off the profile passcode lock from settings.",
+    "category": "User Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Disable the app lock"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the lock is turned off"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Enable and disable the profile passcode lock",
+    "description": "A signed-in traveler can turn passcode protection on and off from the profile settings.",
+    "category": "Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Enable passcode lock"
+      },
+      {
+        "type": "action",
+        "description": "Disable passcode lock"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the passcode lock setting updates successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile settings remain accessible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Dismiss the new features announcement",
+    "description": "A traveler can close the new features announcement and continue using the home page.",
+    "category": "Home Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Dismiss the new features announcement"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the home page remains accessible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify featured destinations are still displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Open the changelog from home navigation",
+    "description": "A traveler can reach the full What's New page from the home experience and continue browsing afterward.",
+    "category": "What's New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the What's New page from the home experience"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changelog entries are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Handle an Explore search with no matches",
+    "description": "A traveler sees an empty state when a search returns no matching destinations.",
     "category": "Explore Destinations",
     "steps": [
       {
@@ -382,469 +1383,7 @@
       },
       {
         "type": "action",
-        "description": "Select a category filter"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the destination list is filtered"
-      },
-      {
-        "type": "action",
-        "description": "Open a destination result"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the destination detail page is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC013",
-    "title": "Review planner output after generation",
-    "description": "A traveler can open the planner, generate an itinerary, and review the resulting plan details.",
-    "category": "Interactive Trip Planner",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /plan"
-      },
-      {
-        "type": "action",
-        "description": "Select a destination"
-      },
-      {
-        "type": "action",
-        "description": "Adjust the trip duration"
-      },
-      {
-        "type": "action",
-        "description": "Choose a budget tier"
-      },
-      {
-        "type": "action",
-        "description": "Generate the plan"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the recommended itinerary is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify estimated expenses are displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC014",
-    "title": "Review and save an AI-generated travel idea",
-    "description": "A traveler can review an AI-generated itinerary and save the idea for later reuse.",
-    "category": "AI Trip Planning",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /ai"
-      },
-      {
-        "type": "action",
-        "description": "Enter a trip request"
-      },
-      {
-        "type": "action",
-        "description": "Submit the request"
-      },
-      {
-        "type": "action",
-        "description": "Save the generated plan"
-      },
-      {
-        "type": "action",
-        "description": "Open the saved trips page"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the generated plan appears in saved trips"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify saved itinerary details are available for review"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC015",
-    "title": "Use a quick prompt to generate travel advice",
-    "description": "A traveler can start from an AI quick prompt and receive a relevant generated trip plan.",
-    "category": "AI Trip Planning Chat",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /ai"
-      },
-      {
-        "type": "action",
-        "description": "Select a quick prompt"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a generated travel plan is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify budget details are displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC016",
-    "title": "Review saved itineraries in saved trips",
-    "description": "A returning user can open saved trips and see previously stored itineraries.",
-    "category": "Saved Trips",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /saved-trips"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify saved itineraries are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the saved trips empty state or saved plan list is visible"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC017",
-    "title": "View saved destinations in the wishlist",
-    "description": "A returning user can open the wishlist page and see previously saved destinations.",
-    "category": "Wishlist",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /wishlist"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify saved destinations are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the wishlist empty state or saved items are visible"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC018",
-    "title": "Use quick prompts to start AI planning",
-    "description": "A traveler can use a quick prompt on the AI page to generate a relevant trip plan.",
-    "category": "AI Trip Planning",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /ai"
-      },
-      {
-        "type": "action",
-        "description": "Select a quick prompt"
-      },
-      {
-        "type": "action",
-        "description": "Submit the prompt"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify a generated travel plan is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the response includes practical trip guidance"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC019",
-    "title": "Review destination attractions, transit, and accommodations",
-    "description": "A traveler can inspect a destination detail page and use the practical trip information to evaluate the place.",
-    "category": "Destination Details",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /explore"
-      },
-      {
-        "type": "action",
-        "description": "Open a destination result"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify attractions information is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify transit guidance and accommodation information are displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC020",
-    "title": "Browse booking assistance options",
-    "description": "A traveler can review the official guidance for buses, trains, and hotels on the booking page.",
-    "category": "Booking Assistance",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /booking"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify booking assistance options are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify guidance for transport and accommodation is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC021",
-    "title": "Review official booking guidance",
-    "description": "A traveler can open the booking page and review the official guidance needed to continue planning transport or stays.",
-    "category": "Booking Assistance",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /booking"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify booking guidance for transport and stays is displayed"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC022",
-    "title": "Use booking guidance to continue planning",
-    "description": "A traveler can inspect booking guidance and then move into planning with that context.",
-    "category": "Booking Assistance",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /booking"
-      },
-      {
-        "type": "action",
-        "description": "Review the official travel assistance information"
-      },
-      {
-        "type": "action",
-        "description": "Continue to the trip planning flow"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify trip planning content is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the booking context remains available"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC023",
-    "title": "Browse destination categories",
-    "description": "A traveler can switch among destination categories and see category-specific results.",
-    "category": "Explore Destinations",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /explore"
-      },
-      {
-        "type": "action",
-        "description": "Select a category filter"
-      },
-      {
-        "type": "action",
-        "description": "Select a different category filter"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify category-specific destinations are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the results update when the category changes"
-      }
-    ],
-    "priority": "High"
-  },
-  {
-    "id": "TC024",
-    "title": "Inspect transit and tourist locations on the map",
-    "description": "A user can browse the map to inspect transit links and tourist spot locations that support planning.",
-    "category": "Maps",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /maps"
-      },
-      {
-        "type": "action",
-        "description": "Browse the map"
-      },
-      {
-        "type": "action",
-        "description": "Inspect a transit link on the map"
-      },
-      {
-        "type": "action",
-        "description": "Inspect a tourist spot location on the map"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify transit information is visible"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify tourist spot location information is visible"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC025",
-    "title": "Open the map view",
-    "description": "A user can open the Tamil Nadu map page and see the interactive map loaded for browsing.",
-    "category": "Maps",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /maps"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an interactive map is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify map browsing content is available"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC026",
-    "title": "Browse the Tamil Nadu map for places of interest",
-    "description": "A traveler can open the map page and browse tourist and transit locations.",
-    "category": "Interactive Map",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /maps"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify Tamil Nadu map content is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify tourist and transit points are available for browsing"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC027",
-    "title": "Use the map to support trip planning",
-    "description": "A user can use the map view to gather location context before continuing trip planning elsewhere in the app.",
-    "category": "Maps",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /maps"
-      },
-      {
-        "type": "action",
-        "description": "Browse the map"
-      },
-      {
-        "type": "action",
-        "description": "Inspect a location on the map"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify location details are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify planning-support information is visible"
-      }
-    ],
-    "priority": "Medium"
-  },
-  {
-    "id": "TC028",
-    "title": "Handle an empty search result",
-    "description": "A traveler can search for a non-matching destination name and see an empty state instead of misleading results.",
-    "category": "Explore Destinations",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /explore"
-      },
-      {
-        "type": "action",
-        "description": "Fill in the search field with an uncommon destination name"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify an empty state message is displayed"
-      }
-    ],
-    "priority": "Low"
-  },
-  {
-    "id": "TC029",
-    "title": "Open the map with no selection",
-    "description": "A user can open the map page without selecting anything and still see the default interactive browsing experience.",
-    "category": "Maps",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /maps"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the default map view is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify no location is selected initially"
-      }
-    ],
-    "priority": "Low"
-  },
-  {
-    "id": "TC030",
-    "title": "Browse saved trips when none exist",
-    "description": "A user can open saved trip history and see an empty state when no itineraries have been saved yet.",
-    "category": "Saved Trips",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /saved-trips"
+        "description": "Fill in the search field with a clearly unmatched destination name"
       },
       {
         "type": "assertion",
@@ -852,7 +1391,116 @@
       },
       {
         "type": "assertion",
-        "description": "Verify no saved itineraries are listed"
+        "description": "Verify no destination results are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "View what is new",
+    "description": "This test verifies that a traveler can open the changelog page and browse recent app updates.",
+    "category": "What’s New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /whats-new"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changelog content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify feature highlights are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC047",
+    "title": "View the changelog page",
+    "description": "A traveler can open the What's New page and review the current release highlights.",
+    "category": "What's New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /whats-new"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changelog entries are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC048",
+    "title": "View the latest updates page",
+    "description": "A traveler can open the product updates page and review the latest release information.",
+    "category": "What's New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /whats-new"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updates content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify feature highlights are visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC049",
+    "title": "Handle an empty explore search result",
+    "description": "This test verifies that a traveler sees a no-results state when a search does not match any destinations.",
+    "category": "Explore search/filter -> destination detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /explore"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the destination search field with a clearly invalid place name"
+      },
+      {
+        "type": "action",
+        "description": "Submit the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a no-results message is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC050",
+    "title": "Dismiss the What's New modal from home",
+    "description": "A traveler can dismiss the What's New modal from the home page and continue browsing.",
+    "category": "What's New",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Dismiss the What's New modal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the modal is no longer visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify home browsing content is visible"
       }
     ],
     "priority": "Low"

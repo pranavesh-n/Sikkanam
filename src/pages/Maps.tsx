@@ -4,6 +4,7 @@ import SikkanamMap from "@/components/SikkanamMap";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { tnDestinations } from "@/data/tnDestinations";
+import { appConfig } from "@/config/appConfig";
 import {
   MapPin,
   Navigation,
@@ -115,7 +116,7 @@ export default function Maps() {
       setErrorMsg("");
       try {
         const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${source.lng},${source.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`
+          `${appConfig.apis.osrmRouter}/route/v1/driving/${source.lng},${source.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`
         );
         if (!response.ok) {
           throw new Error("Failed to reach OSRM routing server.");
@@ -193,7 +194,7 @@ export default function Maps() {
 
     // 2. Fetch external address via OSM Nominatim API bounded to Tamil Nadu/South India
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      `${appConfig.apis.nominatim}/search?q=${encodeURIComponent(
         query
       )}&format=json&limit=3&countrycodes=in&viewbox=75.0,8.0,81.5,14.0&bounded=1`
     );
@@ -307,7 +308,7 @@ export default function Maps() {
     debounceRef.current = setTimeout(async () => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          `${appConfig.apis.nominatim}/search?q=${encodeURIComponent(
             query
           )}&format=json&limit=4&countrycodes=in&viewbox=75.0,8.0,81.5,14.0&bounded=1`
         );

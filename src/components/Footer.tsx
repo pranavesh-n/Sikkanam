@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShieldCheck, FileText, LifeBuoy, Sparkles, X, Mail, MessageCircle, Heart } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { appConfig } from "@/config/appConfig";
 
 export const Footer: React.FC = () => {
   const [activeModal, setActiveModal] = useState<"support" | "privacy" | "terms" | null>(null);
@@ -55,13 +56,13 @@ export const Footer: React.FC = () => {
             className="hover:text-foreground text-primary font-semibold transition-colors flex items-center gap-1"
           >
             <Sparkles className="w-3 h-3" />
-            What's New (Sep 2026)
+            What's New ({appConfig.releaseDate})
           </Link>
 
           <span className="text-border hidden sm:inline">•</span>
 
           <span className="text-foreground/80 font-semibold">
-            © 2026 Sikkanam · Made in Tamil Nadu, India
+            © 2026 {appConfig.name} · Made in Tamil Nadu, India
           </span>
         </div>
       </div>
@@ -82,7 +83,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <h3 className="font-display font-extrabold text-lg text-foreground mb-1">
-              Sikkanam Support & Help
+              {appConfig.name} Support & Help
             </h3>
             <p className="text-xs text-muted-foreground mb-4">
               Have questions, feedback, or need help planning your Tamil Nadu budget trip?
@@ -90,7 +91,7 @@ export const Footer: React.FC = () => {
 
             <div className="space-y-2.5">
               <a
-                href="mailto:sikkanam.customerfeedback@gmail.com"
+                href={`mailto:${appConfig.supportEmail}`}
                 className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40 border border-border hover:bg-muted/70 transition-colors"
               >
                 <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600">
@@ -98,12 +99,12 @@ export const Footer: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-foreground">Email Support</div>
-                  <div className="text-[11px] text-muted-foreground">sikkanam.customerfeedback@gmail.com</div>
+                  <div className="text-[11px] text-muted-foreground">{appConfig.supportEmail}</div>
                 </div>
               </a>
 
               <a
-                href="https://wa.me/916374161918?text=Hi%20Sikkanam%20Team"
+                href={appConfig.supportWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40 border border-border hover:bg-muted/70 transition-colors"
@@ -113,7 +114,7 @@ export const Footer: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-foreground">WhatsApp Support Desk</div>
-                  <div className="text-[11px] text-muted-foreground">Chat with Sikkanam Team</div>
+                  <div className="text-[11px] text-muted-foreground">Chat with {appConfig.name} Team</div>
                 </div>
               </a>
             </div>

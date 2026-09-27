@@ -2,8 +2,7 @@ import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, Zap, Bot, Scale, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
-
-const VERSION = "2.6.5";
+import { appConfig } from "@/config/appConfig";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -42,12 +41,12 @@ export default function WhatsNewModal() {
         {/* Top Tag */}
         <div className="mb-4 self-start flex items-center gap-1.5 bg-primary/10 text-primary text-[10px] md:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          SEPTEMBER 2026 • VERSION {VERSION}
+          {appConfig.releaseDate.toUpperCase()} • VERSION {appConfig.version}
         </div>
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v{VERSION}
+          What's New in {appConfig.name} {appConfig.version}
         </h2>
 
         {/* Subtitle */}

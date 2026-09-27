@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { serverConfig } from "./config.js";
 
 const WishlistSchema = new mongoose.Schema({
   userId: { type: String, required: true },
@@ -29,7 +30,7 @@ const FeedbackSchema = new mongoose.Schema({
   userEmail: { type: String, default: "anonymous" },
   type: { type: String, required: true },
   message: { type: String, required: true },
-  appVersion: { type: String, default: "v2.6.5" },
+  appVersion: { type: String, default: serverConfig.appVersion },
   deviceInfo: { type: String, default: "" },
   status: { type: String, default: "received" },
   createdAt: { type: Date, default: Date.now }
