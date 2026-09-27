@@ -101,7 +101,7 @@ const SavedTrips = () => {
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto px-4 py-12 text-center space-y-4">
+      <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-4">
         <div className="w-16 h-16 rounded-3xl gradient-saffron mx-auto grid place-items-center shadow-lg shadow-orange-500/20 text-white">
           <Bookmark className="w-8 h-8" />
         </div>
@@ -130,7 +130,7 @@ const SavedTrips = () => {
 
   if (selectedTrip) {
     return (
-      <div className="max-w-md md:max-w-4xl mx-auto px-4 pt-4 pb-6">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-6 pb-12">
         <div className="flex items-center justify-between mb-4 border-b border-border/40 pb-3">
           <button
             onClick={() => setSelectedTrip(null)}
@@ -202,7 +202,7 @@ const SavedTrips = () => {
   }
 
   return (
-    <div className="max-w-md md:max-w-4xl mx-auto px-4 pt-4 md:pt-8 pb-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-12">
       <div className="mb-6 text-left">
         <h1 className="font-display text-2xl md:text-3xl font-extrabold flex items-center gap-2.5">
           <Bookmark className="w-6 h-6 text-primary fill-primary" strokeWidth={1} /> Saved Trips
@@ -224,7 +224,7 @@ const SavedTrips = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {trips.map((t) => (
             <div
               key={t._id}

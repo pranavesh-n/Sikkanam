@@ -18,6 +18,8 @@ import {
   Palette,
   Rocket,
   ShieldCheck,
+  Zap,
+  Scale,
 } from "lucide-react";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import logo from "@/assets/logo.png";
@@ -40,8 +42,48 @@ interface MonthlyRelease {
 
 const MONTHLY_RELEASES: MonthlyRelease[] = [
   {
+    id: "september-2026-v265",
+    monthYear: "September 2026 (Latest)",
+    version: "v2.6.5",
+    tagline: "Super Sikkanam AI, ScrapeGraph MCP Live Grounding, 63x Speedup & Budget Feasibility Integrity",
+    updates: [
+      {
+        title: "Super Sikkanam AI & ScrapeGraph MCP Live Grounding",
+        category: "AI & Real-Time Intelligence",
+        description:
+          "Autonomous live search & remote ScrapeGraph AI MCP grounding for real-time 2025/2026 bus fares, train tickets, and official TTDC room tariffs, powered by Groq openai/gpt-oss-120b with Gemini 2.5–3.0 fallback.",
+        icon: Sparkles,
+        badgeColor: "bg-primary/10 text-primary border-primary/20",
+      },
+      {
+        title: "63x Faster Trip Generation Pipeline",
+        category: "Performance & Architecture",
+        description:
+          "Reduced plan generation time from 5.3s to under 84ms via instant curated TTDC lodging fallbacks, smart in-memory narrative caching, and 1.2s timeout guards on public geo APIs.",
+        icon: Zap,
+        badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      },
+      {
+        title: "Strict Budget Assessment & Feasibility Integrity",
+        category: "Budgeting & Logic",
+        description:
+          "Guarantees that when your selected budget cannot cover the trip expenses, the status explicitly warns 'Consider Increasing Budget' with exact per-person deficit recommendations, removing misleading green badges.",
+        icon: Scale,
+        badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      },
+      {
+        title: "Interactive Planning State & Clean Natural UI",
+        category: "UX & Modern Interface",
+        description:
+          "Added real-time 'Sikkanam Planning...' animated loading feedback on the planner button and eliminated artificial clutter badges for a clean, human-readable itinerary experience.",
+        icon: Bot,
+        badgeColor: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20",
+      },
+    ],
+  },
+  {
     id: "august-2026-v264",
-    monthYear: "August 2026 (Latest)",
+    monthYear: "August 2026",
     version: "v2.6.4",
     tagline: "Intelligence Engine v4.4, Searchable 100-Place Catalog, Exact Railway Timetables & 2-Way Round-Trip Pricing",
     updates: [
@@ -290,14 +332,14 @@ const MONTHLY_RELEASES: MonthlyRelease[] = [
 ];
 
 const WhatsNew: React.FC = () => {
-  const [openMonth, setOpenMonth] = useState<string>("august-2026-v263");
+  const [openMonth, setOpenMonth] = useState<string>("september-2026-v265");
 
   const toggleMonth = (id: string) => {
     setOpenMonth((prev) => (prev === id ? "" : id));
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground py-8 px-4 md:px-8 max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background text-foreground py-8 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto">
       {/* Top Header Navigation */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-border/60">
         <Link
@@ -318,15 +360,21 @@ const WhatsNew: React.FC = () => {
 
       {/* Main Title & Description */}
       <div className="mb-10 text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold text-xs mb-3 border border-primary/20">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>MONTHLY UPDATE LOG</span>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold text-xs border border-primary/20">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>MONTHLY UPDATE LOG</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground font-semibold text-xs border border-border/60">
+            <Calendar className="w-3.5 h-3.5 text-primary" />
+            <span>Last Updated: September 2026</span>
+          </div>
         </div>
         <h1 className="font-display font-extrabold text-3xl md:text-5xl text-foreground tracking-tight mb-3">
-          What's New
+          What's New in Sikkanam
         </h1>
         <p className="text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed">
-          The latest features, updates, and continuous improvements brought to Sikkanam every month.
+          The latest features, updates, and continuous improvements brought to Sikkanam every month. Last updated in September 2026.
         </p>
       </div>
 
@@ -374,7 +422,7 @@ const WhatsNew: React.FC = () => {
                     "{release.tagline}"
                   </p>
 
-                  <div className="grid grid-cols-1 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {release.updates.map((update, idx) => {
                       const IconComponent = update.icon;
                       return (

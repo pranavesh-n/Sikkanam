@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         userEmail,
         type: type || "other",
         message: message.trim().slice(0, 2000),
-        appVersion: appVersion || "v2.6.4",
+        appVersion: appVersion || "v2.6.5",
         deviceInfo: deviceInfo || "",
         status: "received",
         createdAt: new Date(),

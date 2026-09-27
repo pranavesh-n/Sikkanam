@@ -29,7 +29,7 @@ const FeedbackSchema = new mongoose.Schema({
   userEmail: { type: String, default: "anonymous" },
   type: { type: String, required: true },
   message: { type: String, required: true },
-  appVersion: { type: String, default: "v2.6.4" },
+  appVersion: { type: String, default: "v2.6.5" },
   deviceInfo: { type: String, default: "" },
   status: { type: String, default: "received" },
   createdAt: { type: Date, default: Date.now }

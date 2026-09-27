@@ -45,7 +45,7 @@ const DesktopNav = () => {
 
   return (
     <header className="hidden md:block sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/60">
-      <div className="max-w-6xl mx-auto h-16 px-6 flex items-center justify-between gap-4">
+      <div className="w-full max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
         {/* Left Side: Brand Logo & Navigation Links */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">

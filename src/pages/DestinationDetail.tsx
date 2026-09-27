@@ -172,9 +172,9 @@ const DestinationDetail = () => {
   };
 
   return (
-    <div className="max-w-md md:max-w-5xl mx-auto md:px-6 md:pt-6 pb-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-6 pb-12 space-y-6">
       {/* Hero */}
-      <section className="relative h-48 gradient-saffron overflow-hidden">
+      <section className="relative h-52 sm:h-64 gradient-saffron overflow-hidden rounded-2xl md:rounded-3xl shadow-card">
         <div className="absolute top-4 right-4 z-10">
           <button
             onClick={toggleWishlist}
@@ -184,68 +184,69 @@ const DestinationDetail = () => {
             <Heart className={`w-5 h-5 ${isWishlisted ? "fill-red-500 stroke-red-500" : "stroke-white"}`} />
           </button>
         </div>
-        <div className="absolute inset-0 flex items-end p-5">
+        <div className="absolute inset-0 flex items-end p-5 sm:p-7 bg-gradient-to-t from-black/60 via-transparent to-transparent">
           <div>
-            <span className="text-5xl block">{dest.emoji}</span>
-            <h1 className="font-display text-3xl font-extrabold text-primary-foreground mt-1">{dest.name}</h1>
-            <p className="text-primary-foreground/90 text-sm">{dest.district} · {categoryLabels[dest.category]}</p>
+            <span className="text-4xl sm:text-5xl block">{dest.emoji}</span>
+            <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-white mt-1">{dest.name}</h1>
+            <p className="text-white/90 text-xs sm:text-sm font-medium">{dest.district} · {categoryLabels[dest.category]}</p>
           </div>
         </div>
       </section>
 
       {/* Description */}
-      <section className="px-5 pt-5">
-        <p className="text-sm text-foreground leading-relaxed">{dest.description}</p>
+      <section>
+        <p className="text-sm sm:text-base text-foreground leading-relaxed bg-card p-4 sm:p-5 rounded-2xl border border-border/80 shadow-xs">{dest.description}</p>
       </section>
+
       {/* Budget Estimates */}
-<section className="px-5 mt-4">
-  <h2 className="font-display font-bold mb-3">
-    Approximate Budget
-  </h2>
+      <section>
+        <h2 className="font-display font-bold text-base sm:text-lg mb-3">
+          Approximate Budget
+        </h2>
 
-  <div className="space-y-2">
-    <div className="bg-card border border-border rounded-xl p-3">
-      <p className="font-semibold text-sm">
-        Budget Trip
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {budgetByCat[dest.category]?.budget}
-      </p>
-    </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-card border border-border rounded-xl p-3.5 shadow-xs">
+            <p className="font-semibold text-sm text-foreground">
+              🎒 Budget Trip
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {budgetByCat[dest.category]?.budget}
+            </p>
+          </div>
 
-    <div className="bg-card border border-border rounded-xl p-3">
-      <p className="font-semibold text-sm">
-        Comfortable Trip
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {budgetByCat[dest.category]?.comfortable}
-      </p>
-    </div>
+          <div className="bg-card border border-border rounded-xl p-3.5 shadow-xs">
+            <p className="font-semibold text-sm text-foreground">
+              🧳 Comfortable Trip
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {budgetByCat[dest.category]?.comfortable}
+            </p>
+          </div>
 
-    <div className="bg-card border border-border rounded-xl p-3">
-      <p className="font-semibold text-sm">
-        Premium Trip
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {budgetByCat[dest.category]?.premium}
-      </p>
-    </div>
-  </div>
+          <div className="bg-card border border-border rounded-xl p-3.5 shadow-xs">
+            <p className="font-semibold text-sm text-foreground">
+              ✨ Premium Trip
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {budgetByCat[dest.category]?.premium}
+            </p>
+          </div>
+        </div>
 
-  <p className="text-[11px] text-muted-foreground mt-2">
-    *Prices are approximate and may vary based on season,
-    accommodation, transportation and booking time.
-  </p>
-</section>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          * Prices are approximate and may vary based on season, accommodation, and transportation mode.
+        </p>
+      </section>
+
       {/* Stat row */}
-      <section className="px-5 mt-4 grid grid-cols-3 gap-2">
+      <section className="grid grid-cols-3 gap-2.5 sm:gap-4">
         <Stat icon={Calendar} label="Best season" value={seasonByCat[dest.category] || "Year-round"} />
         <Stat icon={Cloud} label="Weather" value={dest.category === "hill" ? "Cool" : dest.category === "beach" ? "Warm" : "Mild"} />
         <Stat icon={Ticket} label="Budget" value={budgetByCat[dest.category]?.budget || "₹1,500/day"} />
       </section>
 
       {/* Live Weather Forecast & Sikkanam AI Rain Risk System */}
-      <section className="px-5 mt-5">
+      <section>
         <WeatherWidget
           lat={dest.lat}
           lng={dest.lng}
@@ -256,54 +257,56 @@ const DestinationDetail = () => {
       </section>
 
       {/* AI CTA */}
-      <section className="px-5 mt-4">
+      <section>
         <button
           onClick={askAI}
-          className="w-full flex items-center gap-3.5 gradient-saffron text-primary-foreground rounded-2xl px-5 py-3.5 shadow-elevated active:scale-[0.98] transition-transform cursor-pointer"
+          className="w-full flex items-center justify-between gap-3.5 gradient-saffron text-primary-foreground rounded-2xl px-5 py-4 shadow-elevated active:scale-[0.98] transition-transform cursor-pointer"
         >
-          <Sparkles className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm font-bold flex-1 text-left ml-1">Ask AI to plan a trip here</span>
-          <ArrowRight className="w-4 h-4 flex-shrink-0" />
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 shrink-0" />
+            <span className="text-sm sm:text-base font-bold text-left">Ask Sikkanam AI to plan a trip to {dest.name}</span>
+          </div>
+          <ArrowRight className="w-4 h-4 shrink-0" />
         </button>
       </section>
 
       {/* Attractions */}
-      <section className="px-5 mt-6">
-        <h2 className="font-display font-bold mb-3">Top attractions</h2>
-        <div className="space-y-2">
+      <section>
+        <h2 className="font-display font-bold text-base sm:text-lg mb-3">Top attractions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {dest.attractions.map((a, i) => (
-            <div key={i} className="bg-card border border-border rounded-xl px-4 py-3 text-sm flex items-center gap-3">
-              <span className="w-7 h-7 grid place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">{i + 1}</span>
-              {a}
+            <div key={i} className="bg-card border border-border rounded-xl px-4 py-3 text-sm flex items-center gap-3 shadow-xs">
+              <span className="w-7 h-7 grid place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">{i + 1}</span>
+              <span className="font-medium text-foreground">{a}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Transport */}
-      <section className="px-5 mt-6">
-        <h2 className="font-display font-bold mb-3">Getting there</h2>
-        <div className="space-y-2">
+      <section>
+        <h2 className="font-display font-bold text-base sm:text-lg mb-3">Getting there</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {dest.nearestStation && (
-            <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
-              <Train className="w-5 h-5 text-primary mt-0.5" />
-              <div className="flex-1">
+            <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3 shadow-xs">
+              <Train className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">Nearest railway station</p>
-                <p className="text-xs text-muted-foreground">{dest.nearestStation}</p>
+                <p className="text-xs text-muted-foreground truncate">{dest.nearestStation}</p>
               </div>
             </div>
           )}
-          <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
-            <Bus className="w-5 h-5 text-secondary mt-0.5" />
-            <div className="flex-1">
+          <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3 shadow-xs">
+            <Bus className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold">TNSTC bus services</p>
-              <p className="text-xs text-muted-foreground">Frequent state buses from major cities</p>
+              <p className="text-xs text-muted-foreground truncate">Frequent state buses from major cities</p>
             </div>
-            <Link to="/booking" className="text-xs text-primary font-medium">Book →</Link>
+            <Link to="/booking" className="text-xs text-primary font-medium shrink-0">Book →</Link>
           </div>
           {dest.localTransit && (
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
-              <Route className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3 sm:col-span-2 shadow-xs">
+              <Route className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-foreground">Local Transit & First / Last Mile</p>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{dest.localTransit}</p>
@@ -314,12 +317,12 @@ const DestinationDetail = () => {
       </section>
 
       {/* Map */}
-      <section className="px-5 mt-6">
-        <h2 className="font-display font-bold mb-3 flex items-center gap-2">
+      <section>
+        <h2 className="font-display font-bold text-base sm:text-lg mb-3 flex items-center gap-2">
           <MapPin className="w-4 h-4 text-primary" /> Location
         </h2>
-        <div ref={mapRef} className="h-56 rounded-2xl overflow-hidden border border-border bg-muted" />
-        <div className="flex justify-between items-center mt-2">
+        <div ref={mapRef} className="h-60 sm:h-72 rounded-2xl overflow-hidden border border-border bg-muted shadow-xs" />
+        <div className="flex flex-wrap justify-between items-center gap-2 mt-2">
           <p className="text-[11px] text-muted-foreground">© OpenStreetMap contributors</p>
           <Link
             to={`/maps?destination=${dest.id}`}
@@ -331,18 +334,18 @@ const DestinationDetail = () => {
       </section>
 
       {/* Travel tips */}
-      <section className="px-5 mt-6">
-        <h2 className="font-display font-bold mb-3">Quick tips</h2>
-        <ul className="space-y-2 text-sm text-foreground">
+      <section>
+        <h2 className="font-display font-bold text-base sm:text-lg mb-3">Quick tips</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {dest.transitTips?.map((tip, idx) => (
-            <li key={`transit-tip-${idx}`} className="bg-card border border-primary/20 bg-primary/[0.02] rounded-xl p-3">
+            <div key={`transit-tip-${idx}`} className="bg-card border border-primary/20 bg-primary/[0.02] rounded-xl p-3 text-xs sm:text-sm text-foreground">
               🚌 {tip}
-            </li>
+            </div>
           ))}
-          <li className="bg-card border border-border rounded-xl p-3">💰 Carry cash — UPI works in towns, not always in remote spots.</li>
-          <li className="bg-card border border-border rounded-xl p-3">🚌 TNSTC buses are the cheapest option (₹1–₹2/km).</li>
-          <li className="bg-card border border-border rounded-xl p-3">🍛 Try local meals (~₹80–₹150) before tourist restaurants.</li>
-        </ul>
+          <div className="bg-card border border-border rounded-xl p-3 text-xs sm:text-sm text-foreground">💰 Carry cash — UPI works in towns, not always in remote spots.</div>
+          <div className="bg-card border border-border rounded-xl p-3 text-xs sm:text-sm text-foreground">🚌 TNSTC buses are the cheapest option (~₹1–₹1.5/km).</div>
+          <div className="bg-card border border-border rounded-xl p-3 text-xs sm:text-sm text-foreground">🍛 Try authentic local mess meals (~₹80–₹140).</div>
+        </div>
       </section>
     </div>
   );

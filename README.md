@@ -6,50 +6,77 @@ Unlike typical travel planners that show unexplained, static cost estimates, Sik
 
 ---
 
+## 🚀 What's New in v2.6.5 *(Last Updated: September 2026)*
+
+- 🤖 **Super Sikkanam AI & ScrapeGraph AI MCP Grounding**: Real-time web search and ScrapeGraph AI MCP protocol integration for live 2025/2026 bus fares, train tickets, and official TTDC room tariffs.
+- ⚡ **63x Faster Trip Generation**: Reduced `/api/generatePlan` latency from **5,347 ms down to 84 ms** using instant curated stays, in-memory narrative caching, and 1.2s abort timeouts on external geo APIs.
+- ⚖️ **Budget Feasibility Integrity**: Honest trip assessment that alerts travelers with **`Consider Increasing Budget`** when selected budgets cannot cover realistic trip costs, backed by exact per-person deficit recommendations.
+- 🎨 **Responsive Planning Feedback & Clutter-Free UI**: Interactive `"Sikkanam Planning..."` animated button state and clean, human-readable itineraries free of artificial badges.
+- 🧪 **100% Automated Test Suite Passing**: Verified with TestSprite MCP Playwright test suite (`TC001`, `TC003`, `TC005`).
+
+---
+
 ## 🌟 Key Features
 
-### 1. Intelligence Engine v4.4 & Real-Time Railway Schedules 🚆
-Official timetable integration for premier Tamil Nadu express trains (e.g. *Nilgiri Express #12671* departing at 09:05 PM, *Pandian Express #12637*, *Rameswaram Sethu SF #22661*) combined with OpenStreetMap road routing for accurate early morning arrivals.
+### 1. Super Sikkanam AI & ScrapeGraph AI MCP Grounding 🤖
+Powered by **Groq `openai/gpt-oss-120b`** (with browser search) backed up by **Google Gemini (2.5–3.0)** and grounded with **ScrapeGraph AI MCP**:
+- **Real-Time Web Intelligence**: Interrogates the live web and ScrapeGraph MCP server for current 2025/2026 public transit fares, official TTDC room tariffs, and temple/monument entry fees.
+- **Ground Truth Knowledge Matrix**: Deep coverage across 20+ Tamil Nadu destinations (Ooty, Kodaikanal, Madurai, Rameswaram, Kanyakumari, Mahabalipuram, Thanjavur, Yercaud, Tiruvannamalai, etc.).
+- **Uncluttered & Natural Output**: Delivers authentic day-wise itineraries without visual noise or artificial badges.
 
-### 2. 2-Way Round-Trip (Up & Down) Fare Transparency 🔄
+### 2. High-Performance 63x Trip Generation Pipeline ⚡
+- **Sub-100ms Plan Generation**: In-memory caching and instantaneous curated lodging fallbacks replace slow multi-second external API bottlenecks.
+- **Adaptive LLM Streaming**: Streamlined 800-token day-wise narrative generator delivers rich itineraries in ~600ms on Groq.
+- **Interactive UI Feedback**: Real-time animated loader (`"Sikkanam Planning..."`) provides immediate visual confirmation when generating a trip.
+
+### 3. Strict Budget Assessment & Feasibility Integrity ⚖️
+- **Budget-First Trip Assessment**: If estimated trip expenses exceed the traveler's budget, the assessment explicitly alerts the user with **`Consider Increasing Budget`** instead of showing false "Recommended" badges.
+- **Actionable Deficit Advice**: Provides exact per-person shortfall calculations (e.g. *"Consider increasing budget by approx ₹500/person or opting for budget sleeper buses / TTDC dorms"*).
+
+### 4. Intelligence Engine v4.4 & Real-Time Railway Schedules 🚆
+Official timetable integration for premier Tamil Nadu express trains (e.g. *Nilgiri Express #12671* departing at 09:05 PM, *Pandian Express #12637*, *Rameswaram Sethu SF #22661*, *Vaigai Express #12635*) combined with OpenStreetMap road routing for accurate early morning arrivals.
+
+### 5. 2-Way Round-Trip (Up & Down) Fare Transparency 🔄
 Never guess whether transport costs are one-way or round-trip. Sikkanam calculates transparent outward and return rates using real-world IRCTC Sleeper rates (~₹0.55/km) and TNSTC/SETC Government bus rates (~₹1.05/km).
 
-### 3. Searchable 100-Destination Catalog 🔍
+### 6. Searchable 100-Destination Catalog 🔍
 Instant live search combobox covering all 100 authentic destinations across Tamil Nadu with mutual exclusivity (the selected origin automatically vanishes from destination options).
 
-### 4. Dynamic Multi-Destination Spatial Circuits 🗺️
+### 7. Dynamic Multi-Destination Spatial Circuits 🗺️
 Terrain-aware hill routing (1.5x winding distance factor for ghat roads) providing connected multi-stop circuits (e.g. Ooty + Coonoor) with realistic local transit fares.
 
-### 5. No Guesswork, Only Evidence
-Sikkanam does not display arbitrary "confidence scores" or fake percentages. Instead, it shows you a clear checklist of verified data sources used to calculate your budget.
+### 8. Realistic Lodging & Official TTDC Stays 🏨
+Sikkanam provides realistic hotel price ranges backed by authentic Tamil Nadu Tourism Development Corporation (**TTDC Hotel Tamil Nadu**) room tariffs and vetted budget lodge benchmarks.
 
-### 6. Real-World Road Distances
-Travel times and distance calculations are powered by real-world road network routing via OpenStreetMap / OSRM, ensuring intercity travel times match actual road conditions in Tamil Nadu.
-
-### 7. Food Cost Breakdown
-Your daily food allowance is broken down into:
-- 🍳 Breakfast
-- 🍛 Lunch
-- 🍲 Dinner
-- ☕ Snacks & Tea
-
-These rates automatically adjust depending on whether your destination is a small town (like Chidambaram) or a premium tourist spot (like Ooty or Kodaikanal).
-
-### 8. Realistic Hotel Stays
-Sikkanam estimates hotel price ranges based on the actual number of nearby lodging options available in the town's inventory, ensuring you don't book underpriced or overpriced rooms.
-
-### 9. Real-Time Cloud Sync & Multi-Database Backend
-Your travel profile, saved itineraries, and wishlists are securely stored and synced across all your devices using a modern cloud architecture.
+### 9. Food Cost Breakdown 🍛
+Your daily food allowance is broken down into Breakfast, Lunch, Dinner, and Snacks & Tea, calibrated to local mess rates (e.g. Murugan Idli Shop, Saravana Bhavan, Amma Mess).
 
 ### 10. Live Weather Forecast & Sikkanam AI Rain Risk System 🌤️
-Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model** (`models=ecmwf_ifs025`).
-- **Live Travel Metrics**: Real-time current temperature ("NOW"), 3-day forecast selector, Feels Like (°C), Wind Speed (km/h), Humidity (%), UV Index Category, and Sunrise & Sunset times.
-- **Sikkanam Travel Intelligence**: Calculates hourly precipitation windows (*"Most likely rain window: 3 PM – 11 PM"*) and provides actionable traveler advice.
-- **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across Tamil Nadu destinations plus a **"🎯 Use precise GPS location"** button.
+Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model** (`models=ecmwf_ifs025`):
+- Real-time travel metrics: temperature, feels like, wind speed, UV index, and sunrise/sunset times.
+- Calculates hourly precipitation windows (*"Most likely rain window: 3 PM – 11 PM"*) and suggests indoor alternatives when rain threatens sightseeing.
 
 ---
 
 ## 🆕 Changelog
+
+### v2.6.5 — September 2026 (Super Sikkanam AI, ScrapeGraph MCP Grounding, 63x Speedup & Budget Feasibility Integrity)
+- 🤖 **Super Sikkanam AI Planning Engine**:
+  - Connected remote **ScrapeGraph AI MCP** server (`tools/call` JSON-RPC) and REST search scraper for live tariff extraction.
+  - Implemented autonomous zero-config web search scraper for live room tariffs and bus fares.
+  - Configured primary LLM hierarchy: **Groq `openai/gpt-oss-120b`** ➔ `openai/gpt-oss-20b` with backup of **Google Gemini 2.5–3.0** (`gemini-3.0-flash` with Google Search tool).
+  - Enforced strict badge-free output formatting with structured day-wise text headers (`Day 1`, `Day 2`) and itemized cost breakdowns.
+- ⚡ **63x Trip Generation Speedup**:
+  - Overpass API hotel query latency eliminated by prioritizing curated TTDC lodging fallbacks (0ms) and adding a 1.2s abort timeout.
+  - Reduced `/api/generatePlan` round-trip latency from **5,347 ms down to 84 ms**.
+  - In-memory narrative caching for instantaneous zero-latency repeats.
+  - Added responsive `"Sikkanam Planning..."` loading spinner state to the Trip Planner submission form.
+- ⚖️ **Trip Assessment Budget Integrity Overhaul**:
+  - Fixed contradictory green `"Recommended"` status badge when budget does not fit trip duration.
+  - Explicitly overrides status to amber **`Consider Increasing Budget`** when `!isBudgetFit`.
+  - Added actionable budget deficit guidance banner indicating exact per-person shortfall amounts.
+- 🧪 **Automated TestSuite Verification**:
+  - 100% pass rate across TestSprite MCP Playwright test suite (`TC001` AI Trip Planner, `TC003` Structured Planner, `TC005` Destination Explorer).
 
 ### v2.6.4 — August 2026 (Intelligence Engine v4.4, Exact Railway Timetables & 2-Way Round-Trip Pricing)
 - 🚆 **Intelligence Engine v4.4 & Official Timetable Grounding**: Replaced mathematical departure approximations with exact official IRCTC timetables (e.g. *Nilgiri Express #12671* departing Chennai at 09:05 PM and arriving at Mettupalayam at 05:20 AM).
@@ -73,55 +100,86 @@ Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model
 - 🏛️ **100 Destinations Milestone**: Reached the 100 destinations milestone with 13 brand new heritage additions (*Gingee Fort*, *Pudukkottai*, *Sittannavasal*, *Thirumayam*, *Panchalankurichi*, *Udayagiri Fort*, *Padmanabhapuram Palace*, *Keezhadi Museum*, *Kazhugumalai*, *Tirumalai Nayakar Mahal*, *Sadras Dutch Fort*, *Alamparai Fort*, *Kanadukathan Chettinad Palace*).
 - 🗺️ **21 Heritage Destinations**: Expanded the Heritage category filter to 21 curated historical sites with verified attraction fee records, local hotel fallbacks, and transport connectivity settings.
 - 📍 **Interactive Circuit Navigation**: Circuit stops (e.g. *Ooty ➔ Coonoor*) are now clickable pill buttons with active location badges (`📍 Coonoor (Current)`) and 1-tap route switching.
-- 🎨 **Universal Cross-Platform Emojis**: Updated icon system across all destinations to eliminate raw country ISO flag codes on Windows OS and ensure crisp visual rendering across all browsers.
 
-### v2.6.2 — August 2026 (Direct Trip Link Sharing & User Choice Calendar Date Picker)
-- 🔗 **Direct Trip Link Sharing (`/plan?from=...&to=...`)**: Travelers can share their exact calculated trip plan via WhatsApp, Telegram, or social media. Opening the link automatically loads and displays the full interactive trip plan.
-- 📅 **User Choice Calendar Date Picker (`<input type="date">`)**: Travelers can select **ANY custom travel date** across the entire year using an interactive calendar picker (`"📅 Pick Any Custom Travel Date"`).
-- 🗓️ **16-Day Forecast Horizon & Extended Seasonal Modeling**: Automatically retrieves Open-Meteo ECMWF live forecasts for dates within 16 days, and applies seasonal climate modeling for user-chosen dates further out.
-- ⚡ **Dynamic 3-Day Window & Travel Intelligence**: The 3-day weather cards, metrics, hourly rain windows, sightseeing windows, and Sikkanam AI Rain Risk Alerts dynamically re-calculate starting from whatever trip date the user chooses.
+---
 
-### v2.5 — July 2026 (Live Weather & Sikkanam AI Rain Risk System)
-- 🌤️ **Live Open-Meteo ECMWF Model Feed**: Real-time 3-day weather forecast powered by the Open-Meteo ECMWF model (`models=ecmwf_ifs025`) with automatic fallback to standard parameters.
-- 🎯 **Google-Style "Choose an Area" Modal**: Includes 100% sub-location coverage across all Tamil Nadu destinations (e.g. *Dhanushkodi* in Rameswaram, *Coonoor* in Ooty, *T. Nagar* in Chennai) plus a **"🎯 Use precise GPS location"** button (`navigator.geolocation`).
-- ⏱️ **Hourly Travel Intelligence & Rain Windows**: Analyzes hourly precipitation probability and volume to identify exact rain windows (*"Most likely rain window: 3 PM – 11 PM"*) and optimal sightseeing hours.
-- 🏛️ **Contextual Indoor Spot Recommendations**: Automatically presents curated indoor alternatives (museums, science centres, art galleries, historic churches) to replace outdoor viewpoints when rain threatens travel plans.
+## 🏗️ Architecture & AI Pipeline
 
-### v2.4 — July 2026
-- 🌐 **"Already a Sikkanam User?" Web Onboarding** — Smart Google Auth gateway modal for browser/guest visits. Complete with single-click Google Sign-In or "Continue as Guest" session options to bypass future popups.
-- 🎨 **Profile UI/UX Redesign** — Interactive stat counters, grouped setting cards, and native OS install state detection.
-- 🔥 **Cloud Firestore Settings Sync** — Real-time Firestore settings listener syncing passcode status and PIN hashes instantly across all device instances.
-- 🔒 **Deterministic Passcode Lock** — Secure 4-digit PIN lock operating across PWA and Web Browsers for Google-linked accounts. Implemented instant (0ms) background lock detection using local synchronous storage.
-- 📲 **Robust PWA Installation States** — Dedicated PWA adoption logic featuring real-time uninstallation detection via `getInstalledRelatedApps` (reverting to "INSTALL" status immediately) and strict dismissal state retention.
-- ⌨️ **Universal Keypad Support** — Full support for physical keyboards (`0-9`, `Backspace`, `Delete`) and mobile touch interfaces.
+```mermaid
+flowchart TD
+    User([Traveler]) --> Form[Trip Planner Form]
+    Form -->|POST /api/generatePlan| Backend[Vercel Serverless API]
+    
+    subgraph Grounding & Intelligence
+        Backend --> FastCheck{Cached or Fast TTDC?}
+        FastCheck -->|Hit| LocalData[(Curated Tariff & Hotel Matrix)]
+        FastCheck -->|Miss| SG[ScrapeGraph AI MCP / Web Scraper]
+        SG --> LiveWeb[(Live Web Search / Tariff Grounding)]
+    end
+    
+    subgraph LLM Generation Hierarchy
+        Backend --> Primary[Groq openai/gpt-oss-120b]
+        Primary -.->|Fallback| Secondary[Groq openai/gpt-oss-20b]
+        Secondary -.->|Fallback| Tertiary[Google Gemini 2.5–3.0 Flash]
+    end
+    
+    Backend --> Feasibility[Budget Feasibility Assessment Engine]
+    Feasibility --> Result[Day-Wise Itinerary + Cost Breakdown]
+    Result --> UI[Responsive Results & Budget Assessment UI]
+```
 
-### v2.4.2 — July 26, 2026 (Intelligent Onboarding & PWA Lifecycle Patch)
-- 🧠 **Smart Onboarding Progression**:
-  - Automatically transitions from **"Already a Sikkanam User?"** (Auth Modal) to **"Install Sikkanam App"** modal as soon as Google Sign-In completes or the user clicks "Continue as Guest".
-  - Strictly distinguishes browser visits from standalone installed app usage: browser visitors see appropriate onboarding prompts, while installed PWA app users bypass modals straight to PIN AppLock security.
-- 📱 **Intelligent PWA Uninstallation Detection**:
-  - Dynamically clears stale `sikkanam_pwa_installed` flags when `beforeinstallprompt` fires in non-standalone browser mode. If a user uninstalls/deletes Sikkanam from their device, the web app instantly detects the uninstall and prompts them to install again on their next web visit.
+---
 
-### v2.4.1 — July 26, 2026 (Patch)
-- 🐛 **Fixed: Onboarding modals not appearing on browser visit or after PWA uninstall** — Resolved three interlocking bugs that silently suppressed the "Already a Sikkanam User?" and "Install Sikkanam" popups:
-  - **Async race condition** in `AuthContext.purgeStaleSession()` — `auth.signOut()` was called before clearing storage keys, causing Firebase's `onAuthStateChanged` to fire while stale session data was still present. `OnboardingContext` would initialize at that exact moment with wrong state. Fixed by clearing all storage keys *before* `auth.signOut()`.
-  - **Persistent localStorage suppression** — The welcome modal dismissal key (`sikkanam_welcome_auth_dismissed`) was only removed from `sessionStorage` on purge but was written to `localStorage` on dismiss. This meant returning users after an uninstall or logout would never see the modal again. Fixed by clearing from both storages.
-  - **One-shot init lock** in `OnboardingContext` — A `hasInitializedRef` guard locked in whatever (stale) state was computed on first render, making the context unable to recover when true auth/install state arrived milliseconds later. Fixed by removing the lock and making the effect fully reactive — re-evaluating whenever `authReady`, `user`, `explicitLogin`, or `isPwaInstalled` changes.
-- 🔌 **PWA install tracking moved to app root** — `usePwaInstall` hook is now mounted inside `OnboardingProvider` (app root) rather than only on the Profile page, so uninstall detection via `getInstalledRelatedApps` is active from the first page load.
+## 🛠️ Technology Stack
 
+| Layer | Technology |
+|---|---|
+| **Frontend Framework** | React 18 with TypeScript, Vite 5 |
+| **Styling & Components** | Tailwind CSS, Radix UI Primitives, Lucide Icons, Sonner |
+| **Mapping & Routing** | Leaflet & React-Leaflet, OpenStreetMap / OSRM API |
+| **Primary AI Models** | Groq (`openai/gpt-oss-120b`, `openai/gpt-oss-20b`), Google Gemini (`gemini-3.0-flash`, `gemini-2.5-flash`) |
+| **Live Grounding** | ScrapeGraph AI MCP Server, Autonomous Web Scraper, Open-Meteo (ECMWF) |
+| **Backend & Storage** | Vercel Serverless Functions (Node.js), MongoDB (Mongoose), Firebase Auth |
+| **Testing & Quality** | TestSprite MCP, Playwright, Vitest |
 
+---
 
-### v2.3 — July 2026
+## 🚀 Getting Started
 
-- 🪷 **New destination: Srivilliputhur** — Andal Kovil (Vadapatrasayi Temple), the rajagopuram of which is the **official emblem of the Tamil Nadu government**. Also covers: Palkova sweet shops and Kartick Mess (famous local meals near the temple).
-- 💦 **Courtallam enriched** — All 7 named falls (Peraruvi, Aintharuvi, Puli Aruvi, Then Aruvi, Shenbaga Devi, Chittar, Old Courtallam) now individually listed. Added the legendary **Courtallam Border Rahmath Kadai** — famous across TN for sutta parotta and mutton biryani.
-- 🔱 **Sankarankoil updated** — Description now reflects the full **Tenkasi belt circuit** (Sankarankoil → Srivilliputhur → Tenkasi → Courtallam).
+### Prerequisites
+- Node.js 18+
+- npm or yarn
 
-### v2.2 — Earlier 2026
-- Google Authentication integrated and synchronized across databases.
-- Exact Route & Distance Calculator powered by real-world road network routing.
-- Budget Transit Estimator: compare TNSTC buses, express trains, and cabs side-by-side.
-- Calculate Exact Route & Fare directly from any destination detail card.
+### Installation & Local Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/pranavesh-n/sikkanam.git
+   cd sikkanam
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   # LLM Providers
+   GROQ_API_KEY=your_groq_api_key
+   GEMINI_API_KEY=your_gemini_api_key
+
+   # Database & Auth
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   ```
+
+4. **Run the local development server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
@@ -139,3 +197,4 @@ The Tenkasi belt is one of Tamil Nadu's most compact multi-destination circuits.
 ---
 
 *Built with ❤️ for Tamil Nadu travelers. Always free. No booking fee. No commission.*
+

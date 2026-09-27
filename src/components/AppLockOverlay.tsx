@@ -154,9 +154,9 @@ export const AppLockOverlay: React.FC = () => {
   return createPortal(
     <div
       style={{ pointerEvents: "auto" }}
-      className="fixed inset-0 z-[9999999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 select-none animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999999] bg-[#121413] text-white flex flex-col items-center justify-center p-4 overflow-y-auto select-none animate-in fade-in duration-200"
     >
-      <div className="flex flex-col items-center max-w-sm w-full">
+      <div className="flex flex-col items-center max-w-sm w-full my-auto py-6">
         {/* Sikkanam Logo Image */}
         <img
           src="/logo.png"

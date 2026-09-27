@@ -2,8 +2,8 @@ import { Bus, Train, Hotel, ExternalLink } from "lucide-react";
 
 const Booking = () => {
   return (
-    <div className="max-w-md md:max-w-5xl mx-auto px-4 md:px-6 pt-3 md:pt-8 pb-6 space-y-4 md:space-y-6">
-      <p className="text-xs text-muted-foreground">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-12 space-y-6 md:space-y-8">
+      <p className="text-xs md:text-sm text-muted-foreground">
         Sikkanam links you to trusted services. We never charge a booking fee.
       </p>
 
@@ -73,7 +73,7 @@ const Booking = () => {
         />
       </Section>
 
-      <div className="bg-card border border-border rounded-2xl p-4 text-xs text-muted-foreground">
+      <div className="bg-card border border-border rounded-2xl p-4 text-xs md:text-sm text-muted-foreground">
         💡 <strong className="text-foreground">Tip:</strong> Book trains 1-2 months ahead for sleeper berths. TNSTC buses book 1-2 weeks ahead for confirmed seats on travel.
       </div>
     </div>
@@ -82,16 +82,16 @@ const Booking = () => {
 
 const Section = ({ icon: Icon, title, subtitle, children }: any) => (
   <section>
-    <div className="flex items-center gap-2 mb-2 px-1">
+    <div className="flex items-center gap-2 mb-3 px-1">
       <span className="w-8 h-8 grid place-items-center rounded-full bg-primary/10 text-primary">
         <Icon className="w-4 h-4" />
       </span>
       <div>
-        <h2 className="font-display font-bold text-sm">{title}</h2>
-        <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+        <h2 className="font-display font-bold text-sm md:text-base">{title}</h2>
+        <p className="text-[11px] md:text-xs text-muted-foreground">{subtitle}</p>
       </div>
     </div>
-    <div className="space-y-2">{children}</div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{children}</div>
   </section>
 );
 

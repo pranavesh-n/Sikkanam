@@ -64,7 +64,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
         body: JSON.stringify({
           type: feedbackType,
           message: message.trim(),
-          appVersion: "v2.6.4",
+          appVersion: "v2.6.5",
           deviceInfo: `${navigator.platform} | ${navigator.userAgent.slice(0, 80)}`,
         }),
       });
@@ -120,7 +120,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden bg-background rounded-2xl border border-border shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden bg-background rounded-2xl border border-border shadow-2xl animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
           <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Modal Body */}
-        <div className="p-5">
+        <div className="p-5 overflow-y-auto flex-1">
           {tab === "submit" ? (
             submittedSuccess ? (
               <div className="py-8 text-center space-y-3">

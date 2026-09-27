@@ -48,7 +48,7 @@ const Wishlist = () => {
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto px-4 py-12 text-center space-y-4">
+      <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-4">
         <div className="w-16 h-16 rounded-3xl gradient-saffron mx-auto grid place-items-center shadow-lg shadow-orange-500/20 text-white">
           <Heart className="w-8 h-8 fill-current" />
         </div>
@@ -77,7 +77,7 @@ const Wishlist = () => {
   const wishlistedPlaces = tnDestinations.filter((dest) => wishlistIds.includes(dest.id));
 
   return (
-    <div className="max-w-md md:max-w-6xl mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-6">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-12">
       <div className="mb-6 text-left">
         <h1 className="font-display text-2xl md:text-3xl font-extrabold flex items-center gap-2.5">
           <Heart className="w-6 h-6 text-primary fill-primary" /> Wishlist
@@ -99,7 +99,7 @@ const Wishlist = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {wishlistedPlaces.map((d) => (
             <DestinationCard key={d.id} place={d} />
           ))}

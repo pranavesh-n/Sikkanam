@@ -99,8 +99,8 @@ export const PasscodeSetupModal: React.FC<PasscodeSetupModalProps> = ({ isOpen, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 select-none animate-in fade-in duration-200">
-      <div className="bg-[#161817] text-white border border-zinc-800 rounded-3xl max-w-sm w-full p-6 flex flex-col items-center relative shadow-2xl animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto select-none animate-in fade-in duration-200">
+      <div className="bg-[#161817] text-white border border-zinc-800 rounded-3xl max-w-sm w-full p-6 flex flex-col items-center relative shadow-2xl animate-in zoom-in-95 duration-150 my-auto max-h-[90vh]">
         {/* Close Button */}
         <button
           onClick={onClose}

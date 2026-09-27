@@ -109,7 +109,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-md md:max-w-3xl mx-auto px-4 md:px-6 pt-3 md:pt-8 pb-12 space-y-4">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8 pb-16 space-y-5 md:space-y-6">
       {/* User / Guest Hero Header Card */}
       <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 text-center shadow-sm relative overflow-hidden">
         {user ? (
@@ -299,7 +299,7 @@ const Profile = () => {
           <Row
             icon={Sparkles}
             label="What's New in Sikkanam"
-            desc="Monthly feature release notes & updates"
+            desc="September 2026 (v2.6.5) release notes & updates"
           />
         </Link>
       </Section>
@@ -369,13 +369,13 @@ const Profile = () => {
       )}
 
       <p className="text-center text-[11px] text-muted-foreground pt-3">
-        சிக்கனம் · Sikkanam v2.6.4
+        சிக்கனம் · Sikkanam v2.6.5
       </p>
 
       {/* About Modal */}
       {showAbout && (
         <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-card border border-border/80 rounded-[2.5rem] max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative text-left overflow-hidden">
+          <div className="bg-card border border-border/80 rounded-[2.5rem] max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative text-left">
             {/* Background ambient light */}
             <div className="absolute -top-12 -left-12 w-36 h-36 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -459,7 +459,7 @@ const Profile = () => {
 
             {/* Footer Info & Action */}
             <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[11px] text-muted-foreground font-medium">
-              <span>Sikkanam v2.6.4 • Stable</span>
+              <span>Sikkanam v2.6.5 • Stable</span>
               <span>Made in Tamil Nadu ❤️</span>
             </div>
 

@@ -79,7 +79,7 @@ const TripPlanner = () => {
   );
 
   return (
-    <div className="max-w-md md:max-w-4xl mx-auto md:px-6 md:pt-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-6 pb-12">
       <TripPlannerForm
         onGenerate={handleGenerate}
         initialInput={tripInput}

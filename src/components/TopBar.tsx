@@ -23,7 +23,7 @@ const TopBar = () => {
       className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/60"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="max-w-md mx-auto h-14 flex items-center px-2 gap-1">
+      <div className="w-full max-w-7xl mx-auto h-14 flex items-center px-3 sm:px-6 gap-2">
         <button
           onClick={() => nav(-1)}
           aria-label="Back"

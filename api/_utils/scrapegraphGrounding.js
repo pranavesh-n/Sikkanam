@@ -1,6 +1,32 @@
 
-// ScrapeGraph AI Real-Time Grounding & Web Search Intelligence for Sikkanam
-// Enriches LLM Prompts with Ground-Truth Public Transit, TTDC Tariffs, and Entry Fees
+import fs from "fs";
+import path from "path";
+
+// Helper to reliably read environment variables from process.env or .env file
+function getEnv(key) {
+  if (process.env[key] && !process.env[key].includes("YOUR_")) {
+    return process.env[key].trim();
+  }
+  try {
+    const envPath = path.join(process.cwd(), ".env");
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, "utf-8");
+      for (const line of content.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const [k, ...v] = trimmed.split("=");
+        if (k.trim() === key) {
+          const val = v.join("=").trim().replace(/^['"]|['"]$/g, "");
+          if (val && !val.includes("YOUR_")) {
+            process.env[key] = val;
+            return val;
+          }
+        }
+      }
+    }
+  } catch (e) {}
+  return undefined;
+}
 
 const groundCache = new Map();
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6-Hour Cache
@@ -285,10 +311,10 @@ async function scrapeLiveWebSearch(query) {
  * Query ScrapeGraph AI MCP Server via JSON-RPC protocol
  */
 async function queryScrapeGraphMcp(destinationName, prompt) {
-  const mcpUrl = process.env.SCRAPEGRAPH_MCP_URL || "https://link.mcpmarket.com/pranaveshnandakumar/scrapegraph/mcp";
-  const token = process.env.MCPMARKET_TOKEN || process.env.SCRAPEGRAPH_API_KEY;
+  const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
+  const token = getEnv("MCPMARKET_TOKEN") || getEnv("SCRAPEGRAPH_API_KEY");
 
-  if (!token || token.includes("YOUR_")) return null;
+  if (!mcpUrl) return null;
 
   try {
     const controller = new AbortController();
@@ -307,12 +333,16 @@ async function queryScrapeGraphMcp(destinationName, prompt) {
       }
     };
 
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (token && !token.includes("YOUR_")) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const response = await fetch(mcpUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
+      headers,
       signal: controller.signal,
       body: JSON.stringify(rpcPayload)
     });
@@ -364,11 +394,12 @@ export async function queryScrapeGraphLiveIntelligence(destinationName, userQuer
 
   // 2. Parallel quick live queries if needed
   try {
-    const apiKey = process.env.SCRAPEGRAPH_API_KEY || process.env.MCPMARKET_TOKEN;
+    const apiKey = getEnv("SCRAPEGRAPH_API_KEY") || getEnv("MCPMARKET_TOKEN");
+    const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
     const fetchPromises = [];
 
-    // MCP query if configured
-    if (apiKey && !apiKey.includes("YOUR_")) {
+    // MCP query if configured (either via URL or API key)
+    if (mcpUrl || (apiKey && !apiKey.includes("YOUR_"))) {
       fetchPromises.push(
         queryScrapeGraphMcp(destinationName, userQuery).then(r => { mcpResult = r; }).catch(() => {})
       );

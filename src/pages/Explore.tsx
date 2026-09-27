@@ -35,7 +35,7 @@ const Explore = () => {
   }, [active, q]);
 
   return (
-    <div className="max-w-md md:max-w-6xl mx-auto px-4 md:px-6 pt-2 md:pt-8 pb-6">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 md:pt-8 pb-12">
       {/* Page heading (desktop) */}
       <div className="hidden md:block mb-6">
         <h1 className="font-display text-3xl font-extrabold">Explore Tamil Nadu</h1>
@@ -44,53 +44,51 @@ const Explore = () => {
         </p>
       </div>
       {/* Search */}
-      <div className="relative mb-3">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="relative mb-3 max-w-2xl">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search destinations..."
-          className="w-full pl-9 pr-4 py-3 rounded-full bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          placeholder="Search destinations, districts, attractions..."
+          className="w-full pl-10 pr-4 py-3 rounded-full bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring shadow-xs"
         />
       </div>
 
-      {/* Filter pills */}
-      <div className="mt-4 mb-5">
-  <button
-    onClick={() => window.open("/maps", "_blank")}
-    className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-sm shadow-card hover:opacity-90 transition"
-  >
-    🗺️ View in Maps
-  </button>
-</div>
-      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-        {cats.map(c => (
-          <button
-            key={c.value}
-            onClick={() => setActive(c.value)}
-            className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              active === c.value
-                ? "gradient-saffron text-primary-foreground shadow-card"
-                : "bg-card border border-border text-muted-foreground"
-            }`}
-          >
-            {c.label}
-          </button>
-        ))}
+      {/* Filter pills & Maps Button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mt-4 mb-5">
+        <div className="flex gap-2 overflow-x-auto pb-1 max-w-full scrollbar-hide">
+          {cats.map(c => (
+            <button
+              key={c.value}
+              onClick={() => setActive(c.value)}
+              className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                active === c.value
+                  ? "gradient-saffron text-primary-foreground shadow-card"
+                  : "bg-card border border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => window.open("/maps", "_blank")}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-xs shadow-card hover:opacity-90 transition shrink-0"
+        >
+          🗺️ View in Maps
+        </button>
       </div>
 
-      <p className="text-xs text-muted-foreground mt-3 mb-2">{filtered.length} destinations</p>
-<div className="mb-5">
-</div>
+      <p className="text-xs text-muted-foreground mb-3">{filtered.length} destinations found</p>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {filtered.map((d) => (
-  <DestinationCard
-    key={d.id}
-    place={d}
-  />
-))}
+          <DestinationCard
+            key={d.id}
+            place={d}
+          />
+        ))}
       </div>
 
       {filtered.length === 0 && (

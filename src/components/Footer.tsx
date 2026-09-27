@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="w-full bg-card/90 dark:bg-zinc-950/90 border-t border-border/80 text-card-foreground mt-auto transition-colors">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
         {/* Left Side: Brand Logo & Tagline */}
         <div className="flex items-center gap-3 text-center md:text-left">
           <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 shadow-xs">
@@ -55,7 +55,7 @@ export const Footer: React.FC = () => {
             className="hover:text-foreground text-primary font-semibold transition-colors flex items-center gap-1"
           >
             <Sparkles className="w-3 h-3" />
-            What's New
+            What's New (Sep 2026)
           </Link>
 
           <span className="text-border hidden sm:inline">•</span>
@@ -147,7 +147,7 @@ export const Footer: React.FC = () => {
               Privacy Policy
             </h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Effective Date: 2026 • Sikkanam Travel Platform
+              Effective Date: September 2026 • Sikkanam Travel Platform
             </p>
 
             <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
@@ -194,7 +194,7 @@ export const Footer: React.FC = () => {
               Terms of Service
             </h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Last Updated: 2026 • Sikkanam Travel Platform
+              Last Updated: September 2026 • Sikkanam Travel Platform
             </p>
 
             <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">

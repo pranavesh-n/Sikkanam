@@ -11,7 +11,8 @@ interface AppShellProps {
 
 const AppShell = ({ children }: AppShellProps) => {
   const { pathname } = useLocation();
-  const hideTop = pathname === "/";
+  const hideTop = pathname === "/" || pathname === "/maps";
+  const hideFooter = pathname === "/maps" || pathname === "/ai";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -19,7 +20,7 @@ const AppShell = ({ children }: AppShellProps) => {
       <div className="md:hidden">{!hideTop && <TopBar />}</div>
       <main className="flex-1 flex flex-col pb-20 md:pb-0">
         <div className="flex-1">{children}</div>
-        <Footer />
+        {!hideFooter && <Footer />}
       </main>
       <BottomNav />
     </div>

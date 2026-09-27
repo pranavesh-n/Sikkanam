@@ -540,8 +540,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   // Render Recommendations Mode Screen
   if (plan.recommendations && plan.recommendations.length > 0) {
     return (
-      <section ref={ref} className="py-12 md:py-20">
-        <div className="container max-w-2xl px-4 space-y-8">
+      <section ref={ref} className="py-6 md:py-12 w-full">
+        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 space-y-8">
           <div className="text-center space-y-3">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary">
               🔮 Smart Recommendations
@@ -606,8 +606,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   const suggestedCircuits = plan.suggestedCircuits || [];
 
   return (
-    <section ref={ref} className="py-12 md:py-20 print:py-4">
-      <div className="container max-w-2xl px-4 space-y-8">
+    <section ref={ref} className="py-6 md:py-12 print:py-4 w-full">
+      <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-2 sm:px-4 space-y-8">
         {(() => {
           const { typeLabel, budgetLabel, styleTags } = getDestinationHeroDetails(plan.destination);
           const recommends = getWhyRecommends(plan.destination, plan.input, plan.route, plan.hotels);
@@ -720,7 +720,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
             const recommendedCarryMax = plan.intelligence.recommendedCarry;
 
             return (
-              <div className="w-full max-w-xl mx-auto space-y-4 pt-2">
+              <div className="w-full max-w-2xl lg:max-w-3xl mx-auto space-y-4 pt-2">
                 <div className="bg-card border-2 border-primary/20 p-6 rounded-3xl shadow-elevated space-y-6 relative overflow-hidden backdrop-blur-md bg-opacity-80 text-center">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full filter blur-3xl -z-10" />
 
@@ -1865,8 +1865,8 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
             </div>
 
             <div className="border-t border-border/40 pt-3 flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
-              <span>Intelligence Version: v4.3</span>
-              <span>Last Updated: August 2026</span>
+              <span>Intelligence Version: v4.4</span>
+              <span>Last Updated: September 2026</span>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 import { MouseEvent } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Heart, ShieldCheck, Cloud, Share2, Flame, Smartphone, X } from "lucide-react";
+import { Sparkles, Zap, Bot, Scale, X } from "lucide-react";
 import { useOnboarding } from "@/context/OnboardingContext";
 
-const VERSION = "2.6.4";
+const VERSION = "2.6.5";
 
 export default function WhatsNewModal() {
   const { step, dismissWhatsNew } = useOnboarding();
@@ -25,7 +25,7 @@ export default function WhatsNewModal() {
       onClick={handleBackdropClick}
       className="fixed inset-0 z-[99999] bg-black/70 backdrop-blur-[4px] flex items-center justify-center p-4 animate-in fade-in duration-300"
     >
-      <div className="bg-card/95 border border-border/80 rounded-[2.5rem] max-w-sm md:max-w-md w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden text-left max-h-[90vh] overflow-y-auto">
+      <div className="bg-card/95 border border-border/80 rounded-[2.5rem] max-w-sm sm:max-w-md md:max-w-xl w-full p-6 md:p-8 shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col relative overflow-hidden text-left max-h-[90vh] overflow-y-auto">
         {/* Decorative background glow */}
         <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -42,69 +42,69 @@ export default function WhatsNewModal() {
         {/* Top Tag */}
         <div className="mb-4 self-start flex items-center gap-1.5 bg-primary/10 text-primary text-[10px] md:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          NEW • VERSION {VERSION}
+          SEPTEMBER 2026 • VERSION {VERSION}
         </div>
 
         {/* Title */}
         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground mb-2 text-left">
-          What's New in Sikkanam v2.6.4
+          What's New in Sikkanam v{VERSION}
         </h2>
 
         {/* Subtitle */}
         <p className="text-xs md:text-sm text-muted-foreground mb-6 text-left">
-          Intelligence Engine v4.4, Searchable 100-Place Catalog, Exact Railway Timetables & 2-Way Round-Trip Pricing!
+          Super Sikkanam AI, ScrapeGraph MCP Grounding, 63x Speedup & Budget Feasibility Integrity!
         </p>
 
         {/* Feature List */}
         <div className="space-y-4 text-foreground flex-1">
-          {/* Feature 1 — Intelligence Engine v4.4 */}
+          {/* Feature 1 — Super Sikkanam AI & Live Web Grounding */}
           <div className="flex gap-3.5 items-start text-left bg-primary/5 dark:bg-primary/10 p-3 rounded-2xl border border-primary/20">
             <div className="p-2 rounded-xl bg-primary/20 text-primary shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Intelligence Engine v4.4</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Super Sikkanam AI & ScrapeGraph MCP</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Official real-time railway timetables (e.g. Nilgiri Exp #12671 departing at 09:05 PM) and dynamic OSM road distance calculations.
+                Real-time web search and ScrapeGraph AI MCP grounding for verified 2025/2026 bus fares, train tickets & official TTDC tariffs via Groq <code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono">openai/gpt-oss-120b</code>.
               </p>
             </div>
           </div>
 
-          {/* Feature 2 — 2-Way (Round-Trip) Pricing Optimization */}
+          {/* Feature 2 — 63x Faster Trip Generation */}
           <div className="flex gap-3.5 items-start text-left bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20">
             <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+              <Zap className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">2-Way Round-Trip Pricing</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">63x Faster Trip Generation</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Transparent outward & return fare calculations across train sleeper and government buses with realistic per-km rates.
+                Reduced generation latency from 5.3s down to 84ms using instant curated stays, smart narrative caching, and 1.2s timeout guards on public geo APIs.
               </p>
             </div>
           </div>
 
-          {/* Feature 3 — Searchable 100-Destination Catalog */}
-          <div className="flex gap-3.5 items-start text-left">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
-              <Cloud className="w-5 h-5" />
+          {/* Feature 3 — Budget Assessment & Feasibility Integrity */}
+          <div className="flex gap-3.5 items-start text-left bg-amber-500/5 dark:bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+              <Scale className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Searchable 100-Destination Catalog</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Budget Feasibility Integrity</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Fast type-to-search dropdown covering all 100 unique destinations in Tamil Nadu with mutual exclusivity and clean states.
+                Strict feasibility assessment: if your budget is insufficient, the system explicitly advises <strong className="text-amber-600 dark:text-amber-400">"Consider Increasing Budget"</strong> with exact per-person deficit math.
               </p>
             </div>
           </div>
 
-          {/* Feature 4 — Multi-Destination Spatial Circuits */}
+          {/* Feature 4 — Interactive Loading & Clean Itineraries */}
           <div className="flex gap-3.5 items-start text-left">
             <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 shrink-0">
-              <Share2 className="w-5 h-5" />
+              <Bot className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-sm md:text-base text-foreground">Spatial Multi-Stop Circuits</h4>
+              <h4 className="font-bold text-sm md:text-base text-foreground">Responsive Planning & Clean UI</h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Terrain-aware hill winding road distance factors and realistic local transit budgeting without fare anomalies.
+                Real-time animated "Sikkanam Planning..." feedback button with uncluttered, natural day-wise schedules free of artificial badges.
               </p>
             </div>
           </div>

@@ -209,9 +209,9 @@ const AIPlanner = () => {
   };
 
   return (
-    <div className="max-w-md md:max-w-3xl mx-auto flex flex-col h-[calc(100vh-9rem)] md:h-[calc(100vh-5rem)]">
+    <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-9.5rem)] md:h-[calc(100vh-4.5rem)] px-2 sm:px-4">
       {/* Header banner */}
-      <div className="px-4 pt-2 pb-3">
+      <div className="pt-2 pb-3">
         <div className="gradient-saffron text-primary-foreground rounded-2xl px-4 py-3 flex items-center gap-3 shadow-card">
           <Sparkles className="w-5 h-5" />
 
@@ -230,7 +230,7 @@ const AIPlanner = () => {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 pb-4"
+        className="flex-1 overflow-y-auto px-1 sm:px-2 pb-4"
       >
         {messages.length === 0 && (
           <div className="space-y-4">
@@ -238,7 +238,7 @@ const AIPlanner = () => {
               Try asking
             </p>
 
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {QUICK_PROMPTS.map((p) => (
                 <button
                   key={p}
@@ -263,7 +263,7 @@ const AIPlanner = () => {
               }
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                className={`max-w-[88%] sm:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
                   m.role === "user"
                     ? "gradient-saffron text-primary-foreground rounded-br-md"
                     : "bg-card border border-border text-foreground rounded-bl-md"

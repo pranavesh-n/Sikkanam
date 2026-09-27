@@ -23,9 +23,9 @@ const Home = () => {
   const temples = tnDestinations.filter((d) => d.category === "temple").slice(0, 8);
 
   return (
-    <div className="max-w-md md:max-w-6xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Hero */}
-      <section className="relative overflow-hidden md:rounded-b-[2rem]">
+      <section className="relative overflow-hidden rounded-2xl md:rounded-[2rem] mt-2 md:mt-4 shadow-elevated">
         <div className="absolute inset-0">
           <img src={heroBg} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/70 via-foreground/50 to-background md:bg-gradient-to-r md:from-foreground/80 md:via-foreground/55 md:to-foreground/10" />
@@ -252,13 +252,13 @@ const Carousel = ({
         See all →
       </Link>
     </div>
-    {/* Mobile: snap carousel · Desktop: grid */}
-    <div className="flex md:hidden gap-3 overflow-x-auto pb-2 px-5 snap-x snap-mandatory scrollbar-hide">
+    {/* Mobile: snap carousel · Tablet & Desktop: responsive grid */}
+    <div className="flex sm:hidden gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
       {items.map((d) => (
-        <DestCard key={d.id} d={d} className="snap-start shrink-0 w-40" />
+        <DestCard key={d.id} d={d} className="snap-start shrink-0 w-36" />
       ))}
     </div>
-    <div className="hidden md:grid grid-cols-4 gap-4">
+    <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {items.map((d) => (
         <DestCard key={d.id} d={d} />
       ))}

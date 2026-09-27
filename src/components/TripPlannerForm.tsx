@@ -299,16 +299,16 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
   ];
 
   return (
-    <section ref={ref} id="planner" className="py-16 md:py-24">
-      <div className="container max-w-3xl px-4">
-        <div className="text-center mb-10">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+    <section ref={ref} id="planner" className="py-4 md:py-8 w-full">
+      <div className="w-full max-w-3xl mx-auto px-0 sm:px-2">
+        <div className="text-center mb-6 md:mb-8">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
             Plan Your Trip
           </h2>
-          <p className="text-muted-foreground">Fill in the details — we’ll handle the rest</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Fill in the details — we’ll handle the rest</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-elevated p-6 md:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card rounded-2xl sm:rounded-3xl shadow-elevated p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 border border-border/80">
           {/* Source & Destination */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SearchableSelect
@@ -342,7 +342,7 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
           </div>
 
           {/* Days & Travellers & Traveller Profile */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
                 <Calendar className="w-4 h-4 text-primary" /> Days
@@ -394,19 +394,19 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
             <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
               <Compass className="w-4 h-4 text-primary" /> Travel Style
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {styleOptions.map(opt => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setStyle(opt.value)}
-                  className={`px-4 py-3 rounded-xl border-2 text-center transition-all duration-200 font-medium ${style === opt.value
+                  className={`px-2 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 text-center transition-all duration-200 font-medium ${style === opt.value
                       ? "border-primary bg-primary/10 text-foreground shadow-card"
                       : "border-border text-muted-foreground hover:border-primary/40"
                     }`}
                 >
-                  <span className="text-xl block mb-1">{opt.emoji}</span>
-                  <span className="text-sm">{opt.label}</span>
+                  <span className="text-lg sm:text-xl block mb-0.5 sm:mb-1">{opt.emoji}</span>
+                  <span className="text-xs sm:text-sm">{opt.label}</span>
                 </button>
               ))}
             </div>
