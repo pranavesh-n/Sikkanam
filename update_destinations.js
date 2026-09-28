@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const filePath = path.join(process.cwd(), 'src', 'data', 'tnDestinations.ts');
@@ -40,8 +40,8 @@ const railAccess = {
 
 // Replace nearestStation with nearestStation + hasRailAccess
 Object.entries(railAccess).forEach(([destId, hasRail]) => {
-  const regex = new RegExp(\"id":\s*"\"([^}]*?)"nearestStation":\s*"([^"]+)"\\n\\s*"lat":\, 'g');
-  const replacement = \"id": "\"\"nearestStation": "\",\n    "hasRailAccess": \,\n    "lat":\;
+  const regex = new RegExp(`("id":\\s*"${destId}"[^}]*?"nearestStation":\\s*"[^"]+")(\\n\\s*"lat":)`, 'g');
+  const replacement = `$1,\n    "hasRailAccess": ${hasRail}$2`;
   content = content.replace(regex, replacement);
 });
 

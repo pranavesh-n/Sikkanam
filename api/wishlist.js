@@ -2,6 +2,11 @@ import { connectToDatabase } from "./_utils/db.js";
 import { Wishlist } from "./_utils/models.js";
 import { getSessionFromReq } from "./_utils/auth.js";
 
+/**
+ * Wishlist API Handler
+ * Architecture: ONLY `wishlists` and `feedbacks` reside in MongoDB.
+ * Cross-device sync: Accessible by any device using the user's Google/Gmail account.
+ */
 export default async function handler(req, res) {
   const decoded = getSessionFromReq(req);
 
@@ -10,12 +15,14 @@ export default async function handler(req, res) {
   }
 
   const userId = decoded.id;
+  const userEmail = decoded.email;
+  const userFilter = userEmail ? { $or: [{ userId }, { userId: userEmail }] } : { userId };
 
   try {
     await connectToDatabase();
 
     if (req.method === "GET") {
-      const items = await Wishlist.find({ userId });
+      const items = await Wishlist.find(userFilter);
       const destinationIds = items.map(item => item.destinationId);
       return res.status(200).json({ wishlist: destinationIds });
     }
@@ -26,7 +33,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing destinationId" });
       }
 
-      const existing = await Wishlist.findOne({ userId, destinationId });
+      const existing = await Wishlist.findOne({ ...userFilter, destinationId });
       if (existing) {
         return res.status(200).json({ success: true, message: "Already in wishlist" });
       }
@@ -42,7 +49,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing destinationId" });
       }
 
-      await Wishlist.deleteOne({ userId, destinationId });
+      await Wishlist.deleteMany({ ...userFilter, destinationId });
       return res.status(200).json({ success: true, message: "Removed from wishlist" });
     }
 

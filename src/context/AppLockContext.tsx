@@ -28,10 +28,16 @@ const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
 
-const getUserKey = (u: any) => {
+const getUserKeys = (u: any): string[] => {
+  const keys: string[] = [];
   const uid = auth.currentUser?.uid || u?._id || u?.uid || u?.id;
-  if (!uid) return null;
-  return String(uid).replace(/[.#$/[\]]/g, "_");
+  if (uid) keys.push(String(uid).replace(/[.#$/[\]]/g, "_"));
+  const email = auth.currentUser?.email || u?.email;
+  if (email) {
+    const emailKey = String(email).replace(/[.#$/[\]]/g, "_");
+    if (!keys.includes(emailKey)) keys.push(emailKey);
+  }
+  return keys;
 };
 
 export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -96,68 +102,60 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [authReady, user, explicitLogin]);
 
-  // Real-time synchronization with Cloud Firestore
+  // Real-time synchronization with Cloud Firestore across all device keys (UID & Gmail)
   useEffect(() => {
     if (!authReady || !user || !explicitLogin) return;
-    const key = getUserKey(user);
-    if (!key) return;
+    const keys = getUserKeys(user);
+    if (keys.length === 0) return;
 
-    const userSettingsRef = doc(db, "usersettings", key);
-    const unsubscribe = onSnapshot(
-      userSettingsRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (typeof data.appLockEnabled === "boolean") {
-            setIsLockEnabled(data.appLockEnabled);
-            localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
-            if (data.appLockPinHash) {
-              localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
-            }
-            if (data.appLockEnabled) {
-              const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
-              if (!isUnlockedSession) {
-                setIsLocked(true);
+    const unsubs = keys.map((key) => {
+      const userSettingsRef = doc(db, "usersettings", key);
+      return onSnapshot(
+        userSettingsRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (typeof data.appLockEnabled === "boolean") {
+              setIsLockEnabled(data.appLockEnabled);
+              localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
+              if (data.appLockPinHash) {
+                localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
               }
-            } else {
-              setIsLocked(false);
-              sessionStorage.removeItem("sikkanam_applock_unlocked_session");
-            }
-          }
-        } else {
-          // If document does not exist in production Firestore yet, check if lock is enabled locally
-          const localEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
-          const localPin = localStorage.getItem(LOCAL_STORAGE_PIN);
-          if (localEnabled && localPin) {
-            // Auto-sync local passcode state to Cloud Firestore under key (request.auth.uid)
-            setDoc(
-              userSettingsRef,
-              {
-                appLockEnabled: true,
-                appLockPinHash: localPin,
-                updatedAt: new Date().toISOString(),
-              },
-              { merge: true }
-            ).catch((err) => console.warn("Cloud Firestore initial sync back error:", err));
-            setIsLockEnabled(true);
-            const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
-            if (!isUnlockedSession) {
-              setIsLocked(true);
+              if (data.appLockEnabled) {
+                const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
+                if (!isUnlockedSession) {
+                  setIsLocked(true);
+                }
+              } else {
+                setIsLocked(false);
+                sessionStorage.removeItem("sikkanam_applock_unlocked_session");
+              }
             }
           } else {
-            setIsLockEnabled(false);
-            localStorage.setItem(LOCAL_STORAGE_ENABLED, "false");
-            setIsLocked(false);
-            sessionStorage.removeItem("sikkanam_applock_unlocked_session");
+            // Check local fallback
+            const localEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+            const localPin = localStorage.getItem(LOCAL_STORAGE_PIN);
+            if (localEnabled && localPin) {
+              setDoc(
+                userSettingsRef,
+                {
+                  appLockEnabled: true,
+                  appLockPinHash: localPin,
+                  updatedAt: new Date().toISOString(),
+                },
+                { merge: true }
+              ).catch((err) => console.warn("Cloud Firestore initial sync error:", err));
+              setIsLockEnabled(true);
+            }
           }
+        },
+        (error) => {
+          console.warn("Cloud Firestore sync error:", error);
         }
-      },
-      (error) => {
-        console.warn("Cloud Firestore sync error:", error);
-      }
-    );
+      );
+    });
 
-    return () => unsubscribe();
+    return () => unsubs.forEach((unsub) => unsub());
   }, [authReady, user, explicitLogin]);
 
   useEffect(() => {
@@ -226,9 +224,9 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLocked(false);
       setFailedAttempts(0);
 
-      // Real-time Cloud Sync to Cloud Firestore
-      const key = getUserKey(currentUserObj);
-      if (key) {
+      // Real-time Cloud Sync to Cloud Firestore across both UID & Gmail keys
+      const keys = getUserKeys(currentUserObj);
+      for (const key of keys) {
         setDoc(
           doc(db, "usersettings", key),
           {
@@ -277,8 +275,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
-      const key = getUserKey(currentUserObj);
-      if (key) {
+      const keys = getUserKeys(currentUserObj);
+      for (const key of keys) {
         setDoc(
           doc(db, "usersettings", key),
           {
@@ -318,8 +316,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
-      const key = getUserKey(currentUserObj);
-      if (key) {
+      const keys = getUserKeys(currentUserObj);
+      for (const key of keys) {
         setDoc(
           doc(db, "usersettings", key),
           {

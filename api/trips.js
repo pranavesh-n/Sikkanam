@@ -1,6 +1,50 @@
 import { supabase, connectToDatabase } from "./_utils/db.js";
-import { Trip } from "./_utils/models.js";
 import { getSessionFromReq } from "./_utils/auth.js";
+import mongoose from "mongoose";
+
+/**
+ * Trips API Handler
+ * Architecture:
+ * - ONLY `wishlists` and `feedbacks` belong in MongoDB.
+ * - Saving & managing trips belongs strictly in Supabase (trips table).
+ * - Cross-device Gmail access: Any device logged into the same Gmail account can access all saved trips.
+ */
+
+let migrationAttempted = false;
+
+async function migrateLegacyMongoTrips() {
+  if (migrationAttempted) return;
+  migrationAttempted = true;
+  try {
+    await connectToDatabase();
+    const rawDb = mongoose.connection?.db;
+    if (rawDb) {
+      const collections = await rawDb.listCollections({ name: "trips" }).toArray();
+      if (collections.length > 0) {
+        const mongoTrips = await rawDb.collection("trips").find({}).toArray();
+        for (const t of mongoTrips) {
+          await supabase.from("trips").insert([
+            {
+              user_id: t.userId,
+              name: t.name,
+              destination: t.destination,
+              duration: Number(t.duration) || 1,
+              style: t.style || "standard",
+              budget: t.budget || "₹0",
+              itinerary: t.itinerary,
+              created_at: t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
+              updated_at: t.updatedAt ? new Date(t.updatedAt).toISOString() : new Date().toISOString(),
+            },
+          ]);
+        }
+        // Drop trips collection from MongoDB so ONLY wishlists and feedbacks remain
+        await rawDb.collection("trips").drop().catch(() => {});
+      }
+    }
+  } catch (err) {
+    // Graceful silent ignore if already dropped or no legacy trips
+  }
+}
 
 export default async function handler(req, res) {
   const decoded = getSessionFromReq(req);
@@ -10,39 +54,37 @@ export default async function handler(req, res) {
   }
 
   const userId = decoded.id;
+  const userEmail = decoded.email;
+
+  // Ensure any legacy trips in MongoDB are migrated to Supabase and removed from MongoDB
+  await migrateLegacyMongoTrips();
 
   try {
-    // 1. Primary Database Engine: Supabase
+    // 1. Fetch Saved Trips from Supabase (accessible across any device for this Gmail / User)
     if (req.method === "GET") {
-      try {
-        const { data: trips, error } = await supabase
-          .from("trips")
-          .select("*")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false });
-
-        if (!error && Array.isArray(trips)) {
-          const mappedTrips = trips.map((t) => ({
-            ...t,
-            _id: t.id,
-          }));
-          return res.status(200).json({ trips: mappedTrips });
-        }
-      } catch (e) {
-        console.warn("Supabase GET trips failed, trying fallback...", e?.message);
+      let query = supabase.from("trips").select("*");
+      if (userEmail) {
+        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+      } else {
+        query = query.eq("user_id", userId);
       }
 
-      // Fallback Engine: MongoDB
-      await connectToDatabase();
-      const mongoTrips = await Trip.find({ userId }).sort({ createdAt: -1 });
-      const mappedTrips = mongoTrips.map((t) => ({
-        ...t.toObject(),
-        _id: t._id.toString(),
-        id: t._id.toString(),
+      const { data: trips, error } = await query.order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase GET trips error:", error);
+        return res.status(500).json({ error: error.message || "Failed to fetch trips from Supabase" });
+      }
+
+      const mappedTrips = (trips || []).map((t) => ({
+        ...t,
+        _id: t.id,
+        id: t.id,
       }));
       return res.status(200).json({ trips: mappedTrips });
     }
 
+    // 2. Save New Trip Strictly to Supabase
     if (req.method === "POST") {
       const { name, destination, duration, style, budget, itinerary } = req.body;
 
@@ -50,54 +92,36 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing required trip details" });
       }
 
-      try {
-        const { data: trip, error } = await supabase
-          .from("trips")
-          .insert([
-            {
-              user_id: userId,
-              name,
-              destination,
-              duration: Number(duration),
-              style,
-              budget,
-              itinerary,
-            },
-          ])
-          .select()
-          .single();
+      const { data: trip, error } = await supabase
+        .from("trips")
+        .insert([
+          {
+            user_id: userId,
+            name,
+            destination,
+            duration: Number(duration),
+            style,
+            budget,
+            itinerary,
+          },
+        ])
+        .select()
+        .single();
 
-        if (!error && trip) {
-          const mappedTrip = {
-            ...trip,
-            _id: trip.id,
-          };
-          return res.status(201).json({ success: true, trip: mappedTrip });
-        }
-      } catch (e) {
-        console.warn("Supabase POST trip failed, trying fallback...", e?.message);
+      if (error) {
+        console.error("Supabase POST trip error:", error);
+        return res.status(500).json({ error: error.message || "Failed to save trip to Supabase" });
       }
 
-      // Fallback Engine: MongoDB
-      await connectToDatabase();
-      const newTrip = new Trip({
-        userId,
-        name,
-        destination,
-        duration: Number(duration),
-        style,
-        budget,
-        itinerary,
-      });
-      await newTrip.save();
       const mappedTrip = {
-        ...newTrip.toObject(),
-        _id: newTrip._id.toString(),
-        id: newTrip._id.toString(),
+        ...trip,
+        _id: trip.id,
+        id: trip.id,
       };
       return res.status(201).json({ success: true, trip: mappedTrip });
     }
 
+    // 3. Update Existing Trip in Supabase
     if (req.method === "PUT") {
       const id = req.query.id || req.body.id;
       const { name, destination, duration, style, budget, itinerary } = req.body;
@@ -106,37 +130,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing trip ID" });
       }
 
-      try {
-        const updates = {};
-        if (name !== undefined) updates.name = name;
-        if (destination !== undefined) updates.destination = destination;
-        if (duration !== undefined) updates.duration = Number(duration);
-        if (style !== undefined) updates.style = style;
-        if (budget !== undefined) updates.budget = budget;
-        if (itinerary !== undefined) updates.itinerary = itinerary;
-        updates.updated_at = new Date().toISOString();
-
-        const { data: trip, error } = await supabase
-          .from("trips")
-          .update(updates)
-          .eq("id", id)
-          .eq("user_id", userId)
-          .select()
-          .maybeSingle();
-
-        if (!error && trip) {
-          const mappedTrip = {
-            ...trip,
-            _id: trip.id,
-          };
-          return res.status(200).json({ success: true, trip: mappedTrip });
-        }
-      } catch (e) {
-        console.warn("Supabase PUT trip failed, trying fallback...", e?.message);
-      }
-
-      // Fallback Engine: MongoDB
-      await connectToDatabase();
       const updates = {};
       if (name !== undefined) updates.name = name;
       if (destination !== undefined) updates.destination = destination;
@@ -144,26 +137,35 @@ export default async function handler(req, res) {
       if (style !== undefined) updates.style = style;
       if (budget !== undefined) updates.budget = budget;
       if (itinerary !== undefined) updates.itinerary = itinerary;
-      updates.updatedAt = new Date();
+      updates.updated_at = new Date().toISOString();
 
-      const updatedTrip = await Trip.findOneAndUpdate(
-        { _id: id, userId },
-        { $set: updates },
-        { new: true }
-      );
+      let query = supabase.from("trips").update(updates).eq("id", id);
+      if (userEmail) {
+        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+      } else {
+        query = query.eq("user_id", userId);
+      }
 
-      if (!updatedTrip) {
+      const { data: trip, error } = await query.select().maybeSingle();
+
+      if (error) {
+        console.error("Supabase PUT trip error:", error);
+        return res.status(500).json({ error: error.message || "Failed to update trip in Supabase" });
+      }
+
+      if (!trip) {
         return res.status(404).json({ error: "Trip not found or unauthorized." });
       }
 
       const mappedTrip = {
-        ...updatedTrip.toObject(),
-        _id: updatedTrip._id.toString(),
-        id: updatedTrip._id.toString(),
+        ...trip,
+        _id: trip.id,
+        id: trip.id,
       };
       return res.status(200).json({ success: true, trip: mappedTrip });
     }
 
+    // 4. Delete Trip from Supabase
     if (req.method === "DELETE") {
       const id = req.query.id || req.body.id;
 
@@ -171,27 +173,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing trip ID" });
       }
 
-      try {
-        const { data, error } = await supabase
-          .from("trips")
-          .delete()
-          .eq("id", id)
-          .eq("user_id", userId)
-          .select();
-
-        if (!error && data && data.length > 0) {
-          return res.status(200).json({ success: true, message: "Trip deleted successfully." });
-        }
-      } catch (e) {
-        console.warn("Supabase DELETE trip failed, trying fallback...", e?.message);
+      let query = supabase.from("trips").delete().eq("id", id);
+      if (userEmail) {
+        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+      } else {
+        query = query.eq("user_id", userId);
       }
 
-      // Fallback Engine: MongoDB
-      await connectToDatabase();
-      const result = await Trip.deleteOne({ _id: id, userId });
-      if (result.deletedCount === 0) {
+      const { data, error } = await query.select();
+
+      if (error) {
+        console.error("Supabase DELETE trip error:", error);
+        return res.status(500).json({ error: error.message || "Failed to delete trip from Supabase" });
+      }
+
+      if (!data || data.length === 0) {
         return res.status(404).json({ error: "Trip not found or unauthorized." });
       }
+
       return res.status(200).json({ success: true, message: "Trip deleted successfully." });
     }
 

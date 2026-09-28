@@ -86,8 +86,8 @@ export default async function handler(req, res) {
       user = updatedUser;
     }
 
-    // 4. Create stateless JWT
-    const token = signToken({ id: user.id, email: user.email }, "7d");
+    // 4. Create anti-hijacking JWT bound to client device
+    const token = signToken({ id: user.id, email: user.email }, "30d", req);
 
     // 5. Serialize JWT token into a secure HttpOnly cookie
     const cookie = createSessionCookie(token);

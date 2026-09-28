@@ -103,33 +103,6 @@ Powered by the Open-Meteo API using the high-precision **ECMWF forecasting model
 
 ---
 
-## 🏗️ Architecture & AI Pipeline
-
-```mermaid
-flowchart TD
-    User([Traveler]) --> Form[Trip Planner Form]
-    Form -->|POST /api/generatePlan| Backend[Vercel Serverless API]
-    
-    subgraph Grounding & Intelligence
-        Backend --> FastCheck{Cached or Fast TTDC?}
-        FastCheck -->|Hit| LocalData[(Curated Tariff & Hotel Matrix)]
-        FastCheck -->|Miss| SG[ScrapeGraph AI MCP / Web Scraper]
-        SG --> LiveWeb[(Live Web Search / Tariff Grounding)]
-    end
-    
-    subgraph LLM Generation Hierarchy
-        Backend --> Primary[Groq openai/gpt-oss-120b]
-        Primary -.->|Fallback| Secondary[Groq openai/gpt-oss-20b]
-        Secondary -.->|Fallback| Tertiary[Google Gemini 2.5–3.0 Flash]
-    end
-    
-    Backend --> Feasibility[Budget Feasibility Assessment Engine]
-    Feasibility --> Result[Day-Wise Itinerary + Cost Breakdown]
-    Result --> UI[Responsive Results & Budget Assessment UI]
-```
-
----
-
 ## 🛠️ Technology Stack
 
 | Layer | Technology |
@@ -139,7 +112,7 @@ flowchart TD
 | **Mapping & Routing** | Leaflet & React-Leaflet, OpenStreetMap / OSRM API |
 | **Primary AI Models** | Groq (`openai/gpt-oss-120b`, `openai/gpt-oss-20b`), Google Gemini (`gemini-3.0-flash`, `gemini-2.5-flash`) |
 | **Live Grounding** | ScrapeGraph AI MCP Server, Autonomous Web Scraper, Open-Meteo (ECMWF) |
-| **Backend & Storage** | Vercel Serverless Functions (Node.js), MongoDB (Mongoose), Firebase Auth |
+| **Backend & APIs** | Vercel Serverless Functions (Node.js) |
 | **Testing & Quality** | TestSprite MCP, Playwright, Vitest |
 
 ---

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { auth, googleProvider } from "@/lib/firebase";
+import { auth, db, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { checkIsRunningStandalone } from "@/lib/pwa";
 
 export interface UserType {
@@ -129,10 +130,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(newUser);
 
+      const idToken = await firebaseUser.getIdToken();
+
       await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          idToken,
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           name: firebaseUser.displayName,
@@ -166,6 +170,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem("sikkanam_welcome_auth_dismissed", "true");
       } catch (e) {}
 
+      // Multi-device Cloud Logout Sync to Firestore usersettings across UID and Gmail keys
+      const keys: string[] = [];
+      const uid = auth.currentUser?.uid || user?._id;
+      if (uid) keys.push(String(uid).replace(/[.#$/[\]]/g, "_"));
+      const email = auth.currentUser?.email || user?.email;
+      if (email) {
+        const emailKey = String(email).replace(/[.#$/[\]]/g, "_");
+        if (!keys.includes(emailKey)) keys.push(emailKey);
+      }
+
+      for (const key of keys) {
+        setDoc(
+          doc(db, "usersettings", key),
+          {
+            lastLogoutAt: new Date().toISOString(),
+            sessionVersion: Date.now(),
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch((e) => console.warn("Firestore logout sync write error:", e));
+      }
+
       // Broadcast local logout event
       window.dispatchEvent(new CustomEvent("sikkanam:user_logout"));
 
@@ -179,6 +205,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return false;
   };
+
+  // Real-time Multi-Device Cloud Logout Sync via Firestore usersettings
+  useEffect(() => {
+    if (!authReady || !user || !explicitLogin) return;
+    const keys: string[] = [];
+    const uid = auth.currentUser?.uid || user._id;
+    if (uid) keys.push(String(uid).replace(/[.#$/[\]]/g, "_"));
+    const email = auth.currentUser?.email || user.email;
+    if (email) {
+      const emailKey = String(email).replace(/[.#$/[\]]/g, "_");
+      if (!keys.includes(emailKey)) keys.push(emailKey);
+    }
+    if (keys.length === 0) return;
+
+    const unsubs = keys.map((key) =>
+      onSnapshot(
+        doc(db, "usersettings", key),
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.lastLogoutAt) {
+              const logoutTime = new Date(data.lastLogoutAt).getTime();
+              const sessionStartedStr = localStorage.getItem(SESSION_STARTED_KEY);
+              const sessionStarted = sessionStartedStr ? parseInt(sessionStartedStr, 10) : 0;
+              // Purge if remote logout occurred after this device's session started
+              if (sessionStarted && logoutTime > sessionStarted + 2000) {
+                purgeStaleSession();
+              }
+            }
+          }
+        },
+        (err) => console.warn("Firestore multi-device logout sync error:", err)
+      )
+    );
+
+    return () => unsubs.forEach((unsub) => unsub());
+  }, [authReady, user, explicitLogin]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -214,11 +277,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch (e) { }
 
+          const idToken = await firebaseUser.getIdToken();
+
           // Automatically sync & renew backend session cookie on app launch
           await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              idToken,
               uid: firebaseUser.uid,
               email: firebaseUser.email,
               name: firebaseUser.displayName,

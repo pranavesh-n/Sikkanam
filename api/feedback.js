@@ -3,19 +3,33 @@ import { Feedback } from "./_utils/models.js";
 import { getSessionFromReq } from "./_utils/auth.js";
 import { serverConfig } from "./_utils/config.js";
 
+/**
+ * Feedback API Handler
+ * Security & Isolation:
+ * - User A can ONLY access, view, and manage User A's feedback queries and history.
+ * - User A CANNOT access, view, or delete User B's data under any circumstance.
+ * - Viewing (GET) and deleting (DELETE) feedback query history strictly requires an authenticated session.
+ */
 export default async function handler(req, res) {
   try {
     await connectToDatabase();
 
     const decoded = getSessionFromReq(req);
-    // Use decoded authenticated userId if available, or fallback to an anonymous client identifier from header/cookie
-    const clientHeader = req.headers["x-client-id"] || req.headers["user-agent"] || "anonymous_guest";
-    const userId = decoded?.id || `anon_${Buffer.from(clientHeader).toString("base64").slice(0, 24)}`;
-    const userEmail = decoded?.email || "anonymous@sikkanam.com";
 
-    // 1. GET: Fetch user's feedback query history from MongoDB
+    // 1. GET: Fetch user's feedback query history from MongoDB (Strictly Authenticated)
     if (req.method === "GET") {
-      const items = await Feedback.find({ userId }).sort({ createdAt: -1 }).lean();
+      if (!decoded) {
+        return res.status(401).json({ error: "Unauthorized: Please log in to view your feedback history." });
+      }
+
+      const userFilter = {
+        $or: [
+          { userId: decoded.id },
+          ...(decoded.email ? [{ userId: decoded.email }, { userEmail: decoded.email }] : [])
+        ]
+      };
+
+      const items = await Feedback.find(userFilter).sort({ createdAt: -1 }).lean();
       return res.status(200).json({ feedbacks: items });
     }
 
@@ -26,6 +40,10 @@ export default async function handler(req, res) {
       if (!message || typeof message !== "string" || !message.trim()) {
         return res.status(400).json({ error: "Feedback message cannot be empty." });
       }
+
+      // If user is authenticated, strictly bind to their authenticated UID & Gmail
+      const userId = decoded?.id || "anonymous_guest";
+      const userEmail = decoded?.email || "anonymous@sikkanam.com";
 
       const newFeedback = new Feedback({
         userId,
@@ -42,23 +60,31 @@ export default async function handler(req, res) {
       return res.status(201).json({ success: true, feedback: saved });
     }
 
-    // 3. DELETE: Remove a feedback query from MongoDB
+    // 3. DELETE: Remove a feedback query from MongoDB (Strictly Authenticated & Owned)
     if (req.method === "DELETE") {
+      if (!decoded) {
+        return res.status(401).json({ error: "Unauthorized: Please log in to delete your feedback." });
+      }
+
       const id = req.query.id || req.body?.id;
       if (!id) {
         return res.status(400).json({ error: "Missing feedback ID to delete." });
       }
 
-      const deleted = await Feedback.findOneAndDelete({ _id: id, userId });
+      const userFilter = {
+        _id: id,
+        $or: [
+          { userId: decoded.id },
+          ...(decoded.email ? [{ userId: decoded.email }, { userEmail: decoded.email }] : [])
+        ]
+      };
+
+      const deleted = await Feedback.findOneAndDelete(userFilter);
       if (!deleted) {
-        // Try deleting by _id if matched
-        const fallbackDelete = await Feedback.findByIdAndDelete(id);
-        if (!fallbackDelete) {
-          return res.status(404).json({ error: "Feedback query not found or already deleted." });
-        }
+        return res.status(404).json({ error: "Feedback query not found or unauthorized." });
       }
 
-      return res.status(200).json({ success: true, message: "Feedback query deleted successfully from MongoDB." });
+      return res.status(200).json({ success: true, message: "Feedback query deleted successfully." });
     }
 
     res.setHeader("Allow", ["GET", "POST", "DELETE"]);
