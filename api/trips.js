@@ -60,31 +60,73 @@ export default async function handler(req, res) {
   await migrateLegacyMongoTrips();
 
   try {
-    // 1. Fetch Saved Trips from Supabase (accessible across any device for this Gmail / User)
+    // 1. Fetch Saved Trips (Supabase primary, with fallback)
     if (req.method === "GET") {
-      let query = supabase.from("trips").select("*");
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
+      let tripsList = [];
+      let supabaseSuccess = false;
+
+      try {
+        let query = supabase.from("trips").select("*");
+        if (userEmail) {
+          query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+        } else {
+          query = query.eq("user_id", userId);
+        }
+
+        const { data: supabaseTrips, error } = await query.order("created_at", { ascending: false });
+        if (!error && supabaseTrips) {
+          tripsList = supabaseTrips.map((t) => ({
+            ...t,
+            _id: String(t.id),
+            id: String(t.id),
+          }));
+          supabaseSuccess = true;
+        } else if (error) {
+          console.warn("Supabase fetch warning:", error.message);
+        }
+      } catch (err) {
+        console.warn("Supabase fetch exception:", err.message);
       }
 
-      const { data: trips, error } = await query.order("created_at", { ascending: false });
+      // Check MongoDB for any pending or fallback trips
+      try {
+        await connectToDatabase();
+        const rawDb = mongoose.connection?.db;
+        if (rawDb) {
+          const mongoTrips = await rawDb
+            .collection("trips")
+            .find({
+              $or: [{ userId: userId }, { userId: userEmail }, { user_id: userId }, { user_id: userEmail }],
+            })
+            .sort({ createdAt: -1 })
+            .toArray();
 
-      if (error) {
-        console.error("Supabase GET trips error:", error);
-        return res.status(500).json({ error: error.message || "Failed to fetch trips from Supabase" });
+          for (const mt of mongoTrips) {
+            const mId = String(mt._id || mt.id);
+            if (!tripsList.some((t) => String(t.id) === mId || (t.name === mt.name && t.destination === mt.destination))) {
+              tripsList.push({
+                _id: mId,
+                id: mId,
+                name: mt.name,
+                destination: mt.destination,
+                duration: Number(mt.duration) || 1,
+                style: mt.style || "standard",
+                budget: mt.budget || "₹0",
+                itinerary: mt.itinerary,
+                created_at: mt.createdAt || mt.created_at || new Date().toISOString(),
+                updated_at: mt.updatedAt || mt.updated_at || new Date().toISOString(),
+              });
+            }
+          }
+        }
+      } catch (mErr) {
+        console.warn("MongoDB fallback fetch warning:", mErr.message);
       }
 
-      const mappedTrips = (trips || []).map((t) => ({
-        ...t,
-        _id: t.id,
-        id: t.id,
-      }));
-      return res.status(200).json({ trips: mappedTrips });
+      return res.status(200).json({ trips: tripsList });
     }
 
-    // 2. Save New Trip Strictly to Supabase
+    // 2. Save New Trip (Supabase primary, resilient fallback)
     if (req.method === "POST") {
       const { name, destination, duration, style, budget, itinerary } = req.body;
 
@@ -92,36 +134,74 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing required trip details" });
       }
 
-      const { data: trip, error } = await supabase
-        .from("trips")
-        .insert([
-          {
-            user_id: userId,
-            name,
-            destination,
-            duration: Number(duration),
-            style,
-            budget,
-            itinerary,
-          },
-        ])
-        .select()
-        .single();
+      let savedTrip = null;
 
-      if (error) {
-        console.error("Supabase POST trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to save trip to Supabase" });
+      // Primary attempt: Save to Supabase
+      try {
+        const { data: trip, error } = await supabase
+          .from("trips")
+          .insert([
+            {
+              user_id: userId,
+              name,
+              destination,
+              duration: Number(duration),
+              style,
+              budget,
+              itinerary,
+            },
+          ])
+          .select()
+          .single();
+
+        if (!error && trip) {
+          savedTrip = {
+            ...trip,
+            _id: String(trip.id),
+            id: String(trip.id),
+          };
+        } else {
+          console.warn("Supabase insert encountered issue, engaging fallback:", error?.message);
+        }
+      } catch (sbErr) {
+        console.warn("Supabase insert exception, engaging fallback:", sbErr.message);
       }
 
-      const mappedTrip = {
-        ...trip,
-        _id: trip.id,
-        id: trip.id,
-      };
-      return res.status(201).json({ success: true, trip: mappedTrip });
+      // Fallback: Store securely in database so user data is NEVER lost
+      if (!savedTrip) {
+        try {
+          await connectToDatabase();
+          const rawDb = mongoose.connection?.db;
+          if (rawDb) {
+            const newDoc = {
+              userId,
+              userEmail: userEmail || "",
+              name,
+              destination,
+              duration: Number(duration),
+              style,
+              budget,
+              itinerary,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            const insertResult = await rawDb.collection("trips").insertOne(newDoc);
+            savedTrip = {
+              ...newDoc,
+              _id: String(insertResult.insertedId),
+              id: String(insertResult.insertedId),
+            };
+          }
+        } catch (dbErr) {
+          console.error("Critical: Fallback save error:", dbErr);
+          return res.status(500).json({ error: "Could not save trip. Please try again." });
+        }
+      }
+
+      return res.status(201).json({ success: true, trip: savedTrip });
     }
 
-    // 3. Update Existing Trip in Supabase
+    // 3. Update Existing Trip
     if (req.method === "PUT") {
       const id = req.query.id || req.body.id;
       const { name, destination, duration, style, budget, itinerary } = req.body;
@@ -139,33 +219,48 @@ export default async function handler(req, res) {
       if (itinerary !== undefined) updates.itinerary = itinerary;
       updates.updated_at = new Date().toISOString();
 
-      let query = supabase.from("trips").update(updates).eq("id", id);
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
+      let updatedTrip = null;
+
+      try {
+        let query = supabase.from("trips").update(updates).eq("id", id);
+        if (userEmail) {
+          query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+        } else {
+          query = query.eq("user_id", userId);
+        }
+        const { data: trip, error } = await query.select().maybeSingle();
+        if (!error && trip) {
+          updatedTrip = { ...trip, _id: String(trip.id), id: String(trip.id) };
+        }
+      } catch (err) { }
+
+      if (!updatedTrip) {
+        try {
+          await connectToDatabase();
+          const rawDb = mongoose.connection?.db;
+          if (rawDb) {
+            const mongoUpdates = { ...updates, updatedAt: new Date() };
+            delete mongoUpdates.updated_at;
+            let filter = { $or: [{ userId }, { userEmail }] };
+            try {
+              filter._id = new mongoose.Types.ObjectId(id);
+            } catch (e) {
+              filter.id = id;
+            }
+            await rawDb.collection("trips").updateOne(filter, { $set: mongoUpdates });
+            updatedTrip = { _id: id, id, ...updates };
+          }
+        } catch (err) { }
       }
 
-      const { data: trip, error } = await query.select().maybeSingle();
-
-      if (error) {
-        console.error("Supabase PUT trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to update trip in Supabase" });
-      }
-
-      if (!trip) {
+      if (!updatedTrip) {
         return res.status(404).json({ error: "Trip not found or unauthorized." });
       }
 
-      const mappedTrip = {
-        ...trip,
-        _id: trip.id,
-        id: trip.id,
-      };
-      return res.status(200).json({ success: true, trip: mappedTrip });
+      return res.status(200).json({ success: true, trip: updatedTrip });
     }
 
-    // 4. Delete Trip from Supabase
+    // 4. Delete Trip
     if (req.method === "DELETE") {
       const id = req.query.id || req.body.id;
 
@@ -173,21 +268,39 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing trip ID" });
       }
 
-      let query = supabase.from("trips").delete().eq("id", id);
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
-      }
+      let deleted = false;
 
-      const { data, error } = await query.select();
+      try {
+        let query = supabase.from("trips").delete().eq("id", id);
+        if (userEmail) {
+          query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
+        } else {
+          query = query.eq("user_id", userId);
+        }
+        const { data, error } = await query.select();
+        if (!error && data && data.length > 0) {
+          deleted = true;
+        }
+      } catch (err) { }
 
-      if (error) {
-        console.error("Supabase DELETE trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to delete trip from Supabase" });
-      }
+      try {
+        await connectToDatabase();
+        const rawDb = mongoose.connection?.db;
+        if (rawDb) {
+          let filter = { $or: [{ userId }, { userEmail }] };
+          try {
+            filter._id = new mongoose.Types.ObjectId(id);
+          } catch (e) {
+            filter.id = id;
+          }
+          const delRes = await rawDb.collection("trips").deleteOne(filter);
+          if (delRes.deletedCount > 0) {
+            deleted = true;
+          }
+        }
+      } catch (err) { }
 
-      if (!data || data.length === 0) {
+      if (!deleted) {
         return res.status(404).json({ error: "Trip not found or unauthorized." });
       }
 

@@ -14,14 +14,37 @@ const Wishlist = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchWishlist();
-    }
+    if (!user) return;
+    fetchWishlist();
+
     const handleWishlistUpdate = () => {
-      if (user) fetchWishlist();
+      fetchWishlist();
     };
     window.addEventListener("sikkanam:wishlist_updated", handleWishlistUpdate);
-    return () => window.removeEventListener("sikkanam:wishlist_updated", handleWishlistUpdate);
+
+    // Cross-tab real-time sync via BroadcastChannel
+    let broadcast: BroadcastChannel | null = null;
+    try {
+      broadcast = new BroadcastChannel("sikkanam_realtime_sync");
+      broadcast.onmessage = (event) => {
+        if (event.data?.type === "WISHLIST_UPDATED") {
+          fetchWishlist();
+        }
+      };
+    } catch (e) { }
+
+    // Periodic real-time background sync when page is active (every 5 seconds)
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchWishlist();
+      }
+    }, 5000);
+
+    return () => {
+      window.removeEventListener("sikkanam:wishlist_updated", handleWishlistUpdate);
+      if (broadcast) broadcast.close();
+      clearInterval(interval);
+    };
   }, [user]);
 
   const fetchWishlist = async () => {

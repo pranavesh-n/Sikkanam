@@ -8,7 +8,7 @@ if (!JWT_SECRET && process.env.NODE_ENV === "production") {
   console.warn("WARNING: JWT_SECRET environment variable is missing in production!");
 }
 
-const SECRET_KEY = JWT_SECRET || "fallback_development_only_secret_key_sikkanam_2026";
+const SECRET_KEY = JWT_SECRET || crypto.randomBytes(32).toString("hex");
 const COOKIE_NAME = "token";
 
 /**

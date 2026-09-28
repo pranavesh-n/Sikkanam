@@ -34,14 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authReady, setAuthReady] = useState(false);
   const [explicitLogin, setExplicitLogin] = useState<boolean>(() => {
     try {
-      const isStandalone = checkIsRunningStandalone();
-      if (isStandalone) {
-        return (
-          localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" ||
-          sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true"
-        );
-      }
-      return sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+      return (
+        localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" ||
+        sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true"
+      );
     } catch (e) {
       return false;
     }
@@ -246,37 +242,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       const isStandalone = checkIsRunningStandalone();
-      const isExplicitInSession = sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
+      const hasExplicitLogin =
+        localStorage.getItem(EXPLICIT_LOGIN_KEY) === "true" ||
+        sessionStorage.getItem(EXPLICIT_LOGIN_KEY) === "true";
 
       if (firebaseUser) {
-        if (!isStandalone && !isExplicitInSession) {
-          // Regular browser visit without explicit login in this tab session:
-          // Treat as unauthenticated guest in UI so we don't lock with PIN or assume login,
-          // but DO NOT call auth.signOut() so PWA session is not destroyed in IndexedDB.
-          setUser(null);
-          setExplicitLogin(false);
-          setLoading(false);
-          setAuthReady(true);
-        } else {
-          const userData: UserType = {
-            _id: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
-            avatar: firebaseUser.photoURL || undefined,
-          };
+        const userData: UserType = {
+          _id: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "",
+          avatar: firebaseUser.photoURL || undefined,
+        };
 
-          setUser(userData);
-          setExplicitLogin(true);
-          try {
-            sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-            if (isStandalone) {
-              localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
-            }
-            if (!localStorage.getItem(SESSION_STARTED_KEY)) {
-              localStorage.setItem(SESSION_STARTED_KEY, Date.now().toString());
-            }
-          } catch (e) { }
+        setUser(userData);
+        setExplicitLogin(true);
+        try {
+          sessionStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+          localStorage.setItem(EXPLICIT_LOGIN_KEY, "true");
+          if (!localStorage.getItem(SESSION_STARTED_KEY)) {
+            localStorage.setItem(SESSION_STARTED_KEY, Date.now().toString());
+          }
+        } catch (e) { }
 
+        try {
           const idToken = await firebaseUser.getIdToken();
 
           // Automatically sync & renew backend session cookie on app launch
@@ -291,13 +279,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               avatar: firebaseUser.photoURL,
             }),
           }).catch(() => { });
+        } catch (e) { }
 
-          setLoading(false);
-          setAuthReady(true);
-        }
+        setLoading(false);
+        setAuthReady(true);
       } else {
         // If Firebase auth is null, check backend cookie session only if standalone or explicit in session
-        if (isStandalone || isExplicitInSession) {
+        if (isStandalone || hasExplicitLogin) {
           try {
             const res = await fetch("/api/auth/me");
             if (res.ok) {

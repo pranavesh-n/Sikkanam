@@ -101,6 +101,9 @@ const DestinationDetail = () => {
           setIsWishlisted(false);
           toast.success("Removed from wishlist");
           window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
+          try {
+            new BroadcastChannel("sikkanam_realtime_sync").postMessage({ type: "WISHLIST_UPDATED" });
+          } catch (e) { }
         } else {
           toast.error("Failed to remove from wishlist");
         }
@@ -114,6 +117,9 @@ const DestinationDetail = () => {
           setIsWishlisted(true);
           toast.success("Added to wishlist");
           window.dispatchEvent(new CustomEvent("sikkanam:wishlist_updated"));
+          try {
+            new BroadcastChannel("sikkanam_realtime_sync").postMessage({ type: "WISHLIST_UPDATED" });
+          } catch (e) { }
         } else {
           toast.error("Failed to add to wishlist");
         }

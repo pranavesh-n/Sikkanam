@@ -64,7 +64,7 @@ export const serverConfig = {
   supabaseServiceKey: getEnv("SUPABASE_SERVICE_ROLE_KEY", ""),
 
   // JWT
-  jwtSecret: getEnv("JWT_SECRET", "sikkanam_default_jwt_secret_key_2026"),
+  jwtSecret: getEnv("JWT_SECRET", ""),
 
   // Support Contacts
   supportEmail: getEnv("SUPPORT_EMAIL", "sikkanam.customerfeedback@gmail.com"),

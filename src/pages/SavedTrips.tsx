@@ -6,6 +6,7 @@ import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { Bookmark, Trash2, Edit2, ChevronLeft, Calendar, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SavedTripType {
   _id: string;
@@ -27,11 +28,49 @@ const SavedTrips = () => {
   const [editName, setEditName] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-
   useEffect(() => {
-    if (user) {
-      fetchTrips();
-    }
+    if (!user) return;
+    fetchTrips();
+
+    // 1. Supabase Realtime Postgres Changes Subscription
+    const channel = supabase
+      .channel("trips-realtime-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "trips" },
+        () => {
+          fetchTrips();
+        }
+      )
+      .subscribe();
+
+    // 2. Cross-tab real-time sync via BroadcastChannel
+    let broadcast: BroadcastChannel | null = null;
+    try {
+      broadcast = new BroadcastChannel("sikkanam_realtime_sync");
+      broadcast.onmessage = (event) => {
+        if (event.data?.type === "TRIPS_UPDATED") {
+          fetchTrips();
+        }
+      };
+    } catch (e) { }
+
+    // 3. Periodic real-time background sync when page is active (every 5 seconds)
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchTrips();
+      }
+    }, 5000);
+
+    const handleWindowUpdate = () => fetchTrips();
+    window.addEventListener("sikkanam:trips_updated", handleWindowUpdate);
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (broadcast) broadcast.close();
+      clearInterval(interval);
+      window.removeEventListener("sikkanam:trips_updated", handleWindowUpdate);
+    };
   }, [user]);
 
   const fetchTrips = async () => {
@@ -63,6 +102,10 @@ const SavedTrips = () => {
           setSelectedTrip({ ...selectedTrip, name: editName });
         }
         setEditingId(null);
+        window.dispatchEvent(new CustomEvent("sikkanam:trips_updated"));
+        try {
+          new BroadcastChannel("sikkanam_realtime_sync").postMessage({ type: "TRIPS_UPDATED" });
+        } catch (e) { }
       } else {
         toast.error("Failed to rename trip");
       }
@@ -83,6 +126,10 @@ const SavedTrips = () => {
         if (selectedTrip?._id === id) {
           setSelectedTrip(null);
         }
+        window.dispatchEvent(new CustomEvent("sikkanam:trips_updated"));
+        try {
+          new BroadcastChannel("sikkanam_realtime_sync").postMessage({ type: "TRIPS_UPDATED" });
+        } catch (e) { }
       } else {
         toast.error("Failed to delete trip");
       }

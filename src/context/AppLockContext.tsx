@@ -105,57 +105,57 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Real-time synchronization with Cloud Firestore across all device keys (UID & Gmail)
   useEffect(() => {
     if (!authReady || !user || !explicitLogin) return;
-    const keys = getUserKeys(user);
-    if (keys.length === 0) return;
+    const uid = auth.currentUser?.uid || user._id;
+    if (!uid) return;
 
-    const unsubs = keys.map((key) => {
-      const userSettingsRef = doc(db, "usersettings", key);
-      return onSnapshot(
-        userSettingsRef,
-        (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (typeof data.appLockEnabled === "boolean") {
-              setIsLockEnabled(data.appLockEnabled);
-              localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
-              if (data.appLockPinHash) {
-                localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
-              }
-              if (data.appLockEnabled) {
-                const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
-                if (!isUnlockedSession) {
-                  setIsLocked(true);
-                }
-              } else {
-                setIsLocked(false);
-                sessionStorage.removeItem("sikkanam_applock_unlocked_session");
-              }
+    const primaryRef = doc(db, "usersettings", String(uid).replace(/[.#$/[\]]/g, "_"));
+    const unsub = onSnapshot(
+      primaryRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (typeof data.appLockEnabled === "boolean") {
+            setIsLockEnabled(data.appLockEnabled);
+            localStorage.setItem(LOCAL_STORAGE_ENABLED, data.appLockEnabled ? "true" : "false");
+            if (data.appLockPinHash) {
+              localStorage.setItem(LOCAL_STORAGE_PIN, data.appLockPinHash);
             }
-          } else {
-            // Check local fallback
-            const localEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
-            const localPin = localStorage.getItem(LOCAL_STORAGE_PIN);
-            if (localEnabled && localPin) {
-              setDoc(
-                userSettingsRef,
-                {
-                  appLockEnabled: true,
-                  appLockPinHash: localPin,
-                  updatedAt: new Date().toISOString(),
-                },
-                { merge: true }
-              ).catch((err) => console.warn("Cloud Firestore initial sync error:", err));
-              setIsLockEnabled(true);
+            if (data.appLockEnabled) {
+              const isUnlockedSession = sessionStorage.getItem("sikkanam_applock_unlocked_session") === "true";
+              if (!isUnlockedSession) {
+                setIsLocked(true);
+              }
+            } else {
+              setIsLocked(false);
+              sessionStorage.removeItem("sikkanam_applock_unlocked_session");
             }
           }
-        },
-        (error) => {
-          console.warn("Cloud Firestore sync error:", error);
+        } else {
+          // Check local fallback to seed cloud if missing
+          const localEnabled = localStorage.getItem(LOCAL_STORAGE_ENABLED) === "true";
+          const localPin = localStorage.getItem(LOCAL_STORAGE_PIN);
+          if (localEnabled && localPin) {
+            setDoc(
+              primaryRef,
+              {
+                userId: uid,
+                email: user.email || "",
+                appLockEnabled: true,
+                appLockPinHash: localPin,
+                updatedAt: new Date().toISOString(),
+              },
+              { merge: true }
+            ).catch((err) => console.warn("Cloud Firestore initial sync error:", err));
+            setIsLockEnabled(true);
+          }
         }
-      );
-    });
+      },
+      (error) => {
+        console.warn("Cloud Firestore sync error:", error);
+      }
+    );
 
-    return () => unsubs.forEach((unsub) => unsub());
+    return () => unsub();
   }, [authReady, user, explicitLogin]);
 
   useEffect(() => {
@@ -224,18 +224,37 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLocked(false);
       setFailedAttempts(0);
 
-      // Real-time Cloud Sync to Cloud Firestore across both UID & Gmail keys
-      const keys = getUserKeys(currentUserObj);
-      for (const key of keys) {
-        setDoc(
-          doc(db, "usersettings", key),
+      // Real-time Cloud Sync to Cloud Firestore
+      const anyUser = currentUserObj as any;
+      const uid = auth.currentUser?.uid || anyUser?.uid || anyUser?._id || anyUser?.id;
+      if (uid) {
+        await setDoc(
+          doc(db, "usersettings", String(uid).replace(/[.#$/[\]]/g, "_")),
           {
+            userId: uid,
+            email: currentUserObj.email || "",
             appLockEnabled: true,
             appLockPinHash: hashed,
             updatedAt: new Date().toISOString(),
           },
           { merge: true }
         ).catch((err) => console.warn("Cloud Firestore write error:", err));
+      }
+
+      // Secondary write to email key if permitted
+      const email = currentUserObj.email;
+      if (email) {
+        setDoc(
+          doc(db, "usersettings", String(email).replace(/[.#$/[\]]/g, "_")),
+          {
+            userId: uid,
+            email,
+            appLockEnabled: true,
+            appLockPinHash: hashed,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch(() => {});
       }
 
       toast.success("App Lock enabled successfully!");
@@ -275,10 +294,11 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
-      const keys = getUserKeys(currentUserObj);
-      for (const key of keys) {
+      const anyUser = currentUserObj as any;
+      const uid = auth.currentUser?.uid || anyUser?.uid || anyUser?._id || anyUser?.id;
+      if (uid) {
         setDoc(
-          doc(db, "usersettings", key),
+          doc(db, "usersettings", String(uid).replace(/[.#$/[\]]/g, "_")),
           {
             appLockEnabled: false,
             appLockPinHash: "",
@@ -286,6 +306,19 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
           },
           { merge: true }
         ).catch((err) => console.warn("Cloud Firestore delete error:", err));
+      }
+
+      const email = currentUserObj.email;
+      if (email) {
+        setDoc(
+          doc(db, "usersettings", String(email).replace(/[.#$/[\]]/g, "_")),
+          {
+            appLockEnabled: false,
+            appLockPinHash: "",
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        ).catch(() => {});
       }
     }
 

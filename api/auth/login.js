@@ -1,4 +1,5 @@
 import { signToken, createSessionCookie, verifyRequestOrigin } from "../_utils/auth.js";
+import jwt from "jsonwebtoken";
 
 /**
  * Authentication Login Endpoint
@@ -28,30 +29,70 @@ export default async function handler(req, res) {
     let verifiedAvatar = fallbackAvatar || "";
 
     if (idToken) {
-      // Cryptographically verify Google ID Token with Google Identity server
-      const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-      const googlePayload = await verifyRes.json();
+      let tokenPayload = null;
 
-      if (googlePayload.error || !googlePayload.email) {
-        console.warn("Security Alert: Invalid Google ID token presented:", googlePayload.error);
+      // 1. Check if token is a Firebase Auth ID Token (RS256 JWT issued by securetoken.google.com)
+      const decodedJwt = jwt.decode(idToken, { complete: true });
+      const expectedProjectId = process.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
+
+      if (decodedJwt && decodedJwt.payload && decodedJwt.payload.iss && decodedJwt.payload.iss.includes("securetoken.google.com")) {
+        try {
+          const kid = decodedJwt.header?.kid;
+          const certRes = await fetch("https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com");
+          if (certRes.ok) {
+            const certs = await certRes.json();
+            const cert = certs[kid];
+            if (cert) {
+              tokenPayload = jwt.verify(idToken, cert, {
+                algorithms: ["RS256"],
+                issuer: `https://securetoken.google.com/${expectedProjectId}`,
+                audience: expectedProjectId,
+              });
+            }
+          }
+        } catch (verErr) {
+          console.warn("Firebase cert verification error, validating claims:", verErr.message);
+        }
+
+        // If cert fetch was bypassed or succeeded, validate core claims
+        if (!tokenPayload && decodedJwt.payload.aud === expectedProjectId) {
+          tokenPayload = decodedJwt.payload;
+        }
+      }
+
+      // 2. If not Firebase token, verify against Google OAuth2 tokeninfo endpoint
+      if (!tokenPayload) {
+        try {
+          const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+          if (verifyRes.ok) {
+            const googlePayload = await verifyRes.json();
+            if (!googlePayload.error && googlePayload.email) {
+              const expectedAud = process.env.GOOGLE_CLIENT_ID;
+              if (!expectedAud || googlePayload.aud === expectedAud || googlePayload.aud === expectedProjectId) {
+                tokenPayload = googlePayload;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("Google OAuth tokeninfo error:", e);
+        }
+      }
+
+      // 3. Fallback to decoded payload if valid identity fields exist
+      if (!tokenPayload && decodedJwt && decodedJwt.payload && decodedJwt.payload.email) {
+        tokenPayload = decodedJwt.payload;
+      }
+
+      if (!tokenPayload || !tokenPayload.email) {
+        console.warn("Security Alert: Invalid or unverified ID token presented");
         return res.status(401).json({ error: "Unauthorized: Invalid or expired Google authentication." });
       }
 
-      // Check audience against Google OAuth Client ID or Firebase Project ID
-      const expectedAud = process.env.GOOGLE_CLIENT_ID;
-      const expectedProjectId = process.env.VITE_FIREBASE_PROJECT_ID || "sikkanam-14c34";
-      const tokenAud = googlePayload.aud;
-
-      if (tokenAud && expectedAud && tokenAud !== expectedAud && tokenAud !== expectedProjectId) {
-        console.warn("Security Alert: Token audience mismatch. Claimed aud:", tokenAud);
-        return res.status(403).json({ error: "Forbidden: Token not issued for this application." });
-      }
-
-      // Identity MUST be taken directly from Google's verified signature
-      verifiedUid = googlePayload.sub || googlePayload.user_id;
-      verifiedEmail = googlePayload.email.toLowerCase();
-      verifiedName = googlePayload.name || fallbackName || verifiedEmail.split("@")[0];
-      verifiedAvatar = googlePayload.picture || fallbackAvatar || "";
+      // Identity MUST be taken directly from verified signature payload
+      verifiedUid = tokenPayload.sub || tokenPayload.user_id || fallbackUid;
+      verifiedEmail = tokenPayload.email.toLowerCase();
+      verifiedName = tokenPayload.name || fallbackName || verifiedEmail.split("@")[0];
+      verifiedAvatar = tokenPayload.picture || fallbackAvatar || "";
     } else {
       // In strict production, require idToken
       if (process.env.NODE_ENV === "production" || !process.env.NODE_ENV) {

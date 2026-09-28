@@ -461,6 +461,10 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
       if (res.ok) {
         setIsSaved(true);
         toast.success("Trip saved successfully to your Profile!");
+        window.dispatchEvent(new CustomEvent("sikkanam:trips_updated"));
+        try {
+          new BroadcastChannel("sikkanam_realtime_sync").postMessage({ type: "TRIPS_UPDATED" });
+        } catch (e) { }
       } else {
         const data = await res.json().catch(() => ({}));
         toast.error(data.error || "Failed to save trip");
