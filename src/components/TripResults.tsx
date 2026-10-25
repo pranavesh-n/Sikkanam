@@ -506,14 +506,14 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
     let name = rawName;
     if (parts.length > 1) {
       const lastPart = parts[parts.length - 1];
-      if (/[^\x00-\x7F]/g.test(lastPart)) {
+      if (/[^\u0020-\u007E]/.test(lastPart)) {
         emoji = lastPart;
         name = parts.slice(0, -1).join(" ");
       }
     }
 
     const matched = ATTRACTION_INFO[name];
-    let desc = matched?.desc || `A beautiful point of interest to explore in ${destName}.`;
+    const desc = matched?.desc || `A beautiful point of interest to explore in ${destName}.`;
     let category = matched?.category || "Sightseeing";
 
     if (!matched) {

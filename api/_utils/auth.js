@@ -56,18 +56,14 @@ export function verifyToken(token, req = null) {
  * Origin and Referer verification for CSRF mitigation
  */
 export function verifyRequestOrigin(req) {
-  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+  if (["GET", "HEAD", "OPTIONS"].includes(req?.method)) {
     return true;
   }
 
-  // Development bypass (e.g. localhost, 127.0.0.1, non-production)
-  if (process.env.NODE_ENV !== "production") {
-    return true;
-  }
-
-  const host = req.headers.host;
-  const origin = req.headers.origin;
-  const referer = req.headers.referer;
+  const headers = req?.headers || {};
+  const host = headers.host || headers.Host;
+  const origin = headers.origin || headers.Origin;
+  const referer = headers.referer || headers.Referer || headers.referrer;
 
   if (origin) {
     try {
