@@ -136,3 +136,4 @@ desktop.ini
 scratch/
 *.map
 report.*.json
+graphify-out/
