@@ -28,6 +28,30 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* SWB (Sell With Boost) Badge */}
+        <div className="flex items-center justify-center shrink-0">
+          <a
+            href="https://sellwithboost.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-lg"
+            aria-label="Listed on Sell With Boost"
+          >
+            <img
+              src="https://sellwithboost.com/badge/listing.svg"
+              alt="Listed on Sell With boost"
+              className="h-8 md:h-9 w-auto dark:hidden"
+              loading="lazy"
+            />
+            <img
+              src="https://sellwithboost.com/badge/listing-dark.svg"
+              alt="Listed on Sell With boost"
+              className="h-8 md:h-9 w-auto hidden dark:block"
+              loading="lazy"
+            />
+          </a>
+        </div>
+
         {/* Right Side Links & Copyright */}
         <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-5 gap-y-2 text-muted-foreground font-medium text-[11px] md:text-xs">
           <button
