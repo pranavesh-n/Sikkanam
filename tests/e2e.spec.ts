@@ -32,7 +32,7 @@ test.describe("Full Sikkanam React Application & E2E Verification", () => {
     await page.goto("/destination/coimbatore");
 
     // Title and destination content
-    await expect(page.getByRole("heading", { name: "Coimbatore" })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("heading", { name: "Coimbatore", exact: true })).toBeVisible({ timeout: 10000 });
 
     // Weather widget and Rain risk
     await expect(page.getByText(/Weather Forecast|Rain Risk|Live Weather/i).first()).toBeVisible({ timeout: 10000 });
@@ -72,28 +72,40 @@ test.describe("Full Sikkanam React Application & E2E Verification", () => {
     expect(pageErrors).toHaveLength(0);
   });
 
-  test("4. Trip Planner (/plan) generates realistic plan with dynamic budgets & hotel stays", async ({ page }) => {
+  test("4. Trip Planner (/plan) defaults to empty source and 'Help Me Choose', validates source, and generates plan", async ({ page }) => {
     const pageErrors: string[] = [];
     page.on("pageerror", (err) => pageErrors.push(err.message));
 
     await page.goto("/plan");
 
-    // Form should load with default presets (Chennai -> Ooty)
     await expect(page.getByRole("heading", { name: /Plan Your Trip/i })).toBeVisible({ timeout: 10000 });
 
-    // Click "Generate Travel Plan"
+    // 1. Verify Destination defaults to "Help Me Choose!"
+    await expect(page.getByRole("button", { name: /Help Me Choose/i })).toBeVisible();
+
+    // 2. Click "Generate Travel Plan" without choosing departure city -> asserts validation error
     const generateBtn = page.getByRole("button", { name: /Generate.*Plan/i }).first();
     await expect(generateBtn).toBeVisible();
     await generateBtn.click();
+    await expect(page.locator("p.text-destructive")).toHaveText(/Please select source place/i);
 
-    // Verify generated trip plan results appear
+    // 3. Select departure city "Chennai"
+    const sourceBtn = page.getByRole("button", { name: /Please select source place/i }).first();
+    await sourceBtn.click();
+    await page.getByText("Chennai").first().click();
+
+    // 4. Select destination "Ooty"
+    const destBtn = page.getByRole("button", { name: /Help Me Choose/i }).first();
+    await destBtn.click();
+    await page.getByText("Ooty").first().click();
+
+    // 5. Generate plan and verify results appear
+    await generateBtn.click();
+
     const resultElement = page.locator("div").filter({ hasText: /Trip Overview|Day 1|Budget Breakdown|Estimated Cost/i }).first();
     await expect(resultElement).toBeVisible({ timeout: 20000 });
 
-    // Check that schedule tabs or itinerary cards exist
     await expect(page.getByText(/Day 1/i).first()).toBeVisible();
-
-    // Check that budget numbers are populated and non-zero
     const budgetCard = page.locator("div").filter({ hasText: /₹/ }).first();
     await expect(budgetCard).toBeVisible();
 

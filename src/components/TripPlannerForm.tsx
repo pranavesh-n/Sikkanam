@@ -234,8 +234,8 @@ interface TripPlannerFormProps {
 }
 
 const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate, initialInput, isGenerating = false }, ref) => {
-  const [source, setSource] = useState(initialInput?.source || "chennai");
-  const [destination, setDestination] = useState(initialInput?.destination || "ooty");
+  const [source, setSource] = useState(initialInput?.source || "");
+  const [destination, setDestination] = useState(initialInput?.destination || "");
   const [days, setDays] = useState(initialInput?.days || 2);
   const [travellers, setTravellers] = useState(initialInput?.travellers || 2);
   const [style, setStyle] = useState<TravelStyle>(initialInput?.style || "standard");
@@ -281,7 +281,7 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!source) {
-      setError("Please select a source");
+      setError("Please select source place");
       return;
     }
     if (destination !== "" && source === destination) {
@@ -321,7 +321,7 @@ const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGe
                   setDestination("");
                 }
               }}
-              placeholder="Select departure city / hub"
+              placeholder="Please select source place"
               destinations={sortedDestinations.filter((d) => !destination || d.id !== destination)}
             />
 
