@@ -158,7 +158,8 @@ export default function Maps() {
 
   // Auto-fetch geolocation on component mount if no source is set
   useEffect(() => {
-    if (!source && navigator.geolocation) {
+    if (source) return;
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
@@ -172,7 +173,7 @@ export default function Maps() {
         }
       );
     }
-  }, []);
+  }, [source]);
 
   // Perform geocode for a given text query (returns list of matches)
   const performGeocode = async (query: string): Promise<LocationInfo[]> => {

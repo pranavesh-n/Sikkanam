@@ -52,6 +52,10 @@ export const serverConfig = {
     .map(m => m.trim())
     .filter(Boolean),
 
+  // Firecrawl Real-Time Web Search
+  firecrawlApiKey: getEnv("FIRECRAWL_API_KEY", "fc-4a91679410ab4f89a3ac30da22d569dd"),
+  firecrawlApiUrl: getEnv("FIRECRAWL_API_URL", "https://api.firecrawl.dev"),
+
   // ScrapeGraph & Web Grounding
   scrapegraphMcpUrl: getEnv("SCRAPEGRAPH_MCP_URL", ""),
   scrapegraphApiKey: getEnv("SCRAPEGRAPH_API_KEY", "") || getEnv("MCPMARKET_TOKEN", ""),

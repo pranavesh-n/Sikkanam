@@ -11,6 +11,7 @@ import { CATEGORY_PRICING } from "@/data/categoryPricing";
 import { roundFriendly } from "@/lib/utils";
 import { getAttractionDetail, type AttractionDetail } from "@/data/activityDatabase";
 import { FOOD_PROFILES, getFoodCostIndex, type MealProfile } from "@/data/foodProfiles";
+import { TARIFF_CONFIG, getDynamicHotelRates } from "@/data/marketRates";
 import {
   checkDirectRailConnectivity,
   REGIONAL_HUB_FALLBACKS,
@@ -217,18 +218,11 @@ type GatewayConfig = {
   note: string;
 };
 function getHotelMinPrice(hotel: Hotel) {
-  switch (hotel.priceCategory) {
-    case "budget":
-      return 800;
-    case "standard":
-      return 1500;
-    case "comfort":
-      return 3000;
-    case "premium":
-      return 5500;
-    default:
-      return 1500;
+  if (typeof hotel.pricePerNight === "number" && hotel.pricePerNight > 0) {
+    return Math.round(hotel.pricePerNight * 0.9);
   }
+  const dynamic = getDynamicHotelRates((hotel.priceCategory as any) || "standard");
+  return dynamic.min;
 }
 
 export const USE_BACKEND_API = false;
@@ -595,14 +589,15 @@ export async function generateTripPlan(input: TripInput): Promise<TripPlan> {
   const targetHotelBudget = nights > 0 ? targets.hotel : 0;
   const rooms = nights > 0 ? Math.ceil(input.travellers / getRoomCapacity(input.style)) : 0;
   const hotelPerNight = nights > 0 && rooms > 0 ? roundCurrency(targetHotelBudget / nights / rooms) : 0;
-  const hotels =
-   nights > 0
-     ? await getNearbyHotels(
-         dest.id,
-         dest.lat,
-         dest.lng
-       )
-     : [];
+  let hotels: Hotel[] = [];
+  if (nights > 0) {
+    try {
+      hotels = await getNearbyHotels(dest.id, dest.lat, dest.lng);
+    } catch (err) {
+      console.warn("Failed to fetch hotels, using dynamic fallback:", err);
+      hotels = [];
+    }
+  }
 
   const hotelEstimate = nights > 0 ? targetHotelBudget : 0;
 
@@ -1200,18 +1195,18 @@ const DESTINATION_GATEWAYS: Partial<Record<string, GatewayConfig>> = {
 };
 
 const FOOD_COST_PER_DAY: Record<TravelStyle, number> = {
-  budget: 250,
-  standard: 350,
-  comfort: 550,
+  budget: TARIFF_CONFIG.foodPerDay.budget,
+  standard: TARIFF_CONFIG.foodPerDay.standard,
+  comfort: TARIFF_CONFIG.foodPerDay.comfort,
 };
 
 const LOCAL_COST_PER_DAY_BY_CATEGORY: Record<TNDestination["category"], number> = {
-  hill: 220,
-  beach: 170,
-  temple: 140,
-  city: 160,
-  heritage: 150,
-  wildlife: 240,
+  hill: TARIFF_CONFIG.localDailyByCategory.hill,
+  beach: TARIFF_CONFIG.localDailyByCategory.beach,
+  temple: TARIFF_CONFIG.localDailyByCategory.temple,
+  city: TARIFF_CONFIG.localDailyByCategory.city,
+  heritage: TARIFF_CONFIG.localDailyByCategory.heritage,
+  wildlife: TARIFF_CONFIG.localDailyByCategory.wildlife,
 };
 
 function roundCurrency(amount: number) {

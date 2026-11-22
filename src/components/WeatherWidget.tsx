@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Sun,
   CloudRain,
@@ -81,7 +81,7 @@ export const WeatherWidget = ({
     activeLng
   );
 
-  const loadWeather = async (targetLat = activeLat, targetLng = activeLng) => {
+  const loadWeather = useCallback(async (targetLat = activeLat, targetLng = activeLng) => {
     try {
       setLoading(true);
       setError(null);
@@ -93,14 +93,14 @@ export const WeatherWidget = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeLat, activeLng]);
 
   useEffect(() => {
     setActiveLat(lat);
     setActiveLng(lng);
     setActiveLocationName(destinationName);
     loadWeather(lat, lng);
-  }, [lat, lng, destinationName]);
+  }, [lat, lng, destinationName, loadWeather]);
 
   const handleSelectSubLocation = (subLoc: SubLocation) => {
     setActiveLat(subLoc.lat);

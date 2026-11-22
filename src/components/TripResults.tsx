@@ -363,8 +363,9 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
 
   // Sync Wishlist status from MongoDB & listen to real-time events across Sikkanam
   useEffect(() => {
-    if (!plan.destination) return;
-    const destId = plan.destination.id;
+    const destination = plan.destination;
+    if (!destination) return;
+    const destId = destination.id;
 
     const checkWishlistStatus = async () => {
       if (!user) {
@@ -386,7 +387,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
     checkWishlistStatus();
     window.addEventListener("sikkanam:wishlist_updated", checkWishlistStatus);
     return () => window.removeEventListener("sikkanam:wishlist_updated", checkWishlistStatus);
-  }, [user, plan.destination?.id]);
+  }, [user, plan.destination]);
 
   const handleToggleWishlist = async () => {
     if (!user) {

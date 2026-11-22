@@ -440,9 +440,45 @@ export async function queryScrapeGraphLiveIntelligence(destinationName, userQuer
   try {
     const apiKey = getEnv("SCRAPEGRAPH_API_KEY");
     const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
+    const firecrawlKey = getEnv("FIRECRAWL_API_KEY") || "fc-4a91679410ab4f89a3ac30da22d569dd";
     const fetchPromises = [];
 
-    // Primary: Direct ScrapeGraph AI v2 API if API key is available
+    // Primary: Firecrawl Real-Time Web Search
+    if (firecrawlKey && !firecrawlKey.includes("YOUR_")) {
+      fetchPromises.push(
+        fetch("https://api.firecrawl.dev/v1/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${firecrawlKey}`,
+          },
+          body: JSON.stringify({
+            query: `${destinationName} Tamil Nadu TTDC room tariffs TNSTC bus fares entry tickets 2026`,
+            limit: 3,
+          }),
+        })
+          .then(async (res) => {
+            if (res.ok) {
+              const json = await res.json();
+              const items = json?.data || json?.web || [];
+              const snippets = items
+                .slice(0, 3)
+                .map((it) => (it.title ? `${it.title}: ${it.description || ""}` : it.description || ""))
+                .filter((s) => s.length > 15);
+              if (snippets.length > 0) {
+                webSearchResult = {
+                  query: destinationName,
+                  snippets,
+                  source: "Firecrawl Real-Time Web Intelligence",
+                };
+              }
+            }
+          })
+          .catch(() => {})
+      );
+    }
+
+    // Secondary: Direct ScrapeGraph AI v2 API if API key is available
     if (apiKey && !apiKey.includes("YOUR_")) {
       fetchPromises.push(
         queryScrapeGraphDirectApi(destinationName).then(r => { mcpResult = r; }).catch(() => {})

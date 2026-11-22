@@ -234,8 +234,8 @@ interface TripPlannerFormProps {
 }
 
 const TripPlannerForm = forwardRef<HTMLDivElement, TripPlannerFormProps>(({ onGenerate, initialInput, isGenerating = false }, ref) => {
-  const [source, setSource] = useState(initialInput?.source || "");
-  const [destination, setDestination] = useState(initialInput?.destination || "");
+  const [source, setSource] = useState(initialInput?.source || "chennai");
+  const [destination, setDestination] = useState(initialInput?.destination || "ooty");
   const [days, setDays] = useState(initialInput?.days || 2);
   const [travellers, setTravellers] = useState(initialInput?.travellers || 2);
   const [style, setStyle] = useState<TravelStyle>(initialInput?.style || "standard");

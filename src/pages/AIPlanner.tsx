@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import { Sparkles, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,85 +18,109 @@ const CHAT_URL = "/api/chat";
 
 function cleanAssistantContent(text: string): string {
   if (!text || typeof text !== "string") return "";
-  if (!text.includes("|")) return text;
 
-  const lines = text.split("\n");
-  const outputLines: string[] = [];
-  let inTable = false;
-  let tableHeaders: string[] = [];
-  let tableRows: string[][] = [];
+  let out = text;
 
-  const flushTable = () => {
-    if (tableHeaders.length > 0 && tableRows.length > 0) {
-      tableRows.forEach((row) => {
-        const firstCol = row[0] || "";
-        const secondCol = row[1] || "";
-        const header0 = tableHeaders[0] || "Item";
+  // Convert any markdown tables with pipe delimiters into clean plain text lines
+  if (out.includes("|")) {
+    const lines = out.split("\n");
+    const outputLines: string[] = [];
+    let inTable = false;
+    let tableHeaders: string[] = [];
+    let tableRows: string[][] = [];
 
-        if (header0.toLowerCase().includes("day") && firstCol) {
-          const title = secondCol ? `${header0} ${firstCol}: ${secondCol}` : `${header0} ${firstCol}`;
-          outputLines.push(`\n• **${title}**`);
-          for (let c = 2; c < row.length; c++) {
-            if (row[c] && tableHeaders[c]) {
-              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
+    const flushTable = () => {
+      if (tableHeaders.length > 0 && tableRows.length > 0) {
+        tableRows.forEach((row) => {
+          const firstCol = row[0] || "";
+          const secondCol = row[1] || "";
+          const header0 = tableHeaders[0] || "Item";
+
+          if (header0.toLowerCase().includes("day") && firstCol) {
+            const title = secondCol ? `${header0} ${firstCol}: ${secondCol}` : `${header0} ${firstCol}`;
+            outputLines.push(`\n• ${title}`);
+            for (let c = 2; c < row.length; c++) {
+              if (row[c] && tableHeaders[c]) {
+                outputLines.push(`  - ${tableHeaders[c]}: ${row[c]}`);
+              }
+            }
+          } else if (header0.toLowerCase().includes("time") && firstCol) {
+            const act = secondCol ? ` - ${secondCol}` : "";
+            outputLines.push(`\n• ⏰ ${firstCol}${act}`);
+            for (let c = 2; c < row.length; c++) {
+              if (row[c] && tableHeaders[c]) {
+                outputLines.push(`  - ${tableHeaders[c]}: ${row[c]}`);
+              }
+            }
+          } else {
+            const headline = firstCol ? `• ${firstCol}` : "•";
+            outputLines.push(`\n${headline}`);
+            for (let c = 1; c < row.length; c++) {
+              if (row[c] && tableHeaders[c]) {
+                outputLines.push(`  - ${tableHeaders[c]}: ${row[c]}`);
+              }
             }
           }
-        } else if (header0.toLowerCase().includes("time") && firstCol) {
-          const act = secondCol ? ` - ${secondCol}` : "";
-          outputLines.push(`\n• ⏰ **${firstCol}${act}**`);
-          for (let c = 2; c < row.length; c++) {
-            if (row[c] && tableHeaders[c]) {
-              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
-            }
-          }
-        } else {
-          const headline = firstCol ? `• **${firstCol}**` : "•";
-          outputLines.push(`\n${headline}`);
-          for (let c = 1; c < row.length; c++) {
-            if (row[c] && tableHeaders[c]) {
-              outputLines.push(`  - **${tableHeaders[c]}**: ${row[c]}`);
-            }
-          }
+        });
+        outputLines.push("");
+      }
+      tableHeaders = [];
+      tableRows = [];
+      inTable = false;
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("|") && line.endsWith("|")) {
+        const cells = line
+          .slice(1, -1)
+          .split("|")
+          .map((c) => c.trim());
+        const isSeparator = cells.every((c) => /^:?-+:?$/.test(c) || c === "");
+        if (isSeparator) {
+          inTable = true;
+          continue;
         }
-      });
-      outputLines.push("");
-    }
-    tableHeaders = [];
-    tableRows = [];
-    inTable = false;
-  };
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (line.startsWith("|") && line.endsWith("|")) {
-      const cells = line
-        .slice(1, -1)
-        .split("|")
-        .map((c) => c.trim());
-      const isSeparator = cells.every((c) => /^:?-+:?$/.test(c) || c === "");
-      if (isSeparator) {
-        inTable = true;
-        continue;
-      }
-
-      if (!inTable && tableHeaders.length === 0) {
-        tableHeaders = cells;
+        if (!inTable && tableHeaders.length === 0) {
+          tableHeaders = cells;
+        } else {
+          tableRows.push(cells);
+        }
       } else {
-        tableRows.push(cells);
+        if (inTable || tableHeaders.length > 0) {
+          flushTable();
+        }
+        outputLines.push(lines[i]);
       }
-    } else {
-      if (inTable || tableHeaders.length > 0) {
-        flushTable();
-      }
-      outputLines.push(lines[i]);
     }
+
+    if (inTable || tableHeaders.length > 0) {
+      flushTable();
+    }
+
+    out = outputLines.join("\n");
   }
 
-  if (inTable || tableHeaders.length > 0) {
-    flushTable();
-  }
+  // Strip all markdown symbols to guarantee 100% pure plain text
+  out = out.replace(/```[a-zA-Z0-9_-]*\n([\s\S]*?)```/g, "$1");
+  out = out.replace(/```([\s\S]*?)```/g, "$1");
+  out = out.replace(/`([^`\n]+)`/g, "$1");
+  out = out.replace(/^[ \t]*#{1,6}[ \t]+/gm, "");
+  out = out.replace(/\*\*([^*]+)\*\*/g, "$1");
+  out = out.replace(/__([^_]+)__/g, "$1");
+  out = out.replace(/\*([^*\n]+)\*/g, "$1");
+  out = out.replace(/(^|[^\w])_([^_\n]+)_([^\w]|$)/g, "$1$2$3");
+  out = out.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+  out = out.replace(/<[^>]+>/g, "");
+  out = out.replace(/^[ \t]*[-*][ \t]+/gm, "• ");
+  out = out.replace(/(^|\s)\*{1,2}(\s|$)/g, "$1$2");
+  out = out.replace(/\[\s*⚡?\s*(Live\s+)?Verified(\s+Badge)?\s*\]/gi, "");
+  out = out.replace(/【\s*⚡?\s*(Live\s+)?Verified(\s+Badge)?\s*】/gi, "");
+  out = out.replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ");
+  out = out.replace(/\n{3,}/g, "\n\n");
 
-  return outputLines.join("\n");
+  return out.trim();
 }
 
 const AIPlanner = () => {
@@ -107,6 +130,8 @@ const AIPlanner = () => {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentInitial = useRef(false);
+  const messagesRef = useRef<Msg[]>([]);
+  messagesRef.current = messages;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -115,17 +140,7 @@ const AIPlanner = () => {
     });
   }, [messages, loading]);
 
-  // Auto-send if navigated with prompt state
-  useEffect(() => {
-    const initialPrompt = (location.state as any)?.prompt;
-
-    if (initialPrompt && !sentInitial.current) {
-      sentInitial.current = true;
-      send(initialPrompt);
-    }
-  }, []);
-
-  const send = async (text: string) => {
+  const send = useCallback(async (text: string) => {
     const trimmed = text.trim();
 
     if (!trimmed || loading) return;
@@ -135,7 +150,7 @@ const AIPlanner = () => {
       content: trimmed,
     };
 
-    const next = [...messages, userMsg];
+    const next = [...messagesRef.current, userMsg];
 
     setMessages(next);
     setInput("");
@@ -206,7 +221,17 @@ const AIPlanner = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading]);
+
+  // Auto-send if navigated with prompt state
+  useEffect(() => {
+    const initialPrompt = (location.state as any)?.prompt;
+
+    if (initialPrompt && !sentInitial.current) {
+      sentInitial.current = true;
+      send(initialPrompt);
+    }
+  }, [location.state, send]);
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-9.5rem)] md:h-[calc(100vh-4.5rem)] px-2 sm:px-4">
@@ -270,30 +295,9 @@ const AIPlanner = () => {
                 }`}
               >
                 {m.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-1.5 prose-headings:my-2 prose-li:my-0.5 prose-strong:text-foreground prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground">
-                    <ReactMarkdown
-                      components={{
-                        h1: ({ children }) => <h1 className="text-base font-bold text-foreground mt-3 mb-1.5 flex items-center gap-1.5">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-sm font-bold text-foreground mt-3 mb-1.5 flex items-center gap-1.5">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-xs sm:text-sm font-bold text-primary mt-2.5 mb-1 tracking-wide">{children}</h3>,
-                        h4: ({ children }) => <h4 className="text-xs font-bold text-foreground mt-2 mb-1">{children}</h4>,
-                        p: ({ children }) => <p className="text-xs sm:text-sm leading-relaxed text-foreground/90 my-1">{children}</p>,
-                        ul: ({ children }) => <ul className="space-y-1 my-1.5 pl-2 list-none">{children}</ul>,
-                        ol: ({ children }) => <ol className="space-y-1 my-1.5 pl-4 list-decimal text-xs sm:text-sm">{children}</ol>,
-                        li: ({ children }) => <li className="text-xs sm:text-sm leading-relaxed text-foreground/90">{children}</li>,
-                        strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                        table: ({ children }) => (
-                          <div className="my-2 overflow-x-auto rounded-xl border border-border bg-card/60 p-1">
-                            <table className="min-w-full text-xs text-left divide-y divide-border">{children}</table>
-                          </div>
-                        ),
-                        th: ({ children }) => <th className="px-2.5 py-1.5 font-bold bg-muted/60 text-foreground">{children}</th>,
-                        td: ({ children }) => <td className="px-2.5 py-1.5 border-t border-border/40 text-foreground/90">{children}</td>,
-                      }}
-                    >
-                      {cleanAssistantContent(m.content)}
-                    </ReactMarkdown>
-                  </div>
+                  <p className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm text-foreground/90 font-normal">
+                    {cleanAssistantContent(m.content)}
+                  </p>
                 ) : (
                   <p className="whitespace-pre-wrap">
                     {m.content}

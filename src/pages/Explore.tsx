@@ -21,10 +21,16 @@ const Explore = () => {
   const [q, setQ] = useState("");
 
   useEffect(() => {
-    if (active === "all") params.delete("cat");
-    else params.set("cat", active);
-    setParams(params, { replace: true });
-  }, [active]);
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (active === "all") next.delete("cat");
+        else next.set("cat", active);
+        return next;
+      },
+      { replace: true }
+    );
+  }, [active, setParams]);
 
   const filtered = useMemo(() => {
     return tnDestinations.filter(d => {

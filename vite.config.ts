@@ -166,4 +166,19 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
+  build: {
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("leaflet")) return "vendor-leaflet";
+            if (id.includes("lucide-react")) return "vendor-lucide";
+            if (id.includes("recharts") || id.includes("d3")) return "vendor-charts";
+            if (id.includes("@radix-ui") || id.includes("cmdk")) return "vendor-ui";
+          }
+        },
+      },
+    },
+  },
 }));

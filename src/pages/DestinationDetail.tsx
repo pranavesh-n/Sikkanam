@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { getDestinationById, categoryLabels } from "@/data/tnDestinations";
 import { Sparkles, MapPin, Train, Bus, Ticket, Cloud, Calendar, ArrowRight, Heart, Route } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,13 +64,7 @@ const DestinationDetail = () => {
   const { user } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  useEffect(() => {
-    if (user && dest) {
-      checkWishlistStatus();
-    }
-  }, [user, dest]);
-
-  const checkWishlistStatus = async () => {
+  const checkWishlistStatus = useCallback(async () => {
     try {
       const res = await fetch("/api/wishlist");
       if (res.ok) {
@@ -81,7 +75,13 @@ const DestinationDetail = () => {
     } catch (err) {
       console.error("Error checking wishlist status:", err);
     }
-  };
+  }, [dest?.id]);
+
+  useEffect(() => {
+    if (user && dest) {
+      checkWishlistStatus();
+    }
+  }, [user, dest, checkWishlistStatus]);
 
   const toggleWishlist = async () => {
     if (!user) {

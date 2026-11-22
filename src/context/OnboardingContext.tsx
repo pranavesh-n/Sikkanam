@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePwaInstall } from "@/hooks/usePwaInstall";
 import { checkIsRunningStandalone } from "@/lib/pwa";
@@ -60,12 +60,26 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [pwaInstallAvailable]);
 
+  const dismissWelcomeAuth = useCallback(() => {
+    try {
+      sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+      localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
+    } catch (e) {}
+
+    const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
+    if (!isPwaInstalled && !pwaDismissedSession) {
+      setStep("INSTALL_PWA");
+    } else {
+      setStep("NONE");
+    }
+  }, [isPwaInstalled]);
+
   // Transition from WELCOME_AUTH when user completes Google Login
   useEffect(() => {
     if (step === "WELCOME_AUTH" && user && explicitLogin) {
       dismissWelcomeAuth();
     }
-  }, [step, user, explicitLogin]);
+  }, [step, user, explicitLogin, dismissWelcomeAuth]);
 
   // Listen for explicit user logout event to prevent modal from flashing
   useEffect(() => {
@@ -150,19 +164,6 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setStep("NONE");
   };
 
-  const dismissWelcomeAuth = () => {
-    try {
-      sessionStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
-      localStorage.setItem(WELCOME_AUTH_SESSION_KEY, "true");
-    } catch (e) {}
-
-    const pwaDismissedSession = sessionStorage.getItem(PWA_DISMISSED_SESSION_KEY) === "true";
-    if (!isPwaInstalled && !pwaDismissedSession) {
-      setStep("INSTALL_PWA");
-    } else {
-      setStep("NONE");
-    }
-  };
 
   const dismissInstallPWA = () => {
     try {
