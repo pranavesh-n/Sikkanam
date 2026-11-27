@@ -1194,7 +1194,7 @@ export default async function handler(req, res) {
     const groundSearchReport = runSikkanamGroundSearch(lastUserMessage, destinations, tourismAssets, params);
 
     // 4b. Live Web Search & Grounding Intelligence (Firecrawl Primary -> ScrapeGraph Fallback)
-    const primaryDestName = matchedDestinations.length > 0 ? matchedDestinations[0].name : (params.destination || "Tamil Nadu");
+    const primaryDestName = matchedDestinations.length > 0 ? matchedDestinations[0].name : (params.destination || "");
     const firecrawlReport = await getChatGroundingContext(primaryDestName, lastUserMessage);
 
     // Hardened, Grounded System Prompt enforcing Pure Plain Text Output (Zero Markdown)
@@ -1239,15 +1239,8 @@ All your responses MUST ALWAYS be plain text. DO NOT use markdown or any other m
 </PLAIN_TEXT_OUTPUT_REQUIREMENTS>
 
 <ACCURACY_AND_GROUNDING_DIRECTIVES>
-1. 99% Market-Accurate & Realistic: All travel itineraries, budgets, and recommendations must reflect true, real-world market conditions in Tamil Nadu:
-   - Budget Stays / Homestays: ₹800 – ₹1,200 per night (double occupancy).
-   - TTDC Hotels: ₹950 – ₹1,400 per night.
-   - Standard Hotels: ₹1,500 – ₹2,500 per night.
-   - State Transport Buses (TNSTC/SETC): Ordinary ₹30 – ₹80, Express/Deluxe ₹150 – ₹450.
-   - IRCTC Trains: 2S Chair Car ₹80 – ₹180, Sleeper ₹140 – ₹420, 3AC ₹600 – ₹1,100.
-   - Authentic Local Food: South Indian breakfast (idli/dosa/vada) ₹40 – ₹80; lunch/dinner meals/thali ₹80 – ₹150; daily food budget ~₹250 – ₹450 per person.
-   - Monument / Sightseeing Fees: ASI heritage sites ₹10 – ₹40 for Indian citizens; boat rides ₹50 – ₹200.
-2. Zero Hallucination & Live Price Priority: Never invent nonexistent railway stations, impossible bus routes, or guessed/random prices. Always prioritize current prices, tariffs, and fares from the live web findings in <external_context> over generic defaults.
+1. Live-Data-First Pricing (Any Destination): Always derive hotel tariffs, bus/train fares, entry tickets, and food costs from the live Firecrawl/ScrapeGraph/grounding data in <external_context> first. Do NOT rely on outdated static guesses. If a specific figure is unavailable in <external_context>, state a realistic current range clearly as an estimate.
+2. Zero Hallucination & Transit Physics: Never invent nonexistent railway stations, fake hotel names, or impossible travel times (calculate realistic rail/bus durations for the true distance—e.g. ~500 km Chennai↔Coimbatore/Mettupalayam is ~7.5–9 hrs overnight, never 5 hrs; ghat climbs take ~1.5–2.5 hrs). If the user does not specify a departure city, state the assumed starting hub clearly.
 3. Optimistic & Practical Plans: Create well-paced, realistic, and uplifting itineraries. Account for travel time between spots (never schedule 10 attractions 50 km apart in a single morning).
 4. Structure for Trip Plans & Itineraries:
    - Whenever the user asks for a trip plan, trip idea, budget trip, weekend trip, recommendation, or itinerary:

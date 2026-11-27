@@ -201,4 +201,31 @@ describe("Sikkanam AI Chat Grounding — Firecrawl Primary with ScrapeGraph Fall
 
     expect(context).toContain("Thanjavur Palace entry Rs 50");
   });
+
+  it("searches Firecrawl with user query for unlisted/arbitrary destinations", async () => {
+    process.env.FIRECRAWL_API_KEY = "fc-chat-test-any";
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            title: "Meghamalai Stay & Bus Tariff 2026",
+            description: "Theni to Meghamalai TNSTC bus fare Rs 65; eco-stay Rs 1800 per night.",
+          },
+        ],
+      }),
+    } as Response);
+
+    const { getChatGroundingContext } = await import("../../api/chat.js");
+    const context = await getChatGroundingContext("", "Meghamalai 2 day budget trip");
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://api.firecrawl.dev/v1/search",
+      expect.objectContaining({
+        body: expect.stringContaining("Meghamalai 2 day budget trip"),
+      })
+    );
+    expect(context).toContain("Meghamalai Stay & Bus Tariff 2026");
+  });
 });

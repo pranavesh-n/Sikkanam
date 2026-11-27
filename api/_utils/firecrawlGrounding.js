@@ -44,9 +44,10 @@ export async function queryFirecrawlLive(query, destination = "") {
   }
 
   const cleanDest = (destination || "").trim();
+  const cleanQuery = (query || "").trim();
   const searchQuery = cleanDest
     ? `${cleanDest} Tamil Nadu TTDC room tariffs TNSTC bus fares entry tickets 2026`
-    : `${(query || "").trim()} Tamil Nadu travel 2026`;
+    : `${cleanQuery} Tamil Nadu travel fares tariffs 2026`;
 
   const cacheKey = searchQuery.toLowerCase();
   if (firecrawlCache.has(cacheKey)) {
@@ -58,7 +59,7 @@ export async function queryFirecrawlLive(query, destination = "") {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2200); // 2.2s budget
+    const timeoutId = setTimeout(() => controller.abort(), 3800); // 3.8s budget for reliable live search
 
     const res = await fetch(`${baseUrl}/v1/search`, {
       method: "POST",
@@ -117,12 +118,13 @@ export async function queryFirecrawlLive(query, destination = "") {
  * 2. Fetches Firecrawl real-time web search in parallel
  */
 export async function queryLiveTravelIntelligence(destinationName, userQuery = "") {
-  if (!destinationName) return null;
-  const cleanName = destinationName.trim().toLowerCase();
+  const cleanName = (destinationName || "").trim().toLowerCase();
+  const cleanQuery = (userQuery || "").trim();
+  if (!cleanName && !cleanQuery) return null;
 
-  // 1. Instant verified benchmark match
-  let benchmark = VERIFIED_GROUND_TRUTH[cleanName];
-  if (!benchmark) {
+  // 1. Instant verified benchmark match (when destinationName is provided)
+  let benchmark = cleanName ? VERIFIED_GROUND_TRUTH[cleanName] : null;
+  if (cleanName && !benchmark) {
     for (const [key, val] of Object.entries(VERIFIED_GROUND_TRUTH)) {
       if (cleanName.includes(key) || key.includes(cleanName) || val.hub.toLowerCase().includes(cleanName)) {
         benchmark = val;

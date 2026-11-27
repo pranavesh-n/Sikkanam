@@ -34,24 +34,25 @@ const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6-Hour Cache
 // 1. Verified Live Tamil Nadu Ground Truth Benchmarks (2025/2026 verified tariffs)
 export const VERIFIED_GROUND_TRUTH = {
   ooty: {
-    hub: "Ooty (Udhagamandalam)",
+    hub: "Ooty (Udhagamandalam / UAM)",
     district: "Nilgiris",
-    ttdcStay: "TTDC Hotel Tamil Nadu - Ooty (₹1,100 - ₹1,400/night)",
-    budgetStayRange: "₹800 - ₹1,200/night (Charring Cross / Commercial Rd)",
+    ttdcStay: "TTDC Hotel Tamil Nadu - Ooty (~₹1,500 - ₹2,500/night)",
+    budgetStayRange: "₹1,000 - ₹1,800/night (Charring Cross / Commercial Rd / ATC Stand)",
     transit: [
-      "Nilgiri Mountain Railway (Toy Train): Mettupalayam ➔ Ooty (07:10 AM, 2S: ₹120, FC: ₹205)",
-      "TNSTC Ghat Bus: Mettupalayam / Coimbatore ➔ Ooty ATC Stand (Every 15 mins, ₹80 - ₹95, 2.5 hrs)",
+      "Nilgiri Express (12671): Chennai Central (MAS) 21:05 ➔ Mettupalayam (MTP) 06:20 (~9h 15m overnight, SL: ~₹365, 3AC: ~₹970-₹980)",
+      "Nilgiri Mountain Railway Toy Train (56136): Mettupalayam 07:10 ➔ Ooty (UAM) 11:55 (Unreserved: ~₹175, 2S Reserved: ~₹310, First Class: ~₹630)",
+      "TNSTC Ghat Bus: Mettupalayam ➔ Ooty ATC Stand (Every 15 mins from 04:45 AM, ₹70 - ₹90, 1.5 - 2 hrs); Coimbatore ➔ Ooty (~₹100 - ₹130, 2.5 - 3 hrs)",
       "Local Town Buses & Autos: ATC stand to Botanical Garden / Lake (₹20 - ₹50)"
     ],
     officialEntryFees: [
-      "Government Botanical Garden: ₹40 adults, ₹20 children (Camera: ₹50)",
-      "Government Rose Garden: ₹40 adults, ₹20 children",
-      "Ooty Lake & Boating: ₹20 entry + ₹180 for 2-seater pedal boat (30 mins)",
-      "Pykara Falls & Lake: ₹10 entry, ₹175 per person for motor boat",
-      "Doddabetta Peak Telescope House: ₹10 entry, ₹10 telescope"
+      "Government Botanical Garden: ₹50 adults (up to ₹100 peak season), ₹20-₹30 children (Still Camera: ₹50)",
+      "Government Rose Garden: ₹75 adults, ₹40 children (Still Camera: ₹50)",
+      "Ooty Lake & Boating: ₹20 entry + ₹350-₹375 for 2-seater pedal boat / ₹450-₹475 for 4-seater (30 mins)",
+      "Pykara Falls & Lake: ₹10-₹20 entry, motor boat from ~₹175-₹200 per person",
+      "Doddabetta Peak: ₹30 adults, ₹15 children (Still Camera: ₹25)"
     ],
-    localFoodTips: "Hotel Saravana Bhavan (Commercial Rd) thali ~₹120, authentic Nilgiri homemade chocolates ~₹150/200g, tea stall hot chai ~₹15.",
-    seasonalNotice: "May Flower Show brings heavy peak demand; advance TTDC/bus booking recommended. Winter (Dec-Jan) nighttime temperatures drop to 5°C."
+    localFoodTips: "Local South Indian mess breakfast ~₹60-₹90, thali meals ~₹120-₹160, Nilgiri homemade chocolates ~₹150-₹200/200g, tea stall hot chai ~₹15-₹20.",
+    seasonalNotice: "May Flower Show brings heavy peak demand; advance TTDC/IRCTC (station code UAM) booking recommended. Winter (Dec-Jan) nighttime temperatures drop to 5°C."
   },
   kodaikanal: {
     hub: "Kodaikanal",
