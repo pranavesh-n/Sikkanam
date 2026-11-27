@@ -23,10 +23,22 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     if (import.meta.env.DEV) {
       console.error("ErrorBoundary caught an error:", error, errorInfo);
     }
+    const msg = error?.message || "";
+    const isChunkError =
+      msg.includes("Failed to fetch dynamically imported module") ||
+      msg.includes("Importing a module script failed") ||
+      msg.includes("Loading chunk");
+    if (isChunkError && typeof window !== "undefined") {
+      const key = "sikkanam_chunk_reload";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        window.location.reload();
+      }
+    }
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false });
+    window.location.reload();
   };
 
   handleGoHome = () => {
