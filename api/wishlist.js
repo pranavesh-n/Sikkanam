@@ -28,9 +28,10 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { destinationId } = req.body;
-      if (!destinationId) {
-        return res.status(400).json({ error: "Missing destinationId" });
+      const rawId = req.body?.destinationId;
+      const destinationId = typeof rawId === "string" ? rawId.trim() : "";
+      if (!destinationId || destinationId.length > 120) {
+        return res.status(400).json({ error: "Invalid destinationId" });
       }
 
       const existing = await Wishlist.findOne({ ...userFilter, destinationId });
@@ -44,9 +45,10 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
-      const destinationId = req.query.destinationId || req.body.destinationId;
-      if (!destinationId) {
-        return res.status(400).json({ error: "Missing destinationId" });
+      const rawId = req.query.destinationId || req.body?.destinationId;
+      const destinationId = typeof rawId === "string" ? rawId.trim() : "";
+      if (!destinationId || destinationId.length > 120) {
+        return res.status(400).json({ error: "Invalid destinationId" });
       }
 
       await Wishlist.deleteMany({ ...userFilter, destinationId });

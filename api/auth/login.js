@@ -38,7 +38,10 @@ export default async function handler(req, res) {
       if (decodedJwt && decodedJwt.payload && decodedJwt.payload.iss && decodedJwt.payload.iss.includes("securetoken.google.com")) {
         try {
           const kid = decodedJwt.header?.kid;
-          const certRes = await fetch("https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com");
+          const certRes = await fetch(
+            "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
+            { signal: AbortSignal.timeout(6000) }
+          );
           if (certRes.ok) {
             const certs = await certRes.json();
             const cert = certs[kid];
@@ -51,19 +54,17 @@ export default async function handler(req, res) {
             }
           }
         } catch (verErr) {
-          console.warn("Firebase cert verification error, validating claims:", verErr.message);
-        }
-
-        // If cert fetch was bypassed or succeeded, validate core claims
-        if (!tokenPayload && decodedJwt.payload.aud === expectedProjectId) {
-          tokenPayload = decodedJwt.payload;
+          console.warn("Firebase cert verification error:", verErr.message);
         }
       }
 
       // 2. If not Firebase token, verify against Google OAuth2 tokeninfo endpoint
       if (!tokenPayload) {
         try {
-          const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+          const verifyRes = await fetch(
+            `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+            { signal: AbortSignal.timeout(6000) }
+          );
           if (verifyRes.ok) {
             const googlePayload = await verifyRes.json();
             if (!googlePayload.error && googlePayload.email) {
@@ -74,13 +75,8 @@ export default async function handler(req, res) {
             }
           }
         } catch (e) {
-          console.warn("Google OAuth tokeninfo error:", e);
+          console.warn("Google OAuth tokeninfo error:", e.message);
         }
-      }
-
-      // 3. Fallback to decoded payload if valid identity fields exist
-      if (!tokenPayload && decodedJwt && decodedJwt.payload && decodedJwt.payload.email) {
-        tokenPayload = decodedJwt.payload;
       }
 
       if (!tokenPayload || !tokenPayload.email) {
@@ -89,13 +85,16 @@ export default async function handler(req, res) {
       }
 
       // Identity MUST be taken directly from verified signature payload
-      verifiedUid = tokenPayload.sub || tokenPayload.user_id || fallbackUid;
+      verifiedUid = tokenPayload.sub || tokenPayload.user_id;
+      if (!verifiedUid) {
+        return res.status(401).json({ error: "Unauthorized: Invalid or expired Google authentication." });
+      }
       verifiedEmail = tokenPayload.email.toLowerCase();
       verifiedName = tokenPayload.name || fallbackName || verifiedEmail.split("@")[0];
       verifiedAvatar = tokenPayload.picture || fallbackAvatar || "";
     } else {
-      // In strict production, require idToken
-      if (process.env.NODE_ENV === "production" || !process.env.NODE_ENV) {
+      // Dev/test-only fallback bypass
+      if (process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test") {
         return res.status(401).json({ error: "Unauthorized: Google cryptographic ID token required." });
       }
       if (!fallbackUid || !fallbackEmail) {

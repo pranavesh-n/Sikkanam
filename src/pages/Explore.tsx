@@ -78,7 +78,7 @@ const Explore = () => {
           ))}
         </div>
         <button
-          onClick={() => window.open("/maps", "_blank")}
+          onClick={() => window.open("/maps", "_blank", "noopener,noreferrer")}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-xs shadow-card hover:opacity-90 transition shrink-0"
         >
           🗺️ View in Maps

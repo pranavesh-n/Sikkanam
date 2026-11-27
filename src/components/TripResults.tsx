@@ -481,7 +481,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   const handleWhatsAppShare = () => {
     const text = generateShareText(plan);
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handlePrint = () => {
@@ -491,7 +491,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
   const handleOpenMaps = () => {
     if (!plan.destination) return;
     const destination = plan.destination.id;
-    window.open(`/maps?destination=${destination}`, "_blank");
+    window.open(`/maps?destination=${destination}`, "_blank", "noopener,noreferrer");
   };
 
   const getTrainSearchUrl = () => {
@@ -1384,7 +1384,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                 </p>
               )}
               <button
-                onClick={() => window.open(getTrainSearchUrl(), "_blank")}
+                onClick={() => window.open(getTrainSearchUrl(), "_blank", "noopener,noreferrer")}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-colors shadow-sm"
               >
                 <Train className="w-4 h-4" />
@@ -1477,7 +1477,7 @@ const TripResults = forwardRef<HTMLDivElement, TripResultsProps>(({ plan, onSele
                       <button
                         onClick={() => {
                           const query = `${hotel.name}, ${plan.destination?.name}`;
-                          window.open(appConfig.bookingLinks.bookingComSearch(query), "_blank");
+                          window.open(appConfig.bookingLinks.bookingComSearch(query), "_blank", "noopener,noreferrer");
                         }}
                         className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors self-start sm:self-center"
                       >

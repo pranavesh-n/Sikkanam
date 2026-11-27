@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import TripPlannerForm from "@/components/TripPlannerForm";
 import TripResults from "@/components/TripResults";
 
@@ -30,6 +31,9 @@ const TripPlanner = () => {
             behavior: "smooth",
           });
         }, 150);
+      } catch (err) {
+        if (import.meta.env.DEV) console.error("Failed to generate trip plan:", err);
+        toast.error("Could not generate your trip plan. Please try again.");
       } finally {
         setIsGenerating(false);
       }
@@ -66,14 +70,19 @@ const TripPlanner = () => {
       if (!tripInput) return;
       const nextInput = { ...tripInput, destination: destId };
       setTripInput(nextInput);
-      const plan = await generateTripPlan(nextInput);
-      setTripPlan(plan);
+      try {
+        const plan = await generateTripPlan(nextInput);
+        setTripPlan(plan);
 
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 100);
+        setTimeout(() => {
+          resultsRef.current?.scrollIntoView({
+            behavior: "smooth",
+          });
+        }, 100);
+      } catch (err) {
+        if (import.meta.env.DEV) console.error("Failed to load destination plan:", err);
+        toast.error("Could not load that destination. Please try again.");
+      }
     },
     [tripInput]
   );

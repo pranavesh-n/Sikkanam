@@ -307,6 +307,23 @@ async function scrapeLiveWebSearch(query) {
   }
 }
 
+function isAllowedEndpointUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol === "https:") return true;
+    if (
+      parsed.protocol === "http:" &&
+      (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") &&
+      process.env.NODE_ENV !== "production"
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Query Official ScrapeGraph AI v2 API directly using SCRAPEGRAPH_API_KEY
  */
@@ -315,6 +332,7 @@ async function queryScrapeGraphDirectApi(destinationName) {
   if (!apiKey || apiKey.includes("YOUR_")) return null;
 
   const apiUrl = getEnv("SCRAPEGRAPH_API_URL") || "https://v2-api.scrapegraphai.com/api/search";
+  if (!isAllowedEndpointUrl(apiUrl)) return null;
 
   try {
     const controller = new AbortController();
@@ -356,7 +374,7 @@ async function queryScrapeGraphMcp(destinationName, prompt) {
   const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
   const token = getEnv("SCRAPEGRAPH_API_KEY") || getEnv("MCPMARKET_TOKEN");
 
-  if (!mcpUrl) return null;
+  if (!mcpUrl || !isAllowedEndpointUrl(mcpUrl)) return null;
 
   try {
     const controller = new AbortController();
@@ -440,7 +458,7 @@ export async function queryScrapeGraphLiveIntelligence(destinationName, userQuer
   try {
     const apiKey = getEnv("SCRAPEGRAPH_API_KEY");
     const mcpUrl = getEnv("SCRAPEGRAPH_MCP_URL");
-    const firecrawlKey = getEnv("FIRECRAWL_API_KEY") || "fc-4a91679410ab4f89a3ac30da22d569dd";
+    const firecrawlKey = getEnv("FIRECRAWL_API_KEY") || "";
     const fetchPromises = [];
 
     // Primary: Firecrawl Real-Time Web Search
@@ -452,6 +470,7 @@ export async function queryScrapeGraphLiveIntelligence(destinationName, userQuer
             "Content-Type": "application/json",
             "Authorization": `Bearer ${firecrawlKey}`,
           },
+          signal: AbortSignal.timeout(5000),
           body: JSON.stringify({
             query: `${destinationName} Tamil Nadu TTDC room tariffs TNSTC bus fares entry tickets 2026`,
             limit: 3,

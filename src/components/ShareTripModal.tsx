@@ -73,7 +73,7 @@ export default function ShareTripModal({ isOpen, onClose, plan }: ShareTripModal
   const handleWhatsAppShare = () => {
     const text = generateRichWhatsAppText(plan);
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
     toast.success("Opening WhatsApp...");
   };
 

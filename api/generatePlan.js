@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { calculateTravelCostIntelligence } from "../src/lib/intelligenceEngine.ts";
 import { queryScrapeGraphLiveIntelligence, formatScrapeGraphGroundedContext } from "./_utils/scrapegraphGrounding.js";
+import { queryLiveTravelIntelligence, formatGroundedContext } from "./_utils/firecrawlGrounding.js";
 import { serverConfig } from "./_utils/config.js";
 import { TARIFF_CONFIG, getDynamicHotelRates, getSeasonalMultiplier } from "./_utils/dynamicMarketRates.js";
 
@@ -31,12 +32,15 @@ const CATEGORY_DEFAULTS = {
   wildlife: { costIndex: 4, mobilityProfile: "high", activityProfile: { freeAttractions: 3, paidAttractions: 3, averageEntryFee: 100 }, budgetReliability: 85 }
 };
 
-// Helper to load destinations
+let cachedDestinations = null;
+
+// Helper to load destinations (cached at module scope)
 function loadDestinations() {
+  if (cachedDestinations) return cachedDestinations;
   const destPath = path.join(__dirname, "destinations.json");
   const raw = fs.readFileSync(destPath, "utf-8");
   const rawDests = JSON.parse(raw);
-  return rawDests.map(dest => {
+  cachedDestinations = rawDests.map(dest => {
     const specific = SPECIFIC_METADATA[dest.id] || {};
     const defaults = CATEGORY_DEFAULTS[dest.category] || {};
     return {
@@ -47,6 +51,29 @@ function loadDestinations() {
       budgetReliability: specific.budgetReliability || defaults.budgetReliability || 90
     };
   });
+  return cachedDestinations;
+}
+
+function getAllowedCorsOrigin(req) {
+  const origin = req.headers?.origin || req.headers?.Origin;
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    const host = url.hostname.toLowerCase();
+    const reqHost = (req.headers?.host || "").split(":")[0].toLowerCase();
+    if (
+      host === "sikkanam.vercel.app" ||
+      host.endsWith(".vercel.app") ||
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      (reqHost && host === reqHost)
+    ) {
+      return origin;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 const HOTEL_RANGES = {
@@ -330,7 +357,7 @@ async function getRoadDistanceAndStatus(fromLat, fromLng, toLat, toLng) {
   const fallbackDurationMin = Math.round((fallbackDist / 45) * 60);
   const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=false`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
     if (res.ok) {
       const data = await res.json();
       if (data.code === "Ok" && data.routes && data.routes[0]) {
@@ -1009,8 +1036,43 @@ async function getNearbyHotels(destId, lat, lng) {
   ];
 }
 
+export async function getPlanGroundingContext(destinationName) {
+  let firecrawlBlock = "";
+
+  // Primary: Firecrawl Real-Time Web Search (faster latency, native /v1/search discovery)
+  try {
+    const firecrawlData = await queryLiveTravelIntelligence(destinationName);
+    firecrawlBlock = formatGroundedContext(firecrawlData);
+    if (firecrawlData?.firecrawl?.snippets?.length > 0) {
+      console.log(`[AI Plan] Embedded Firecrawl primary intelligence for ${destinationName}`);
+      return firecrawlBlock;
+    }
+  } catch (err) {
+    console.warn("[AI Plan] Firecrawl primary query failed, trying ScrapeGraph fallback:", err.message);
+  }
+
+  // Fallback: ScrapeGraph AI when Firecrawl has no live result or is unavailable
+  try {
+    const liveData = await queryScrapeGraphLiveIntelligence(destinationName);
+    const hasLiveScrapeGraph = Boolean(liveData?.mcpResult || liveData?.liveScrape || liveData?.webSearch);
+    const scrapegraphBlock = formatScrapeGraphGroundedContext(liveData);
+    if (hasLiveScrapeGraph || (!firecrawlBlock && scrapegraphBlock)) {
+      console.log(`[AI Plan] Embedded ScrapeGraph fallback intelligence for ${destinationName}`);
+      return scrapegraphBlock;
+    }
+  } catch (err) {
+    console.warn("[AI Plan] ScrapeGraph fallback skipped:", err.message);
+  }
+
+  return firecrawlBlock;
+}
+
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigin = getAllowedCorsOrigin(req);
+  if (allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -1023,7 +1085,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const input = req.body;
+    const rawInput = req.body;
+    if (!rawInput || typeof rawInput !== "object") {
+      return res.status(400).json({ error: "Invalid request payload" });
+    }
+
+    const parsedDays = Number(rawInput.days);
+    const parsedBudget = Number(rawInput.budget);
+    const parsedTravellers = Number(rawInput.travellers);
+    if (!Number.isFinite(parsedDays) || !Number.isFinite(parsedBudget) || !Number.isFinite(parsedTravellers)) {
+      return res.status(400).json({ error: "Invalid numeric trip parameters" });
+    }
+
+    const input = {
+      ...rawInput,
+      days: Math.min(30, Math.max(1, Math.round(parsedDays))),
+      budget: Math.min(10000000, Math.max(0, parsedBudget)),
+      travellers: Math.min(50, Math.max(1, Math.round(parsedTravellers))),
+    };
     const GROQ_API_KEY = process.env.SIKKANAM_PLAN_API_KEY || process.env.GROQ_API_KEY;
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -1205,15 +1284,8 @@ export default async function handler(req, res) {
       intelligence
     };
 
-    // Real-Time ScrapeGraph Web Grounding & Transit Verification
-    let liveIntelligenceBlock = "";
-    try {
-      const liveData = await queryScrapeGraphLiveIntelligence(dest.name);
-      liveIntelligenceBlock = formatScrapeGraphGroundedContext(liveData);
-      console.log(`[AI Plan] Embedded ScrapeGraph real-time intelligence for ${dest.name}`);
-    } catch (err) {
-      console.warn("[AI Plan] ScrapeGraph live query skipped:", err.message);
-    }
+    // Real-Time ScrapeGraph Web Grounding with Firecrawl Fallback
+    const liveIntelligenceBlock = await getPlanGroundingContext(dest.name);
 
     // AI Companion Prompt (strictly storytelling, narrative generated after planning is complete)
     const prompt = `
@@ -1368,258 +1440,6 @@ Enjoy authentic local Tamil Nadu meals. Budget food allowance is **₹${plan.bud
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
-}
-
-function calculateTravelCostIntelligenceDeprecated(input, dest, route, hotels) {
-  const days = input.days;
-  const travellers = input.travellers;
-  const style = input.style;
-  const nights = Math.max(days - 1, 0);
-  const rooms = nights > 0 ? Math.ceil(travellers / (style === "budget" ? 3 : 2)) : 0;
-
-  const costIndex = dest.costIndex || 3;
-  const reliability = dest.budgetReliability || 90;
-  const mobilityProfile = dest.mobilityProfile || "medium";
-  const activityProfile = dest.activityProfile || { freeAttractions: 4, paidAttractions: 2, averageEntryFee: 30 };
-
-  // --- 1. Transport Component ---
-  const distanceKm = route.reduce((sum, leg) => sum + leg.distanceKm, 0);
-  const trainMin = Math.round(distanceKm * 0.75 * 2 * travellers / 50) * 50;
-  const trainMax = Math.round(distanceKm * 1.30 * 2 * travellers / 50) * 50;
-  const govtBusMin = Math.round(distanceKm * 1.20 * 2 * travellers / 50) * 50;
-  const govtBusMax = Math.round(distanceKm * 1.60 * 2 * travellers / 50) * 50;
-  const privBusMin = Math.round(distanceKm * 1.70 * 2 * travellers / 50) * 50;
-  const privBusMax = Math.round(distanceKm * 2.60 * 2 * travellers / 50) * 50;
-
-  const primaryLeg = route[0];
-  const primaryMode = primaryLeg ? primaryLeg.mode : "bus";
-
-  let transportMin = govtBusMin;
-  let transportMax = govtBusMax;
-  let transportFormula = `Govt Bus Rate (2 × ${distanceKm} km × ₹1.2–₹1.6/km) × ${travellers} Pax`;
-
-  if (primaryMode === "train") {
-    transportMin = trainMin;
-    transportMax = trainMax;
-    transportFormula = `Train Sleeper Rate (2 × ${distanceKm} km × ₹0.75–₹1.3/km) × ${travellers} Pax`;
-  } else if (style === "comfort") {
-    transportMin = privBusMin;
-    transportMax = privBusMax;
-    transportFormula = `Private Bus Rate (2 × ${distanceKm} km × ₹1.7–₹2.6/km) × ${travellers} Pax`;
-  }
-
-  if (distanceKm === 0) {
-    transportMin = 0;
-    transportMax = 0;
-    transportFormula = "No intercity travel required";
-  }
-
-  // Dynamic Transport Confidence
-  const distanceCertainty = 98;
-  const routeCertainty = route.length <= 1 ? 95 : 90;
-  const modeCertainty = primaryMode === "train" ? 97 : 90;
-  const dataCertainty = primaryLeg && primaryLeg.frequency ? 95 : 85;
-  const transportConfidence = Math.round(distanceCertainty * 0.4 + routeCertainty * 0.3 + modeCertainty * 0.2 + dataCertainty * 0.1);
-
-  const transportDetail = {
-    name: "Transport",
-    min: transportMin,
-    max: transportMax,
-    formula: transportFormula,
-    reason: distanceKm > 0 
-      ? `Based on intercity distance of ${distanceKm} km from ${input.source.toUpperCase()} to ${input.destination.toUpperCase()}.`
-      : "Source and destination are the same.",
-    confidence: transportConfidence,
-    confidenceReason: `Distance certainty is ${distanceCertainty}%. Route certainty is ${routeCertainty}%. Mode certainty is ${modeCertainty}%.`,
-    source: "Sikkanam OSRM & Indian Railway Fares"
-  };
-
-  // --- 2. Hotel Component ---
-  let hotelMin = 0;
-  let hotelMax = 0;
-  let hotelFormula = "Day trip (0 nights stay)";
-  let hotelReason = "This is a day trip. No accommodation required.";
-  let hotelConfidence = 100;
-  let hotelConfidenceReason = "No accommodation stay required.";
-  let hotelSource = "N/A";
-
-  if (nights > 0) {
-    const hotelFactor = 1 + (costIndex - 3) * 0.15;
-    let baseMinRate = 1500;
-    let baseMaxRate = 3000;
-    if (style === "budget") {
-      baseMinRate = 1200;
-      baseMaxRate = 1800;
-    } else if (style === "comfort") {
-      baseMinRate = 3000;
-      baseMaxRate = 6000;
-    }
-
-    const rateMin = Math.round(baseMinRate * hotelFactor / 50) * 50;
-    const rateMax = Math.round(baseMaxRate * hotelFactor / 50) * 50;
-    hotelMin = rateMin * rooms * nights;
-    hotelMax = rateMax * rooms * nights;
-    hotelFormula = `${nights} Nights × ${rooms} Rooms × Room Rate (₹${rateMin}–₹${rateMax}/night)`;
-
-    const apiHotelsCount = hotels.filter(h => h.name && !h.name.includes("Search hotels")).length;
-    if (apiHotelsCount > 0) {
-      hotelConfidence = Math.round(80 + Math.min(16, apiHotelsCount * 1.33));
-      hotelReason = `Based on ${apiHotelsCount} hotels found within 15 km of ${dest.name}.`;
-      hotelConfidenceReason = `Actual Overpass OpenStreetMap hotel discovery details available (${apiHotelsCount} spots).`;
-      hotelSource = "Overpass OpenStreetMap Tourism API";
-    } else {
-      hotelConfidence = 72;
-      hotelReason = `Based on curated fallback hotel rates near ${dest.name}.`;
-      hotelConfidenceReason = "No live Overpass API hotels found; using curated fallback database.";
-      hotelSource = "Sikkanam Curated Hotel Database";
-    }
-  }
-
-  const hotelDetail = {
-    name: "Hotels",
-    min: hotelMin,
-    max: hotelMax,
-    formula: hotelFormula,
-    reason: hotelReason,
-    confidence: hotelConfidence,
-    confidenceReason: hotelConfidenceReason,
-    source: hotelSource
-  };
-
-  // --- 3. Food Component ---
-  const foodFactor = 1 + (costIndex - 3) * 0.15;
-  let dailyFoodMin = 520;
-  let dailyFoodMax = 830;
-  if (style === "budget") {
-    dailyFoodMin = 340;
-    dailyFoodMax = 540;
-  } else if (style === "comfort") {
-    dailyFoodMin = 840;
-    dailyFoodMax = 1450;
-  }
-
-  const foodMinRate = Math.round(dailyFoodMin * foodFactor / 10) * 10;
-  const foodMaxRate = Math.round(dailyFoodMax * foodFactor / 10) * 10;
-  const foodMin = foodMinRate * days * travellers;
-  const foodMax = foodMaxRate * days * travellers;
-
-  const categoryReliability = dest.category === "temple" ? 95 : dest.category === "hill" ? 85 : 90;
-  const foodConfidence = Math.round(reliability * 0.6 + categoryReliability * 0.2 + 90 * 0.2);
-
-  const foodDetail = {
-    name: "Food",
-    min: foodMin,
-    max: foodMax,
-    formula: `Days (${days}) × Travellers (${travellers}) × Daily Food Range (₹${foodMinRate}–₹${foodMaxRate}/day)`,
-    reason: `Based on costIndex of ${costIndex}/5 for ${dest.category} category in ${dest.district}.`,
-    confidence: foodConfidence,
-    confidenceReason: `Destination reliability is ${reliability}%. Category reliability is ${categoryReliability}%.`,
-    source: "Sikkanam Destination Cost Profiles"
-  };
-
-  // --- 4. Local Mobility Component ---
-  let dailyMobilityMin = 250;
-  let dailyMobilityMax = 600;
-  if (mobilityProfile === "low") {
-    dailyMobilityMin = style === "budget" ? 100 : style === "comfort" ? 200 : 150;
-    dailyMobilityMax = style === "budget" ? 200 : style === "comfort" ? 300 : 250;
-  } else if (mobilityProfile === "high") {
-    dailyMobilityMin = style === "budget" ? 300 : style === "comfort" ? 600 : 400;
-    dailyMobilityMax = style === "budget" ? 500 : style === "comfort" ? 1200 : 800;
-  } else {
-    dailyMobilityMin = style === "budget" ? 200 : style === "comfort" ? 400 : 250;
-    dailyMobilityMax = style === "budget" ? 350 : style === "comfort" ? 700 : 500;
-  }
-
-  const mobilityMin = dailyMobilityMin * days;
-  const mobilityMax = dailyMobilityMax * days;
-
-  const spreadCertainty = mobilityProfile === "low" ? 95 : mobilityProfile === "medium" ? 90 : 80;
-  const mobilityConfidence = Math.round(reliability * 0.6 + spreadCertainty * 0.4);
-
-  const mobilityDetail = {
-    name: "Local Mobility",
-    min: mobilityMin,
-    max: mobilityMax,
-    formula: `Days (${days}) × Daily Mobility Profile (₹${dailyMobilityMin}–₹${dailyMobilityMax}/day)`,
-    reason: `Based on attraction spread (mobility profile: ${mobilityProfile}) and travel style.`,
-    confidence: mobilityConfidence,
-    confidenceReason: `Destination reliability is ${reliability}%. Spread profile certainty is ${spreadCertainty}%.`,
-    source: "Sikkanam Local Mobility Profile Mapping"
-  };
-
-  // --- 5. Activity Component ---
-  const freeSpots = activityProfile.freeAttractions;
-  const paidSpots = activityProfile.paidAttractions;
-  const avgEntryFee = activityProfile.averageEntryFee;
-
-  const activityMin = paidSpots * avgEntryFee * travellers;
-  const activityMax = Math.round((paidSpots * avgEntryFee * travellers + (50 * days * travellers)) / 50) * 50;
-
-  const activityConfidence = Math.round(100 - (paidSpots / (freeSpots + paidSpots)) * 30);
-
-  const activityDetail = {
-    name: "Activities",
-    min: activityMin,
-    max: activityMax,
-    formula: `(Paid Attractions [${paidSpots}] × Avg Fee [₹${avgEntryFee}] × ${travellers} Pax) + Buffer`,
-    reason: `Based on destination attraction profile (${freeSpots} free spots, ${paidSpots} paid spots, and average fee of ₹${avgEntryFee}).`,
-    confidence: activityConfidence,
-    confidenceReason: `Certainty is high due to detailed attraction count (${freeSpots + paidSpots} mapped spots).`,
-    source: "Sikkanam Destination Attraction Profiles"
-  };
-
-  // --- 6. Emergency Buffer Component ---
-  const bufferMin = 250 * days * travellers;
-  const bufferMax = 500 * days * travellers;
-
-  const bufferDetail = {
-    name: "Emergency Buffer",
-    min: bufferMin,
-    max: bufferMax,
-    formula: `Daily Buffer (₹250–₹500) × Days (${days}) × Travellers (${travellers})`,
-    reason: "To cover unexpected local transport, extra meals, and small purchases.",
-    confidence: 95,
-    confidenceReason: "Standard risk margin based on trip size and duration.",
-    source: "Sikkanam Risk Management Guidelines"
-  };
-
-  // --- Totals & Score Calculations ---
-  const minRequired = transportMin + hotelMin + foodMin + mobilityMin + activityMin + bufferMin;
-  const maxSpend = transportMax + hotelMax + foodMax + mobilityMax + activityMax;
-  const recommendedCarry = maxSpend + bufferMax;
-
-  const transportComfort = Math.round((transportMin + transportMax) / 2 / 10) * 10;
-  const hotelComfort = Math.round((hotelMin + hotelMax) / 2 / 50) * 50;
-  const foodComfort = Math.round((foodMin + foodMax) / 2 / 10) * 10;
-  const mobilityComfort = Math.round((mobilityMin + mobilityMax) / 2 / 10) * 10;
-  const activityComfort = Math.round((activityMin + activityMax) / 2 / 10) * 10;
-  const bufferComfort = Math.round((bufferMin + bufferMax) / 2 / 10) * 10;
-  const comfortBudget = transportComfort + hotelComfort + foodComfort + mobilityComfort + activityComfort + bufferComfort;
-
-  const overallConfidence = Math.round(
-    (transportConfidence + hotelConfidence + foodConfidence + mobilityConfidence + activityConfidence) / 5
-  );
-
-  const explainedComponents = 6;
-  const totalComponents = 6;
-  const transparencyScore = Math.round((explainedComponents / totalComponents) * 100);
-
-  return {
-    minRequired,
-    comfortBudget,
-    recommendedCarry,
-    overallConfidence,
-    transparencyScore,
-    components: {
-      transport: transportDetail,
-      hotel: hotelDetail,
-      food: foodDetail,
-      mobility: mobilityDetail,
-      activities: activityDetail,
-      buffer: bufferDetail
-    }
-  };
 }

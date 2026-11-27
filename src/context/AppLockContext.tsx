@@ -11,6 +11,7 @@ interface AppLockContextType {
   isLockEnabled: boolean;
   isLocked: boolean;
   failedAttempts: number;
+  lockedUntil: number;
   setupPasscode: (pin: string) => Promise<boolean>;
   verifyPasscode: (pin: string) => Promise<boolean>;
   disableAppLock: () => void;
@@ -24,9 +25,12 @@ const AppLockContext = createContext<AppLockContextType | undefined>(undefined);
 const LOCAL_STORAGE_ENABLED = "sikkanam_applock_enabled";
 const LOCAL_STORAGE_PIN = "sikkanam_applock_pin";
 const LOCAL_STORAGE_FAILED = "sikkanam_applock_failed_attempts";
+const LOCAL_STORAGE_LOCKED_UNTIL = "sikkanam_applock_locked_until";
 const LOCAL_STORAGE_LEAVE_TIME = "sikkanam_applock_leave_time";
 
 const BACKGROUND_LOCK_TIMEOUT_MS = 35 * 1000;
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_COOLDOWN_MS = 30 * 1000;
 
 const getUserKeys = (u: any): string[] => {
   const keys: string[] = [];
@@ -68,6 +72,14 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [failedAttempts, setFailedAttempts] = useState<number>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_FAILED);
     return saved ? parseInt(saved, 10) : 0;
+  });
+  const [lockedUntil, setLockedUntil] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_LOCKED_UNTIL);
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
   });
 
   const activeUser = user || (auth.currentUser ? {
@@ -223,6 +235,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsLockEnabled(true);
       setIsLocked(false);
       setFailedAttempts(0);
+      setLockedUntil(0);
+      localStorage.removeItem(LOCAL_STORAGE_LOCKED_UNTIL);
 
       // Real-time Cloud Sync to Cloud Firestore
       const anyUser = currentUserObj as any;
@@ -266,6 +280,13 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const verifyPasscode = async (pin: string): Promise<boolean> => {
+    const now = Date.now();
+    if (lockedUntil > now) {
+      const remainingSec = Math.ceil((lockedUntil - now) / 1000);
+      toast.error(`Too many failed attempts. Try again in ${remainingSec}s`);
+      return false;
+    }
+
     const savedHash = localStorage.getItem(LOCAL_STORAGE_PIN);
     if (!savedHash) return false;
 
@@ -273,12 +294,20 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (inputHash === savedHash) {
       setIsLocked(false);
       setFailedAttempts(0);
+      setLockedUntil(0);
+      localStorage.removeItem(LOCAL_STORAGE_LOCKED_UNTIL);
       localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
       sessionStorage.setItem("sikkanam_applock_unlocked_session", "true");
       return true;
     } else {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
+      if (newAttempts >= MAX_FAILED_ATTEMPTS) {
+        const until = Date.now() + LOCKOUT_COOLDOWN_MS;
+        setLockedUntil(until);
+        localStorage.setItem(LOCAL_STORAGE_LOCKED_UNTIL, until.toString());
+        toast.error("Too many failed attempts. Locked for 30 seconds.");
+      }
       return false;
     }
   };
@@ -291,6 +320,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLockEnabled(false);
     setIsLocked(false);
     setFailedAttempts(0);
+    setLockedUntil(0);
+    localStorage.removeItem(LOCAL_STORAGE_LOCKED_UNTIL);
 
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
@@ -335,6 +366,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const unlockApp = () => {
     setIsLocked(false);
     setFailedAttempts(0);
+    setLockedUntil(0);
+    localStorage.removeItem(LOCAL_STORAGE_LOCKED_UNTIL);
     localStorage.removeItem(LOCAL_STORAGE_LEAVE_TIME);
     sessionStorage.setItem("sikkanam_applock_unlocked_session", "true");
   };
@@ -346,6 +379,8 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsLockEnabled(false);
     setIsLocked(false);
     setFailedAttempts(0);
+    setLockedUntil(0);
+    localStorage.removeItem(LOCAL_STORAGE_LOCKED_UNTIL);
 
     const currentUserObj = activeUser || auth.currentUser;
     if (currentUserObj) {
@@ -372,6 +407,7 @@ export const AppLockProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isLockEnabled: effectiveLockEnabled,
         isLocked: effectiveIsLocked,
         failedAttempts,
+        lockedUntil,
         setupPasscode,
         verifyPasscode,
         disableAppLock,

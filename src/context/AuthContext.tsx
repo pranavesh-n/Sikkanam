@@ -128,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const idToken = await firebaseUser.getIdToken();
 
-      await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -138,7 +138,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: firebaseUser.displayName,
           avatar: firebaseUser.photoURL,
         }),
-      }).catch(() => { });
+      }).catch((err) => {
+        if (import.meta.env.DEV) {
+          console.warn("Backend auth sync failed:", err);
+        }
+        return null;
+      });
+
+      if (res && !res.ok && import.meta.env.DEV) {
+        console.warn("Backend auth sync returned status:", res.status);
+      }
 
       window.dispatchEvent(new CustomEvent("sikkanam:user_login"));
       return true;

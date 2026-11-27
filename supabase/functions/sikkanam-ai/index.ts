@@ -6,10 +6,30 @@ declare const Deno: {
   };
 };
 
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+function getCorsHeaders(req: Request): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+  const origin = req.headers.get("origin");
+  if (origin) {
+    try {
+      const host = new URL(origin).hostname.toLowerCase();
+      if (
+        host === "sikkanam.vercel.app" ||
+        host.endsWith(".vercel.app") ||
+        host === "localhost" ||
+        host === "127.0.0.1"
+      ) {
+        headers["Access-Control-Allow-Origin"] = origin;
+        headers["Vary"] = "Origin";
+      }
+    } catch {
+      // Ignore malformed origin
+    }
+  }
+  return headers;
+}
 
 const SYSTEM_PROMPT = `You are Sikkanam AI (சிக்கனம்), the official, dedicated AI Budget Travel Companion for Tamil Nadu, India.
 
@@ -203,8 +223,17 @@ async function callLovableAi(messages: Array<{ role: string; content: string }>,
 }
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -310,7 +339,7 @@ Deno.serve(async (req: Request) => {
   } catch (e) {
     console.error("sikkanam-ai error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

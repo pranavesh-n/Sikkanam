@@ -1,15 +1,58 @@
 import jwt from "jsonwebtoken";
 import { parse, serialize } from "cookie";
 import crypto from "crypto";
+import { serverConfig } from "./config.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const isProd = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
+const isSecureCookie =
+  process.env.NODE_ENV === "production" ||
+  process.env.VERCEL_ENV === "production" ||
+  process.env.VERCEL_ENV === "preview";
 
-if (!JWT_SECRET && process.env.NODE_ENV === "production") {
-  console.warn("WARNING: JWT_SECRET environment variable is missing in production!");
+const JWT_SECRET = process.env.JWT_SECRET || serverConfig.jwtSecret;
+
+if (!JWT_SECRET) {
+  if (isProd) {
+    throw new Error("FATAL: JWT_SECRET environment variable is missing in production!");
+  }
+  console.warn("WARNING: JWT_SECRET is missing; using deterministic dev-only fallback secret.");
 }
 
-const SECRET_KEY = JWT_SECRET || crypto.randomBytes(32).toString("hex");
+const SECRET_KEY = JWT_SECRET || "sikkanam-dev-only-insecure-fallback-secret";
 const COOKIE_NAME = "token";
+
+/**
+ * Returns the request Origin if it matches an allowed CORS origin, or "" otherwise.
+ */
+export function getAllowedCorsOrigin(req) {
+  const origin = req?.headers?.origin || req?.headers?.Origin;
+  if (!origin || typeof origin !== "string") return "";
+
+  const extraOrigins = (process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  if (extraOrigins.includes(origin)) return origin;
+
+  try {
+    const parsed = new URL(origin);
+    if (parsed.protocol === "https:") {
+      if (parsed.hostname === "sikkanam.vercel.app" || parsed.hostname.endsWith(".vercel.app")) {
+        return origin;
+      }
+    }
+    if (parsed.protocol === "http:") {
+      if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+        return origin;
+      }
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
+}
 
 /**
  * Computes a deterministic client device fingerprint based on User-Agent and client characteristics.
@@ -108,7 +151,7 @@ export function getSessionFromReq(req) {
 export function createSessionCookie(token, maxAgeSeconds = 60 * 60 * 24 * 30) {
   return serialize(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
+    secure: isSecureCookie,
     sameSite: "lax",
     maxAge: maxAgeSeconds,
     path: "/",
@@ -118,7 +161,7 @@ export function createSessionCookie(token, maxAgeSeconds = 60 * 60 * 24 * 30) {
 export function createClearSessionCookie() {
   return serialize(COOKIE_NAME, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
+    secure: isSecureCookie,
     sameSite: "lax",
     expires: new Date(0),
     path: "/",

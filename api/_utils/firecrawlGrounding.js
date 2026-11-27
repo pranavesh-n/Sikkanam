@@ -6,16 +6,38 @@ import { VERIFIED_GROUND_TRUTH } from "./scrapegraphGrounding.js";
 const firecrawlCache = new Map();
 const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
+function isSafePublicHttpUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "::1" ||
+      host === "[::1]" ||
+      host === "0.0.0.0" ||
+      host.startsWith("169.254.") ||
+      host.startsWith("10.") ||
+      host.startsWith("192.168.") ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host)
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Searches the web in real-time using Firecrawl v1 Search API
  * Non-blocking, with strict timeout to ensure zero latency lag
  */
 export async function queryFirecrawlLive(query, destination = "") {
-  const apiKey = getEnv("FIRECRAWL_API_KEY") || serverConfig.firecrawlApiKey || "fc-4a91679410ab4f89a3ac30da22d569dd";
-  let baseUrl = getEnv("FIRECRAWL_API_URL") || serverConfig.firecrawlApiUrl || "https://api.firecrawl.dev";
-  if (!baseUrl || baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1")) {
-    baseUrl = "https://api.firecrawl.dev";
-  }
+  const apiKey = getEnv("FIRECRAWL_API_KEY") || serverConfig.firecrawlApiKey || "";
+  const rawBaseUrl = getEnv("FIRECRAWL_API_URL") || serverConfig.firecrawlApiUrl || "https://api.firecrawl.dev";
+  const baseUrl = isSafePublicHttpUrl(rawBaseUrl) ? rawBaseUrl.replace(/\/+$/, "") : "https://api.firecrawl.dev";
 
   if (!apiKey || apiKey.includes("YOUR_")) {
     return null;

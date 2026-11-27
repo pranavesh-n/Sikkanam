@@ -15,6 +15,58 @@ import {
 // In-memory Prompt & Response Cache for 0-token instant hits
 const memoryCache = new Map();
 const MAX_CACHE_ENTRIES = 300;
+let cachedDestinations = null;
+let cachedTourismAssets = null;
+
+function getDestinations() {
+  if (cachedDestinations) return cachedDestinations;
+  const filePath = path.join(process.cwd(), "api", "destinations.json");
+  try {
+    cachedDestinations = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (err) {
+    console.error("Failed to read destinations.json for RAG:", err);
+    return [];
+  }
+  return cachedDestinations;
+}
+
+function getTourismAssets() {
+  if (cachedTourismAssets) return cachedTourismAssets;
+  const assetsFilePath = path.join(process.cwd(), "api", "tourism_assets.json");
+  try {
+    if (fs.existsSync(assetsFilePath)) {
+      cachedTourismAssets = JSON.parse(fs.readFileSync(assetsFilePath, "utf8"));
+    } else {
+      cachedTourismAssets = [];
+    }
+  } catch (err) {
+    console.error("Failed to read tourism_assets.json for RAG:", err);
+    return [];
+  }
+  return cachedTourismAssets;
+}
+
+function getAllowedCorsOrigin(req) {
+  const origin = req.headers?.origin || req.headers?.Origin;
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    const host = url.hostname.toLowerCase();
+    const reqHost = (req.headers?.host || "").split(":")[0].toLowerCase();
+    if (
+      host === "sikkanam.vercel.app" ||
+      host.endsWith(".vercel.app") ||
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      (reqHost && host === reqHost)
+    ) {
+      return origin;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
 
 function getFromCache(key) {
   if (!key) return null;
@@ -52,6 +104,8 @@ function saveToCache(normalizedQuery, reply) {
     if (oldestKey) memoryCache.delete(oldestKey);
   }
   memoryCache.set(cleanKey, reply);
+
+  if (process.env.VERCEL) return;
 
   const cachePath = path.join(process.cwd(), "api", "chat_cache.json");
   let cache = {};
@@ -631,8 +685,14 @@ const ipRateLimits = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 30;
 
+const MAX_RATE_LIMIT_ENTRIES = 5000;
+
 function checkRateLimit(ip) {
   const now = Date.now();
+  if (!ipRateLimits.has(ip) && ipRateLimits.size >= MAX_RATE_LIMIT_ENTRIES) {
+    const oldestIp = ipRateLimits.keys().next().value;
+    if (oldestIp !== undefined) ipRateLimits.delete(oldestIp);
+  }
   const entry = ipRateLimits.get(ip) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
   if (now > entry.resetAt) {
     entry.count = 1;
@@ -919,7 +979,11 @@ function runSikkanamGroundSearch(query, destinations, tourismAssets, params) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigin = getAllowedCorsOrigin(req);
+  if (allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -934,7 +998,9 @@ export default async function handler(req, res) {
   }
 
   // Apply IP-based Rate Limiting
-  const clientIp = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "global_client";
+  const rawForwarded = req.headers["x-forwarded-for"];
+  const firstForwarded = typeof rawForwarded === "string" ? rawForwarded.split(",")[0].trim() : "";
+  const clientIp = firstForwarded || req.socket?.remoteAddress || "global_client";
   if (!checkRateLimit(clientIp)) {
     return res.status(429).json({
       reply: "You're sending messages too fast. Please wait a moment before sending another message.",
@@ -1004,30 +1070,14 @@ export default async function handler(req, res) {
 
     // 2. Immediate Attack & Jailbreak Defense Check
     if (isAttackQuery(lastUserMessage) || isAttackQuery(prompt)) {
-      console.warn(`[Sikkanam AI Security] Attack/Jailbreak attempt detected in query: "${lastUserMessage}"`);
+      console.warn("[Sikkanam AI Security] Attack/Jailbreak attempt detected.");
       const reply = "Sorry, it's beyond my knowledge. Ask me some other thing related to travel.";
       return res.status(200).json({ reply });
     }
 
-    // Load local destinations database
-    const filePath = path.join(process.cwd(), "api", "destinations.json");
-    let destinations = [];
-    try {
-      destinations = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    } catch (err) {
-      console.error("Failed to read destinations.json for RAG:", err);
-    }
-
-    // Load local tourism assets database
-    const assetsFilePath = path.join(process.cwd(), "api", "tourism_assets.json");
-    let tourismAssets = [];
-    try {
-      if (fs.existsSync(assetsFilePath)) {
-        tourismAssets = JSON.parse(fs.readFileSync(assetsFilePath, "utf8"));
-      }
-    } catch (err) {
-      console.error("Failed to read tourism_assets.json for RAG:", err);
-    }
+    // Load local destinations & tourism assets databases (cached at module scope)
+    const destinations = getDestinations();
+    const tourismAssets = getTourismAssets();
 
     // 3. Detect Intent and Extract Parameters
     const { intent, params } = detectIntent(lastUserMessage, destinations);
@@ -1198,9 +1248,11 @@ All your responses MUST ALWAYS be plain text. DO NOT use markdown or any other m
    - NEVER return just an overview or summary without the explicit Day 1 schedule!
 5. No Artificial Badges: Do NOT output fake tags like [⚡ Live Verified], [Verified Badge], or similar tags. Present the facts naturally and cleanly.
 
+<external_context>
 ${groundSearchReport}
 
 ${firecrawlReport}
+</external_context>
 `;
 
     // 5. Prioritize GROQ API with SIKKANAM_PLAN_API_KEY
@@ -1355,7 +1407,7 @@ ${firecrawlReport}
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      error: error.message,
+      error: "Internal server error",
     });
   }
 }

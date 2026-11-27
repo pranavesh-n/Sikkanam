@@ -1,6 +1,20 @@
 import { supabase } from "./_utils/db.js";
 import { getSessionFromReq } from "./_utils/auth.js";
 
+function sanitizeFilterValue(val) {
+  if (typeof val !== "string") return "";
+  return val.replace(/[,().*]/g, "").trim();
+}
+
+function applyUserFilter(query, userId, userEmail) {
+  const safeId = sanitizeFilterValue(userId);
+  const safeEmail = sanitizeFilterValue(userEmail);
+  if (safeEmail && safeEmail !== safeId) {
+    return query.or(`user_id.eq.${safeId},user_id.eq.${safeEmail}`);
+  }
+  return query.eq("user_id", safeId);
+}
+
 /**
  * Trips API Handler
  * Clean Architecture Enforcement:
@@ -9,30 +23,34 @@ import { getSessionFromReq } from "./_utils/auth.js";
  * - Multi-device Gmail access: Any device logged into the same Google account accesses the user's trips.
  */
 export default async function handler(req, res) {
+  if (!supabase) {
+    console.error("Trips API Error: Supabase client is not configured.");
+    return res.status(500).json({ error: "Database operation failed" });
+  }
+
   const decoded = getSessionFromReq(req);
 
   if (!decoded) {
     return res.status(401).json({ error: "Unauthorized: Please log in." });
   }
 
-  const userId = decoded.id;
-  const userEmail = decoded.email;
+  const userId = sanitizeFilterValue(decoded.id);
+  const userEmail = sanitizeFilterValue(decoded.email);
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized: Invalid session." });
+  }
 
   try {
     // 1. GET: Fetch Saved Trips strictly from Supabase
     if (req.method === "GET") {
-      let query = supabase.from("trips").select("*");
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
-      }
+      const query = applyUserFilter(supabase.from("trips").select("*"), userId, userEmail);
 
       const { data: trips, error } = await query.order("created_at", { ascending: false });
 
       if (error) {
         console.error("Supabase GET trips error:", error);
-        return res.status(500).json({ error: error.message || "Failed to fetch trips from Supabase" });
+        return res.status(500).json({ error: "Database operation failed" });
       }
 
       const mappedTrips = (trips || []).map((t) => ({
@@ -70,7 +88,7 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error("Supabase POST trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to save trip to Supabase" });
+        return res.status(500).json({ error: "Database operation failed" });
       }
 
       const mappedTrip = {
@@ -100,18 +118,17 @@ export default async function handler(req, res) {
       if (itinerary !== undefined) updates.itinerary = itinerary;
       updates.updated_at = new Date().toISOString();
 
-      let query = supabase.from("trips").update(updates).eq("id", id);
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
-      }
+      const query = applyUserFilter(
+        supabase.from("trips").update(updates).eq("id", id),
+        userId,
+        userEmail
+      );
 
       const { data: trip, error } = await query.select().maybeSingle();
 
       if (error) {
         console.error("Supabase PUT trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to update trip in Supabase" });
+        return res.status(500).json({ error: "Database operation failed" });
       }
 
       if (!trip) {
@@ -135,18 +152,17 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing trip ID" });
       }
 
-      let query = supabase.from("trips").delete().eq("id", id);
-      if (userEmail) {
-        query = query.or(`user_id.eq.${userId},user_id.eq.${userEmail}`);
-      } else {
-        query = query.eq("user_id", userId);
-      }
+      const query = applyUserFilter(
+        supabase.from("trips").delete().eq("id", id),
+        userId,
+        userEmail
+      );
 
       const { data, error } = await query.select();
 
       if (error) {
         console.error("Supabase DELETE trip error:", error);
-        return res.status(500).json({ error: error.message || "Failed to delete trip from Supabase" });
+        return res.status(500).json({ error: "Database operation failed" });
       }
 
       if (!data || data.length === 0) {

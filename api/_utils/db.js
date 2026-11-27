@@ -15,11 +15,14 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn("WARNING: Supabase credentials are not fully configured in environment variables.");
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseKey || "", {
-  auth: {
-    persistSession: false,
-  },
-});
+export const supabase =
+  supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey, {
+        auth: {
+          persistSession: false,
+        },
+      })
+    : null;
 
 let cached = global.mongoose;
 
@@ -32,13 +35,20 @@ export async function connectToDatabase() {
     throw new Error("Please define the MONGODB_URI environment variable inside .env");
   }
 
-  if (cached.conn) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
+  }
+
+  if (cached.conn && mongoose.connection.readyState !== 1) {
+    cached.conn = null;
+    cached.promise = null;
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
     };
 
     cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongooseInstance) => {

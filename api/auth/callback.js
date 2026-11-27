@@ -1,11 +1,45 @@
+import crypto from "crypto";
+import { parse, serialize } from "cookie";
 import { supabase } from "../_utils/db.js";
 import { signToken, createSessionCookie } from "../_utils/auth.js";
 
-
 export default async function handler(req, res) {
-  const { code } = req.query;
+  if (req.method !== "GET") {
+    res.setHeader("Allow", ["GET"]);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+
+  const isSecure =
+    process.env.NODE_ENV === "production" ||
+    process.env.VERCEL_ENV === "production" ||
+    process.env.VERCEL_ENV === "preview";
+
+  const clearStateCookie = serialize("oauth_state", "", {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: "lax",
+    expires: new Date(0),
+    path: "/",
+  });
+
+  const cookies = parse(req.headers?.cookie || "");
+  const expectedState = cookies.oauth_state;
+  const { code, state } = req.query || {};
+
+  const stateValid =
+    typeof state === "string" &&
+    typeof expectedState === "string" &&
+    state.length > 0 &&
+    state.length === expectedState.length &&
+    crypto.timingSafeEqual(Buffer.from(state), Buffer.from(expectedState));
+
+  if (!stateValid) {
+    res.setHeader("Set-Cookie", clearStateCookie);
+    return res.status(403).json({ error: "Invalid or missing OAuth state" });
+  }
 
   if (!code) {
+    res.setHeader("Set-Cookie", clearStateCookie);
     return res.status(400).json({ error: "Missing authorization code" });
   }
 
@@ -27,22 +61,30 @@ export default async function handler(req, res) {
         redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }).toString(),
+      signal: AbortSignal.timeout(6000),
     });
 
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      return res.status(400).json({ error: "Failed to exchange code: " + tokenData.error_description });
+      console.warn("OAuth token exchange error:", tokenData.error);
+      res.setHeader("Set-Cookie", clearStateCookie);
+      return res.status(400).json({ error: "Failed to exchange authorization code." });
     }
 
     const { access_token } = tokenData;
 
     // 2. Fetch user details from Google UserInfo API
-    const userResponse = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`);
+    const userResponse = await fetch(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+      { signal: AbortSignal.timeout(6000) }
+    );
     const userData = await userResponse.json();
 
     if (userData.error) {
-      return res.status(400).json({ error: "Failed to fetch user data: " + userData.error.message });
+      console.warn("OAuth userinfo error:", userData.error?.message || userData.error);
+      res.setHeader("Set-Cookie", clearStateCookie);
+      return res.status(400).json({ error: "Failed to fetch user data from Google." });
     }
 
     const { email, name, picture } = userData;
@@ -89,10 +131,10 @@ export default async function handler(req, res) {
     // 4. Create anti-hijacking JWT bound to client device
     const token = signToken({ id: user.id, email: user.email }, "30d", req);
 
-    // 5. Serialize JWT token into a secure HttpOnly cookie
+    // 5. Serialize JWT token into a secure HttpOnly cookie and clear OAuth state cookie
     const cookie = createSessionCookie(token);
 
-    res.setHeader("Set-Cookie", cookie);
+    res.setHeader("Set-Cookie", [clearStateCookie, cookie]);
 
     // 6. Redirect client back to frontend /profile route
     return res.redirect("/profile");

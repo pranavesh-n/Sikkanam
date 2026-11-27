@@ -7,11 +7,11 @@
 import fs from "fs";
 import path from "path";
 
-// Helper to reliably read environment variables from process.env or .env file
-export function getEnv(key, fallback = "") {
-  if (process.env[key] && !process.env[key].includes("YOUR_")) {
-    return process.env[key].trim();
-  }
+let envCache = null;
+
+function loadEnvCache() {
+  if (envCache !== null) return envCache;
+  envCache = {};
   try {
     const envPath = path.join(process.cwd(), ".env");
     if (fs.existsSync(envPath)) {
@@ -19,17 +19,29 @@ export function getEnv(key, fallback = "") {
       for (const line of content.split("\n")) {
         const trimmed = line.trim();
         if (!trimmed || trimmed.startsWith("#")) continue;
-        const [k, ...v] = trimmed.split("=");
-        if (k.trim() === key) {
-          const val = v.join("=").trim().replace(/^['"]|['"]$/g, "");
-          if (val && !val.includes("YOUR_")) {
-            process.env[key] = val;
-            return val;
-          }
+        const eqIdx = trimmed.indexOf("=");
+        if (eqIdx === -1) continue;
+        const k = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, "");
+        if (k && val && !val.includes("YOUR_")) {
+          envCache[k] = val;
         }
       }
     }
   } catch (e) {}
+  return envCache;
+}
+
+// Helper to reliably read environment variables from process.env or cached .env file
+export function getEnv(key, fallback = "") {
+  if (process.env[key] && !process.env[key].includes("YOUR_")) {
+    return process.env[key].trim();
+  }
+  const cache = loadEnvCache();
+  if (cache[key]) {
+    process.env[key] = cache[key];
+    return cache[key];
+  }
   return fallback;
 }
 
@@ -53,7 +65,7 @@ export const serverConfig = {
     .filter(Boolean),
 
   // Firecrawl Real-Time Web Search
-  firecrawlApiKey: getEnv("FIRECRAWL_API_KEY", "fc-4a91679410ab4f89a3ac30da22d569dd"),
+  firecrawlApiKey: getEnv("FIRECRAWL_API_KEY", ""),
   firecrawlApiUrl: getEnv("FIRECRAWL_API_URL", "https://api.firecrawl.dev"),
 
   // ScrapeGraph & Web Grounding
