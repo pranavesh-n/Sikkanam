@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sikkanam-v1';
+const CACHE_NAME = 'sikkanam-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
