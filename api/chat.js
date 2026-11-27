@@ -978,6 +978,37 @@ function runSikkanamGroundSearch(query, destinations, tourismAssets, params) {
   return groundReport;
 }
 
+export async function getChatGroundingContext(destinationName, userQuery = "") {
+  let firecrawlBlock = "";
+
+  // Primary: Firecrawl Real-Time Web Search
+  try {
+    const liveIntelligence = await queryLiveTravelIntelligence(destinationName, userQuery);
+    firecrawlBlock = formatGroundedContext(liveIntelligence);
+    if (liveIntelligence?.firecrawl?.snippets?.length > 0) {
+      console.log(`[Firecrawl Web Search] Embedded real-time web intelligence for ${destinationName}`);
+      return firecrawlBlock;
+    }
+  } catch (fcErr) {
+    console.warn("[Firecrawl Web Search] Primary query failed, trying ScrapeGraph fallback:", fcErr.message);
+  }
+
+  // Fallback: ScrapeGraph AI when Firecrawl has no live snippets or fails
+  try {
+    const sgData = await queryScrapeGraphLiveIntelligence(destinationName, userQuery);
+    const hasLiveScrapeGraph = Boolean(sgData?.mcpResult || sgData?.liveScrape || sgData?.webSearch);
+    const sgBlock = formatScrapeGraphGroundedContext(sgData);
+    if (hasLiveScrapeGraph || (!firecrawlBlock && sgBlock)) {
+      console.log(`[ScrapeGraph Fallback] Embedded real-time web intelligence for ${destinationName}`);
+      return sgBlock;
+    }
+  } catch (sgErr) {
+    console.warn("[ScrapeGraph Fallback] Grounding query skipped:", sgErr.message);
+  }
+
+  return firecrawlBlock;
+}
+
 export default async function handler(req, res) {
   const allowedOrigin = getAllowedCorsOrigin(req);
   if (allowedOrigin) {
@@ -1162,16 +1193,9 @@ export default async function handler(req, res) {
     // 4. Ground Search & Intelligence Gathering
     const groundSearchReport = runSikkanamGroundSearch(lastUserMessage, destinations, tourismAssets, params);
 
-    // 4b. Firecrawl AI Real-Time Web Search & Grounding Intelligence
+    // 4b. Live Web Search & Grounding Intelligence (Firecrawl Primary -> ScrapeGraph Fallback)
     const primaryDestName = matchedDestinations.length > 0 ? matchedDestinations[0].name : (params.destination || "Tamil Nadu");
-    let firecrawlReport = "";
-    try {
-      const liveIntelligence = await queryLiveTravelIntelligence(primaryDestName, lastUserMessage);
-      firecrawlReport = formatGroundedContext(liveIntelligence);
-      console.log(`[Firecrawl Web Search] Embedded real-time web intelligence for ${primaryDestName}`);
-    } catch (fcErr) {
-      console.warn("[Firecrawl Web Search] Grounding query skipped:", fcErr.message);
-    }
+    const firecrawlReport = await getChatGroundingContext(primaryDestName, lastUserMessage);
 
     // Hardened, Grounded System Prompt enforcing Pure Plain Text Output (Zero Markdown)
     const systemPromptText = `
@@ -1223,7 +1247,7 @@ All your responses MUST ALWAYS be plain text. DO NOT use markdown or any other m
    - IRCTC Trains: 2S Chair Car ₹80 – ₹180, Sleeper ₹140 – ₹420, 3AC ₹600 – ₹1,100.
    - Authentic Local Food: South Indian breakfast (idli/dosa/vada) ₹40 – ₹80; lunch/dinner meals/thali ₹80 – ₹150; daily food budget ~₹250 – ₹450 per person.
    - Monument / Sightseeing Fees: ASI heritage sites ₹10 – ₹40 for Indian citizens; boat rides ₹50 – ₹200.
-2. Zero Hallucination: Never invent nonexistent railway stations, impossible bus routes, or absurdly cheap/expensive prices. Rely on the verified ground benchmarks and Firecrawl real-time search context provided.
+2. Zero Hallucination & Live Price Priority: Never invent nonexistent railway stations, impossible bus routes, or guessed/random prices. Always prioritize current prices, tariffs, and fares from the live web findings in <external_context> over generic defaults.
 3. Optimistic & Practical Plans: Create well-paced, realistic, and uplifting itineraries. Account for travel time between spots (never schedule 10 attractions 50 km apart in a single morning).
 4. Structure for Trip Plans & Itineraries:
    - Whenever the user asks for a trip plan, trip idea, budget trip, weekend trip, recommendation, or itinerary:

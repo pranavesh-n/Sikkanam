@@ -138,3 +138,67 @@ describe("Plan Trips Grounding — Firecrawl Primary with ScrapeGraph Fallback",
     expect(context).toContain("Madurai");
   });
 });
+
+describe("Sikkanam AI Chat Grounding — Firecrawl Primary with ScrapeGraph Fallback", () => {
+  it("uses Firecrawl live snippets as primary in api/chat.js", async () => {
+    process.env.FIRECRAWL_API_KEY = "fc-chat-test-123";
+
+    const scrapegraphSpy = vi.fn();
+    vi.doMock("../../api/_utils/scrapegraphGrounding.js", async () => {
+      const actual = await vi.importActual<typeof import("../../api/_utils/scrapegraphGrounding.js")>(
+        "../../api/_utils/scrapegraphGrounding.js"
+      );
+      return {
+        ...actual,
+        queryScrapeGraphLiveIntelligence: scrapegraphSpy,
+      };
+    });
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            title: "Rameswaram TTDC Hotel & Bus Tariff 2026",
+            description: "Current room tariff starts at Rs 1450 per night; SETC bus from Chennai Rs 620.",
+          },
+        ],
+      }),
+    } as Response);
+
+    const { getChatGroundingContext } = await import("../../api/chat.js");
+    const context = await getChatGroundingContext("Rameswaram", "2 day budget trip");
+
+    expect(context).toContain("Firecrawl Live Web Findings");
+    expect(context).toContain("Rameswaram TTDC Hotel & Bus Tariff 2026");
+    expect(scrapegraphSpy).not.toHaveBeenCalled();
+  });
+
+  it("falls back to ScrapeGraph in api/chat.js when Firecrawl is unavailable", async () => {
+    delete process.env.FIRECRAWL_API_KEY;
+
+    vi.doMock("../../api/_utils/scrapegraphGrounding.js", async () => {
+      const actual = await vi.importActual<typeof import("../../api/_utils/scrapegraphGrounding.js")>(
+        "../../api/_utils/scrapegraphGrounding.js"
+      );
+      return {
+        ...actual,
+        queryScrapeGraphLiveIntelligence: vi.fn().mockResolvedValue({
+          destination: "Thanjavur",
+          mcpResult: { snippets: ["Thanjavur Palace entry Rs 50"], source: "ScrapeGraph AI" },
+          liveScrape: null,
+          webSearch: null,
+          benchmark: null,
+        }),
+        formatScrapeGraphGroundedContext: vi
+          .fn()
+          .mockReturnValue("=== SCRAPEGRAPH ===\nThanjavur Palace entry Rs 50"),
+      };
+    });
+
+    const { getChatGroundingContext } = await import("../../api/chat.js");
+    const context = await getChatGroundingContext("Thanjavur", "day trip");
+
+    expect(context).toContain("Thanjavur Palace entry Rs 50");
+  });
+});
